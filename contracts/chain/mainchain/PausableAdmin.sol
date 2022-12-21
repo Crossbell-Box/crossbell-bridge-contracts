@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../../references/HasAdmin.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../../references/Pausable.sol";
 
-contract PausableAdmin is HasAdmin {
+contract PausableAdmin is Ownable {
     Pausable public gateway;
 
     constructor(Pausable _gateway) {
         gateway = _gateway;
     }
 
-    function pauseGateway() external onlyAdmin {
+    function pauseGateway() external onlyOwner {
         gateway.pause();
     }
 
-    function unpauseGateway() external onlyAdmin {
+    function unpauseGateway() external onlyOwner {
         gateway.unpause();
     }
 }

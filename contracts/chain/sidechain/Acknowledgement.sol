@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../../references/HasAdmin.sol";
 import "../../references/HasOperators.sol";
 import "../common/Validator.sol";
 
@@ -46,18 +45,18 @@ contract Acknowledgement is HasOperators {
         _requireValidChannel(_channel);
     }
 
-    function addChannel(string memory _name) public onlyAdmin {
+    function addChannel(string memory _name) public onlyOwner {
         bytes32 _channel = _getHash(_name);
         enabledChannels[_channel] = true;
     }
 
-    function removeChannel(string memory _name) public onlyAdmin {
+    function removeChannel(string memory _name) public onlyOwner {
         bytes32 _channel = _getHash(_name);
         _requireValidChannel(_channel);
         delete enabledChannels[_channel];
     }
 
-    function updateValidator(address _validator) public onlyAdmin {
+    function updateValidator(address _validator) public onlyOwner {
         validator = Validator(_validator);
     }
 

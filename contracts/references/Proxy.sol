@@ -64,7 +64,7 @@ contract Proxy is ProxyStorage {
         }
     }
 
-    function updateProxyTo(address _newProxyTo) public onlyAdmin {
+    function updateProxyTo(address _newProxyTo) public onlyOwner {
         require(_newProxyTo != address(0x0));
 
         _proxyTo = _newProxyTo;

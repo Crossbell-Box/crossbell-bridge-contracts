@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "./HasAdmin.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Pausable is HasAdmin {
+contract Pausable is Ownable {
     event Paused();
     event Unpaused();
 
@@ -19,12 +19,12 @@ contract Pausable is HasAdmin {
         _;
     }
 
-    function pause() public onlyAdmin whenNotPaused {
+    function pause() public onlyOwner whenNotPaused {
         paused = true;
         emit Paused();
     }
 
-    function unpause() public onlyAdmin whenPaused {
+    function unpause() public onlyOwner whenPaused {
         paused = false;
         emit Unpaused();
     }

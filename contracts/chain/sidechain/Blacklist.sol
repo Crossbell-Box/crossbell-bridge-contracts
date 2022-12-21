@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../../references/HasAdmin.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Blacklist is HasAdmin {
+contract Blacklist is Ownable {
     event ContractDisabled(bool indexed _status);
 
     event AddressesBlacklisted(address[] _addresses, bool indexed _status);
@@ -16,17 +16,17 @@ contract Blacklist is HasAdmin {
     function blacklists(
         address[] calldata _addresses,
         bool _status
-    ) external onlyAdmin {
+    ) external onlyOwner {
         address _addr;
         for (uint256 _i; _i < _addresses.length; _i++) {
             _addr = _addresses[_i];
             _blacklisted[_addr] = _status;
-            assert(_addr != address(this) && _addr != admin); // cannot blacklist this contract or admin
+            assert(_addr != address(this) && _addr != owner()); // cannot blacklist this contract or admin
         }
         emit AddressesBlacklisted(_addresses, _status);
     }
 
-    function setDisabled(bool _status) external onlyAdmin {
+    function setDisabled(bool _status) external onlyOwner {
         disabled = _status;
         emit ContractDisabled(_status);
     }

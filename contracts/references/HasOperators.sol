@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "./HasAdmin.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract HasOperators is HasAdmin {
+contract HasOperators is Ownable {
     event OperatorAdded(address indexed _operator);
     event OperatorRemoved(address indexed _operator);
 
@@ -15,7 +15,7 @@ contract HasOperators is HasAdmin {
         _;
     }
 
-    function addOperators(address[] memory _addedOperators) public onlyAdmin {
+    function addOperators(address[] memory _addedOperators) public onlyOwner {
         address _operator;
 
         for (uint256 i = 0; i < _addedOperators.length; i++) {
@@ -31,7 +31,7 @@ contract HasOperators is HasAdmin {
 
     function removeOperators(
         address[] memory _removedOperators
-    ) public onlyAdmin {
+    ) public onlyOwner {
         address _operator;
 
         for (uint256 i = 0; i < _removedOperators.length; i++) {

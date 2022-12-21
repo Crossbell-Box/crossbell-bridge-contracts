@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../../references/HasAdmin.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Registry is HasAdmin {
+contract Registry is Ownable {
     event ContractAddressUpdated(
         string indexed _name,
         bytes32 indexed _code,
@@ -55,7 +55,7 @@ contract Registry is HasAdmin {
     function updateContract(
         string calldata _name,
         address _newAddress
-    ) external onlyAdmin {
+    ) external onlyOwner {
         bytes32 _code = getCode(_name);
         contractAddresses[_code] = _newAddress;
 
@@ -66,7 +66,7 @@ contract Registry is HasAdmin {
         address _mainchainToken,
         address _sidechainToken,
         uint32 _standard
-    ) external onlyAdmin {
+    ) external onlyOwner {
         TokenMapping memory _map = TokenMapping(
             _mainchainToken,
             _sidechainToken,
@@ -82,7 +82,7 @@ contract Registry is HasAdmin {
     function clearMapToken(
         address _mainchainToken,
         address _sidechainToken
-    ) external onlyAdmin {
+    ) external onlyOwner {
         TokenMapping storage _mainchainMap = mainchainMap[_mainchainToken];
         _clearMapEntry(_mainchainMap);
 

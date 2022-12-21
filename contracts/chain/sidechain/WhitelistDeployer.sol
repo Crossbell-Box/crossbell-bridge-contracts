@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../../references/HasAdmin.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract WhitelistDeployer is HasAdmin {
+contract WhitelistDeployer is Ownable {
     event AddressWhitelisted(address indexed _address, bool indexed _status);
     event WhitelistAllChange(bool indexed _status);
 
     mapping(address => bool) public whitelisted;
     bool public whitelistAll;
 
-    function whitelist(address _address, bool _status) external onlyAdmin {
+    function whitelist(address _address, bool _status) external onlyOwner {
         whitelisted[_address] = _status;
         emit AddressWhitelisted(_address, _status);
     }
 
-    function whitelistAllAddresses(bool _status) external onlyAdmin {
+    function whitelistAllAddresses(bool _status) external onlyOwner {
         whitelistAll = _status;
         emit WhitelistAllChange(_status);
     }

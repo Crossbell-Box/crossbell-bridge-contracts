@@ -32,7 +32,7 @@ contract Acknowledgement is HasOperators {
 
     Validator public validator;
 
-    constructor(address _validator) public {
+    constructor(address _validator) {
         addChannel(DEPOSIT_CHANNEL);
         addChannel(WITHDRAWAL_CHANNEL);
         addChannel(VALIDATOR_CHANNEL);

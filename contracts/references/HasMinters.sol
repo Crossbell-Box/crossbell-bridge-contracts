@@ -41,17 +41,17 @@ contract HasMinters is HasAdmin {
             }
         }
 
-        uint256 i = 0;
+        uint256 j = 0;
 
-        while (i < minters.length) {
-            _minter = minters[i];
+        while (j < minters.length) {
+            _minter = minters[j];
 
             if (!minter[_minter]) {
-                minters[i] = minters[minters.length - 1];
+                minters[j] = minters[minters.length - 1];
                 delete minters[minters.length - 1];
                 minters.pop();
             } else {
-                i++;
+                j++;
             }
         }
     }

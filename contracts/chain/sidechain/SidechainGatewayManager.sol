@@ -40,6 +40,10 @@ contract SidechainGatewayManager is SidechainGatewayStorage {
         revert("SidechainGatewayManager: Invalid method");
     }
 
+    receive() external payable {
+        revert("SidechainGatewayManager: Invalid method");
+    }
+
     function batchDepositERCTokenFor(
         uint256[] calldata _depositIds,
         address[] calldata _owners,

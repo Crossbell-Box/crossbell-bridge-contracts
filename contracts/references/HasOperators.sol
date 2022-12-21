@@ -43,17 +43,17 @@ contract HasOperators is HasAdmin {
             }
         }
 
-        uint256 i = 0;
+        uint256 j = 0;
 
-        while (i < operators.length) {
-            _operator = operators[i];
+        while (j < operators.length) {
+            _operator = operators[j];
 
             if (!operator[_operator]) {
-                operators[i] = operators[operators.length - 1];
+                operators[j] = operators[operators.length - 1];
                 delete operators[operators.length - 1];
                 operators.pop();
             } else {
-                i++;
+                j++;
             }
         }
     }

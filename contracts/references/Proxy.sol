@@ -10,7 +10,7 @@ import "./ProxyStorage.sol";
 contract Proxy is ProxyStorage {
     event ProxyUpdated(address indexed _new, address indexed _old);
 
-    constructor(address _proxyTo) public {
+    constructor(address _proxyTo) {
         updateProxyTo(_proxyTo);
     }
 
@@ -36,6 +36,14 @@ contract Proxy is ProxyStorage {
      * This function will return whatever the implementation call returns
      */
     fallback() external payable {
+        _fallback();
+    }
+
+    receive() external payable {
+        _fallback();
+    }
+
+    function _fallback() internal {
         address _impl = implementation();
         require(_impl != address(0));
 

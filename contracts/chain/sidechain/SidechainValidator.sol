@@ -21,7 +21,7 @@ contract SidechainValidator is Validator {
         address[] memory _validators,
         uint256 _num,
         uint256 _denom
-    ) public Validator(_validators, _num, _denom) {
+    ) Validator(_validators, _num, _denom) {
         acknowledgement = Acknowledgement(_acknowledgement);
     }
 

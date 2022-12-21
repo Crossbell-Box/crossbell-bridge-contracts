@@ -7,7 +7,7 @@ import "../../references/Pausable.sol";
 contract PausableAdmin is HasAdmin {
     Pausable public gateway;
 
-    constructor(Pausable _gateway) public {
+    constructor(Pausable _gateway) {
         gateway = _gateway;
     }
 

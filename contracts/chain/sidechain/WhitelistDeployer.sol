@@ -10,8 +10,6 @@ contract WhitelistDeployer is HasAdmin {
     mapping(address => bool) public whitelisted;
     bool public whitelistAll;
 
-    constructor() public {}
-
     function whitelist(address _address, bool _status) external onlyAdmin {
         whitelisted[_address] = _status;
         emit AddressWhitelisted(_address, _status);

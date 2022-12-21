@@ -15,7 +15,7 @@ contract MainchainValidator is Validator, HasAdmin {
         address[] memory _validators,
         uint256 _num,
         uint256 _denom
-    ) public Validator(_validators, _num, _denom) {}
+    ) Validator(_validators, _num, _denom) {}
 
     function addValidators(address[] calldata _validators) external onlyAdmin {
         for (uint256 _i; _i < _validators.length; ++_i) {

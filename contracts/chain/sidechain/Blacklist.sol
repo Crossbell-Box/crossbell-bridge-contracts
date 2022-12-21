@@ -13,8 +13,6 @@ contract Blacklist is HasAdmin {
     // Returns whether the contract is still valid or not
     bool public disabled;
 
-    constructor() public {}
-
     function blacklists(
         address[] calldata _addresses,
         bool _status

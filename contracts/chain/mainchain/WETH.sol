@@ -9,7 +9,7 @@ contract WETH is ERC20Detailed {
 
     event Withdrawal(address _sender, uint256 _value);
 
-    constructor() public ERC20Detailed("Wrapped Ether", "WETH", 18) {}
+    constructor() ERC20Detailed("Wrapped Ether", "WETH", 18) {}
 
     function deposit() external payable {
         balanceOf[msg.sender] += msg.value;

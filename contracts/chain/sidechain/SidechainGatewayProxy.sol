@@ -11,7 +11,7 @@ contract SidechainGatewayProxy is Proxy, SidechainGatewayStorage {
         address _proxyTo,
         address _registry,
         uint256 _maxPendingWithdrawal
-    ) public Proxy(_proxyTo) {
+    ) Proxy(_proxyTo) {
         registry = Registry(_registry);
         maxPendingWithdrawal = _maxPendingWithdrawal;
     }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.17;
+pragma solidity 0.8.10;
 
-contract IValidator {
+interface IValidator {
     event ValidatorAdded(uint256 indexed _id, address indexed _validator);
     event ValidatorRemoved(uint256 indexed _id, address indexed _validator);
     event ThresholdUpdated(
@@ -12,9 +12,12 @@ contract IValidator {
         uint256 _previousDenominator
     );
 
-    function isValidator(address _addr) public view returns (bool);
+    function isValidator(address _addr) external view returns (bool);
 
-    function getValidators() public view returns (address[] memory _validators);
+    function getValidators()
+        external
+        view
+        returns (address[] memory _validators);
 
-    function checkThreshold(uint256 _voteCount) public view returns (bool);
+    function checkThreshold(uint256 _voteCount) external view returns (bool);
 }

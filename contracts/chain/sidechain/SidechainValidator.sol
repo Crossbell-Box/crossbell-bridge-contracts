@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.17;
+pragma solidity 0.8.10;
 
 import "../common/Validator.sol";
 import "./Acknowledgement.sol";
@@ -12,7 +12,7 @@ contract SidechainValidator is Validator {
     Acknowledgement public acknowledgement;
 
     modifier onlyValidator() {
-        require(isValidator(msg.sender));
+        require(_isValidator(msg.sender));
         _;
     }
 
@@ -46,7 +46,7 @@ contract SidechainValidator is Validator {
         uint256 _id,
         address _validator
     ) external onlyValidator {
-        require(isValidator(_validator));
+        require(_isValidator(_validator));
 
         bytes32 _hash = keccak256(abi.encode("removeValidator", _validator));
 

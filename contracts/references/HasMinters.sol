@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.2;
+pragma solidity 0.8.10;
 
 import "./HasAdmin.sol";
 
@@ -49,7 +49,7 @@ contract HasMinters is HasAdmin {
             if (!minter[_minter]) {
                 minters[i] = minters[minters.length - 1];
                 delete minters[minters.length - 1];
-                minters.length--;
+                minters.pop();
             } else {
                 i++;
             }

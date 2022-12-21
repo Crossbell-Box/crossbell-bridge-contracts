@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.2;
+pragma solidity 0.8.10;
 
 import "./HasAdmin.sol";
 
@@ -51,7 +51,7 @@ contract HasOperators is HasAdmin {
             if (!operator[_operator]) {
                 operators[i] = operators[operators.length - 1];
                 delete operators[operators.length - 1];
-                operators.length--;
+                operators.pop();
             } else {
                 i++;
             }

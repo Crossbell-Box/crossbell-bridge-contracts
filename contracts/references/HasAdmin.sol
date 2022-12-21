@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.2;
+pragma solidity 0.8.10;
 
 contract HasAdmin {
     event AdminChanged(address indexed _oldAdmin, address indexed _newAdmin);
@@ -12,7 +12,7 @@ contract HasAdmin {
         _;
     }
 
-    constructor() internal {
+    constructor() {
         admin = msg.sender;
         emit AdminChanged(address(0), admin);
     }

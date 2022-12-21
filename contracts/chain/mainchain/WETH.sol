@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.17;
+pragma solidity 0.8.10;
 
 import "../../references/ERC20/ERC20Detailed.sol";
 import "../../references/ERC20/ERC20Mintable.sol";
@@ -20,7 +20,7 @@ contract WETH is ERC20Detailed {
     function withdraw(uint256 _wad) external {
         require(balanceOf[msg.sender] >= _wad);
         balanceOf[msg.sender] -= _wad;
-        msg.sender.transfer(_wad);
+        payable(msg.sender).transfer(_wad);
 
         emit Withdrawal(msg.sender, _wad);
     }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.2;
+pragma solidity 0.8.10;
 
 import "../HasMinters.sol";
 import "./ERC20.sol";
@@ -16,8 +16,8 @@ contract ERC20Mintable is HasMinters, ERC20 {
         address _to,
         uint256 _value
     ) internal returns (bool success) {
-        totalSupply = totalSupply.add(_value);
-        balanceOf[_to] = balanceOf[_to].add(_value);
+        totalSupply = totalSupply + _value;
+        balanceOf[_to] = balanceOf[_to] + _value;
         emit Transfer(address(0), _to, _value);
         return true;
     }

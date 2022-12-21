@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.2;
+pragma solidity 0.8.10;
 
 library AddressUtils {
-    function toPayable(
-        address _address
-    ) internal pure returns (address payable _payable) {
-        return address(uint160(_address));
-    }
-
     function isContract(
         address _address
     ) internal view returns (bool _correct) {

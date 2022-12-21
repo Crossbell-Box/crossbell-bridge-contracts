@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.17;
+pragma solidity 0.8.10;
 
 import "../../references/SafeMath.sol";
 import "./IValidator.sol";
@@ -14,11 +14,7 @@ contract Validator is IValidator {
     uint256 public num;
     uint256 public denom;
 
-    constructor(
-        address[] memory _validators,
-        uint256 _num,
-        uint256 _denom
-    ) public {
+    constructor(address[] memory _validators, uint256 _num, uint256 _denom) {
         validators = _validators;
         validatorCount = _validators.length;
 
@@ -31,24 +27,28 @@ contract Validator is IValidator {
         denom = _denom;
     }
 
-    function isValidator(address _addr) public view returns (bool) {
-        return validatorMap[_addr];
+    function isValidator(address _addr) external view returns (bool) {
+        return _isValidator(_addr);
     }
 
     function getValidators()
-        public
+        external
         view
         returns (address[] memory _validators)
     {
         _validators = validators;
     }
 
-    function checkThreshold(uint256 _voteCount) public view returns (bool) {
+    function checkThreshold(uint256 _voteCount) external view returns (bool) {
         return _voteCount.mul(denom) >= num.mul(validatorCount);
     }
 
+    function _isValidator(address _addr) internal view returns (bool) {
+        return validatorMap[_addr];
+    }
+
     function _addValidator(uint256 _id, address _validator) internal {
-        require(!validatorMap[_validator]);
+        require(!_isValidator(_validator));
 
         validators.push(_validator);
         validatorMap[_validator] = true;
@@ -58,7 +58,7 @@ contract Validator is IValidator {
     }
 
     function _removeValidator(uint256 _id, address _validator) internal {
-        require(isValidator(_validator));
+        require(_isValidator(_validator));
 
         uint256 _index;
         for (uint256 _i = 0; _i < validatorCount; _i++) {

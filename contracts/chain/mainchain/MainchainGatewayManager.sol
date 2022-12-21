@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.17;
+pragma solidity 0.8.10;
 
 import "../../references/ERC20/IERC20.sol";
 import "../../references/ERC20/IERC20Mintable.sol";
@@ -37,7 +37,13 @@ contract MainchainGatewayManager is MainchainGatewayStorage {
     }
 
     // Should be able to withdraw from WETH
-    function() external payable {}
+    fallback() external payable {
+        depositEthFor(msg.sender);
+    }
+
+    receive() external payable {
+        depositEthFor(msg.sender);
+    }
 
     function depositEth() external payable whenNotPaused returns (uint256) {
         return depositEthFor(msg.sender);
@@ -61,7 +67,7 @@ contract MainchainGatewayManager is MainchainGatewayStorage {
         address _owner
     ) public payable whenNotPaused returns (uint256) {
         address _weth = registry.getContract(registry.WETH_TOKEN());
-        WETH(_weth).deposit.value(msg.value)();
+        WETH(_weth).deposit{value: msg.value}();
         return _createDepositEntry(_owner, _weth, 20, msg.value);
     }
 
@@ -329,7 +335,7 @@ contract MainchainGatewayManager is MainchainGatewayStorage {
     function _withdrawETHFor(address _user, uint256 _amount) internal {
         address _weth = registry.getContract(registry.WETH_TOKEN());
         WETH(_weth).withdraw(_amount);
-        _user.toPayable().transfer(_amount);
+        payable(_user).transfer(_amount);
     }
 
     // See more here https://blog.polymath.network/try-catch-in-solidity-handling-the-revert-exception-f53718f76047

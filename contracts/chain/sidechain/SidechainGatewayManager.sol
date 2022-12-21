@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.5.17;
+pragma solidity 0.8.10;
 pragma experimental ABIEncoderV2;
 
 import "../../references/ECVerify.sol";
@@ -36,7 +36,7 @@ contract SidechainGatewayManager is SidechainGatewayStorage {
         _;
     }
 
-    function() external {
+    fallback() external payable {
         revert("SidechainGatewayManager: Invalid method");
     }
 
@@ -251,7 +251,7 @@ contract SidechainGatewayManager is SidechainGatewayStorage {
             for (uint256 _i = 0; _i < _len; _i++) {
                 if (_ids[_i] == _withdrawalId) {
                     _ids[_i] = _ids[_len - 1];
-                    _ids.length--;
+                    _ids.pop();
                     break;
                 }
             }

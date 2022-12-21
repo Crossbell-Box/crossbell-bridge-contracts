@@ -6,8 +6,6 @@ import "../../references/ERC20/IERC20Mintable.sol";
 import "../../references/ERC721/IERC721.sol";
 import "../../references/ERC721/IERC721Mintable.sol";
 import "../../references/ECVerify.sol";
-import "../../references/SafeMath.sol";
-import "../../references/AddressUtils.sol";
 import "./WETH.sol";
 import "./MainchainGatewayStorage.sol";
 
@@ -16,8 +14,6 @@ import "./MainchainGatewayStorage.sol";
  * @dev Logic to handle deposits and withdrawl on Mainchain.
  */
 contract MainchainGatewayManager is MainchainGatewayStorage {
-    using AddressUtils for address;
-    using SafeMath for uint256;
     using ECVerify for bytes32;
 
     modifier onlyMappedToken(address _token, uint32 _standard) {
@@ -200,7 +196,7 @@ contract MainchainGatewayManager is MainchainGatewayStorage {
                 require(
                     IERC20Mintable(_token).mint(
                         address(this),
-                        _amount.sub(_gatewayBalance)
+                        _amount - _gatewayBalance
                     ),
                     "MainchainGatewayManager: Minting ERC20 token to gateway failed"
                 );
@@ -263,7 +259,7 @@ contract MainchainGatewayManager is MainchainGatewayStorage {
         bytes32 _hash,
         bytes memory _signatures
     ) public view returns (bool) {
-        uint256 _signatureCount = _signatures.length.div(66);
+        uint256 _signatureCount = _signatures.length / 66;
 
         Validator _validator = Validator(
             registry.getContract(registry.VALIDATOR())
@@ -272,7 +268,7 @@ contract MainchainGatewayManager is MainchainGatewayStorage {
         address _lastSigner = address(0);
 
         for (uint256 i = 0; i < _signatureCount; i++) {
-            address _signer = _hash.recover(_signatures, i.mul(66));
+            address _signer = _hash.recover(_signatures, i * 66);
             if (_validator.isValidator(_signer)) {
                 _validatorCount++;
             }

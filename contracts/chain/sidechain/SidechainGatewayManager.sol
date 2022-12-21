@@ -3,12 +3,10 @@ pragma solidity 0.8.10;
 pragma experimental ABIEncoderV2;
 
 import "../../references/ECVerify.sol";
-import "../../references/SafeMath.sol";
 import "../../references/ERC20/IERC20.sol";
 import "../../references/ERC20/IERC20Mintable.sol";
 import "../../references/ERC721/IERC721.sol";
 import "../../references/ERC721/IERC721Mintable.sol";
-import "../../references/AddressUtils.sol";
 import "./SidechainGatewayStorage.sol";
 
 /**
@@ -16,8 +14,6 @@ import "./SidechainGatewayStorage.sol";
  * @dev Logic to handle deposits and withdrawals on Sidechain.
  */
 contract SidechainGatewayManager is SidechainGatewayStorage {
-    using AddressUtils for address;
-    using SafeMath for uint256;
     using ECVerify for bytes32;
 
     modifier onlyMappedToken(address _token, uint32 _standard) {
@@ -288,7 +284,7 @@ contract SidechainGatewayManager is SidechainGatewayStorage {
             require(
                 IERC20Mintable(_token).mint(
                     address(this),
-                    _amount.sub(_gatewayBalance)
+                    _amount - _gatewayBalance
                 ),
                 "SidechainGatewayManager: Minting ERC20 to gateway failed"
             );

@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../../references/SafeMath.sol";
 import "./IValidator.sol";
 
 contract Validator is IValidator {
-    using SafeMath for uint256;
-
     mapping(address => bool) validatorMap;
     address[] public validators;
     uint256 public validatorCount;
@@ -40,7 +37,7 @@ contract Validator is IValidator {
     }
 
     function checkThreshold(uint256 _voteCount) external view returns (bool) {
-        return _voteCount.mul(denom) >= num.mul(validatorCount);
+        return _voteCount * denom >= num * validatorCount;
     }
 
     function _isValidator(address _addr) internal view returns (bool) {

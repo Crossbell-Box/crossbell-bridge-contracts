@@ -13,7 +13,7 @@ contract HasOperators is Ownable {
     EnumerableSet.AddressSet internal operators;
 
     modifier onlyOperator() {
-        require(operators.contains(msg.sender), "NotOperator");
+        _isOperator(msg.sender);
         _;
     }
 
@@ -45,5 +45,9 @@ contract HasOperators is Ownable {
 
     function isOperator(address _operator) external view returns (bool) {
         return operators.contains(_operator);
+    }
+
+    function _isOperator(address _operator) internal view {
+        require(operators.contains(_operator), "NotOperator");
     }
 }

@@ -74,13 +74,8 @@ contract SidechainGatewayStorage {
         return Validator(registry.getContract(registry.VALIDATOR()));
     }
 
-    function _getAcknowledgementContract()
-        internal
-        view
-        returns (Acknowledgement)
-    {
-        return
-            Acknowledgement(registry.getContract(registry.ACKNOWLEDGEMENT()));
+    function _getAcknowledgementContract() internal view returns (Acknowledgement) {
+        return Acknowledgement(registry.getContract(registry.ACKNOWLEDGEMENT()));
     }
 
     function _getDepositAckChannel() internal view returns (string memory) {

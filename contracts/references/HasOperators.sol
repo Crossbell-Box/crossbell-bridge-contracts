@@ -2,16 +2,18 @@
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 contract HasOperators is Ownable {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
     event OperatorAdded(address indexed _operator);
     event OperatorRemoved(address indexed _operator);
 
-    address[] public operators;
-    mapping(address => bool) public operator;
+    EnumerableSet.AddressSet operators;
 
     modifier onlyOperator() {
-        require(operator[msg.sender]);
+        require(operators.contains(msg.sender), "NotOperator");
         _;
     }
 
@@ -20,40 +22,19 @@ contract HasOperators is Ownable {
 
         for (uint256 i = 0; i < _addedOperators.length; i++) {
             _operator = _addedOperators[i];
-
-            if (!operator[_operator]) {
-                operators.push(_operator);
-                operator[_operator] = true;
+            if (operators.add(_operator)) {
                 emit OperatorAdded(_operator);
             }
         }
     }
 
-    function removeOperators(
-        address[] memory _removedOperators
-    ) public onlyOwner {
+    function removeOperators(address[] memory _removedOperators) public onlyOwner {
         address _operator;
 
         for (uint256 i = 0; i < _removedOperators.length; i++) {
             _operator = _removedOperators[i];
-
-            if (operator[_operator]) {
-                operator[_operator] = false;
+            if (operators.remove(_operator)) {
                 emit OperatorRemoved(_operator);
-            }
-        }
-
-        uint256 j = 0;
-
-        while (j < operators.length) {
-            _operator = operators[j];
-
-            if (!operator[_operator]) {
-                operators[j] = operators[operators.length - 1];
-                delete operators[operators.length - 1];
-                operators.pop();
-            } else {
-                j++;
             }
         }
     }

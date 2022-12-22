@@ -25,10 +25,7 @@ contract SidechainValidator is Validator {
         acknowledgement = Acknowledgement(_acknowledgement);
     }
 
-    function addValidator(
-        uint256 _id,
-        address _validator
-    ) external onlyValidator {
+    function addValidator(uint256 _id, address _validator) external onlyValidator {
         bytes32 _hash = keccak256(abi.encode("addValidator", _validator));
 
         Acknowledgement.Status _status = acknowledgement.acknowledge(
@@ -42,10 +39,7 @@ contract SidechainValidator is Validator {
         }
     }
 
-    function removeValidator(
-        uint256 _id,
-        address _validator
-    ) external onlyValidator {
+    function removeValidator(uint256 _id, address _validator) external onlyValidator {
         require(_isValidator(_validator));
 
         bytes32 _hash = keccak256(abi.encode("removeValidator", _validator));
@@ -66,9 +60,7 @@ contract SidechainValidator is Validator {
         uint256 _numerator,
         uint256 _denominator
     ) external onlyValidator {
-        bytes32 _hash = keccak256(
-            abi.encode("updateQuorum", _numerator, _denominator)
-        );
+        bytes32 _hash = keccak256(abi.encode("updateQuorum", _numerator, _denominator));
 
         Acknowledgement.Status _status = acknowledgement.acknowledge(
             _getAckChannel(),

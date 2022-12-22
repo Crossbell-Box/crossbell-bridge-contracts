@@ -114,17 +114,11 @@ contract SidechainGatewayManager is
         );
 
         for (uint256 _i; _i < _withdrawalIds.length; _i++) {
-            submitWithdrawalSignatures(
-                _withdrawalIds[_i],
-                _shouldReplaces[_i],
-                _sigs[_i]
-            );
+            submitWithdrawalSignatures(_withdrawalIds[_i], _shouldReplaces[_i], _sigs[_i]);
         }
     }
 
-    function withdrawETH(
-        uint256 _amount
-    ) external whenNotPaused returns (uint256) {
+    function withdrawETH(uint256 _amount) external whenNotPaused returns (uint256) {
         address _weth = registry.getContract(registry.WETH_TOKEN());
         return withdrawERC20For(msg.sender, _weth, _amount);
     }
@@ -150,17 +144,14 @@ contract SidechainGatewayManager is
             "SidechainGatewayManager: token standard is not matched"
         );
 
-        bytes32 _hash = keccak256(
-            abi.encode(_owner, _token, _standard, _tokenNumber)
-        );
+        bytes32 _hash = keccak256(abi.encode(_owner, _token, _standard, _tokenNumber));
 
-        Acknowledgement.Status _status = _getAcknowledgementContract()
-            .acknowledge(
-                _getDepositAckChannel(),
-                _depositId,
-                _hash,
-                msg.sender
-            );
+        Acknowledgement.Status _status = _getAcknowledgementContract().acknowledge(
+            _getDepositAckChannel(),
+            _depositId,
+            _hash,
+            msg.sender
+        );
 
         if (_status == Acknowledgement.Status.FirstApproved) {
             if (_standard == 20) {
@@ -228,10 +219,7 @@ contract SidechainGatewayManager is
     function requestSignatureAgain(uint256 _withdrawalId) public whenNotPaused {
         WithdrawalEntry memory _entry = withdrawals[_withdrawalId];
 
-        require(
-            _entry.owner == msg.sender,
-            "SidechainGatewayManager: sender is not entry owner"
-        );
+        require(_entry.owner == msg.sender, "SidechainGatewayManager: sender is not entry owner");
 
         emit RequestTokenWithdrawalSigAgain(
             _withdrawalId,
@@ -245,11 +233,7 @@ contract SidechainGatewayManager is
 
     function getPendingWithdrawals(
         address _owner
-    )
-        public
-        view
-        returns (uint256[] memory ids, WithdrawalEntry[] memory entries)
-    {
+    ) public view returns (uint256[] memory ids, WithdrawalEntry[] memory entries) {
         ids = pendingWithdrawals[_owner];
         entries = new WithdrawalEntry[](ids.length);
 
@@ -263,13 +247,12 @@ contract SidechainGatewayManager is
         uint256 _withdrawalId
     ) public whenNotPaused onlyValidator {
         bytes32 _hash = keccak256(abi.encode(_withdrawalId));
-        Acknowledgement.Status _status = _getAcknowledgementContract()
-            .acknowledge(
-                _getWithdrawalAckChannel(),
-                _withdrawalId,
-                _hash,
-                msg.sender
-            );
+        Acknowledgement.Status _status = _getAcknowledgementContract().acknowledge(
+            _getWithdrawalAckChannel(),
+            _withdrawalId,
+            _hash,
+            msg.sender
+        );
 
         if (_status == Acknowledgement.Status.FirstApproved) {
             // Remove out of the pending withdrawals
@@ -286,9 +269,7 @@ contract SidechainGatewayManager is
         }
     }
 
-    function getWithdrawalSigners(
-        uint256 _withdrawalId
-    ) public view returns (address[] memory) {
+    function getWithdrawalSigners(uint256 _withdrawalId) public view returns (address[] memory) {
         return withdrawalSigners[_withdrawalId];
     }
 
@@ -302,18 +283,11 @@ contract SidechainGatewayManager is
         }
     }
 
-    function _depositERC20For(
-        address _owner,
-        address _token,
-        uint256 _amount
-    ) internal {
+    function _depositERC20For(address _owner, address _token, uint256 _amount) internal {
         uint256 _gatewayBalance = IERC20(_token).balanceOf(address(this));
         if (_gatewayBalance < _amount) {
             require(
-                IERC20Mintable(_token).mint(
-                    address(this),
-                    _amount - _gatewayBalance
-                ),
+                IERC20Mintable(_token).mint(address(this), _amount - _gatewayBalance),
                 "SidechainGatewayManager: Minting ERC20 to gateway failed"
             );
         }
@@ -324,11 +298,7 @@ contract SidechainGatewayManager is
         );
     }
 
-    function _depositERC721For(
-        address _owner,
-        address _token,
-        uint256 _tokenId
-    ) internal {
+    function _depositERC721For(address _owner, address _token, uint256 _tokenId) internal {
         if (!_tryERC721TransferFrom(_token, address(this), _owner, _tokenId)) {
             require(
                 IERC721Mintable(_token).mint(_owner, _tokenId),
@@ -348,11 +318,7 @@ contract SidechainGatewayManager is
         address _token,
         uint32 _standard,
         uint256 _number
-    )
-        internal
-        onlyMappedToken(_token, _standard)
-        returns (uint256 _withdrawalId)
-    {
+    ) internal onlyMappedToken(_token, _standard) returns (uint256 _withdrawalId) {
         (address _mainchainToken, , ) = registry.getMappedToken(_token, false);
 
         WithdrawalEntry memory _entry = WithdrawalEntry(
@@ -374,14 +340,7 @@ contract SidechainGatewayManager is
             "SidechainGatewayManager: pending withdrawal quantity reached the limit"
         );
 
-        emit TokenWithdrew(
-            _withdrawalId,
-            _owner,
-            _token,
-            _mainchainToken,
-            _standard,
-            _number
-        );
+        emit TokenWithdrew(_withdrawalId, _owner, _token, _mainchainToken, _standard, _number);
     }
 
     // See more here https://blog.polymath.network/try-catch-in-solidity-handling-the-revert-exception-f53718f76047
@@ -392,12 +351,7 @@ contract SidechainGatewayManager is
         uint256 _tokenId
     ) internal returns (bool) {
         (bool success, ) = _token.call(
-            abi.encodeWithSelector(
-                IERC721(_token).transferFrom.selector,
-                _from,
-                _to,
-                _tokenId
-            )
+            abi.encodeWithSelector(IERC721(_token).transferFrom.selector, _from, _to, _tokenId)
         );
         return success;
     }

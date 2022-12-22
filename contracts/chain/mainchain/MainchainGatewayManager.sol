@@ -32,9 +32,7 @@ contract MainchainGatewayManager is
 
     modifier onlyNewWithdrawal(uint256 _withdrawalId) {
         WithdrawalEntry storage _entry = withdrawals[_withdrawalId];
-        require(
-            _entry.owner == address(0) && _entry.tokenAddress == address(0)
-        );
+        require(_entry.owner == address(0) && _entry.tokenAddress == address(0));
         _;
     }
 
@@ -85,9 +83,7 @@ contract MainchainGatewayManager is
         return depositERC721For(msg.sender, _token, _tokenId);
     }
 
-    function depositEthFor(
-        address _owner
-    ) public payable whenNotPaused returns (uint256) {
+    function depositEthFor(address _owner) public payable whenNotPaused returns (uint256) {
         address _weth = registry.getContract(registry.WETH_TOKEN());
         WETH(_weth).deposit{value: msg.value}();
         return _createDepositEntry(_owner, _weth, 20, msg.value);
@@ -142,13 +138,7 @@ contract MainchainGatewayManager is
         uint256 _amount,
         bytes memory _signatures
     ) public whenNotPaused {
-        withdrawTokenFor(
-            _withdrawalId,
-            msg.sender,
-            _token,
-            _amount,
-            _signatures
-        );
+        withdrawTokenFor(_withdrawalId, msg.sender, _token, _amount, _signatures);
     }
 
     function withdrawTokenFor(
@@ -161,21 +151,9 @@ contract MainchainGatewayManager is
         (, , uint32 _tokenType) = registry.getMappedToken(_token, true);
 
         if (_tokenType == 20) {
-            withdrawERC20For(
-                _withdrawalId,
-                _user,
-                _token,
-                _amount,
-                _signatures
-            );
+            withdrawERC20For(_withdrawalId, _user, _token, _amount, _signatures);
         } else if (_tokenType == 721) {
-            withdrawERC721For(
-                _withdrawalId,
-                _user,
-                _token,
-                _amount,
-                _signatures
-            );
+            withdrawERC721For(_withdrawalId, _user, _token, _amount, _signatures);
         }
     }
 
@@ -185,13 +163,7 @@ contract MainchainGatewayManager is
         uint256 _amount,
         bytes memory _signatures
     ) public whenNotPaused {
-        withdrawERC20For(
-            _withdrawalId,
-            msg.sender,
-            _token,
-            _amount,
-            _signatures
-        );
+        withdrawERC20For(_withdrawalId, msg.sender, _token, _amount, _signatures);
     }
 
     function withdrawERC20For(
@@ -202,13 +174,7 @@ contract MainchainGatewayManager is
         bytes memory _signatures
     ) public whenNotPaused onlyMappedToken(_token, 20) {
         bytes32 _hash = keccak256(
-            abi.encodePacked(
-                "withdrawERC20",
-                _withdrawalId,
-                _user,
-                _token,
-                _amount
-            )
+            abi.encodePacked("withdrawERC20", _withdrawalId, _user, _token, _amount)
         );
 
         require(verifySignatures(_hash, _signatures));
@@ -220,10 +186,7 @@ contract MainchainGatewayManager is
 
             if (_gatewayBalance < _amount) {
                 require(
-                    IERC20Mintable(_token).mint(
-                        address(this),
-                        _amount - _gatewayBalance
-                    ),
+                    IERC20Mintable(_token).mint(address(this), _amount - _gatewayBalance),
                     "MainchainGatewayManager: Minting ERC20 token to gateway failed"
                 );
             }
@@ -240,13 +203,7 @@ contract MainchainGatewayManager is
         uint256 _tokenId,
         bytes memory _signatures
     ) public whenNotPaused {
-        withdrawERC721For(
-            _withdrawalId,
-            msg.sender,
-            _token,
-            _tokenId,
-            _signatures
-        );
+        withdrawERC721For(_withdrawalId, msg.sender, _token, _tokenId, _signatures);
     }
 
     function withdrawERC721For(
@@ -257,13 +214,7 @@ contract MainchainGatewayManager is
         bytes memory _signatures
     ) public whenNotPaused onlyMappedToken(_token, 721) {
         bytes32 _hash = keccak256(
-            abi.encodePacked(
-                "withdrawERC721",
-                _withdrawalId,
-                _user,
-                _token,
-                _tokenId
-            )
+            abi.encodePacked("withdrawERC721", _withdrawalId, _user, _token, _tokenId)
         );
 
         require(verifySignatures(_hash, _signatures));
@@ -281,15 +232,10 @@ contract MainchainGatewayManager is
     /**
      * @dev returns true if there is enough signatures from validators.
      */
-    function verifySignatures(
-        bytes32 _hash,
-        bytes memory _signatures
-    ) public view returns (bool) {
+    function verifySignatures(bytes32 _hash, bytes memory _signatures) public view returns (bool) {
         uint256 _signatureCount = _signatures.length / 66;
 
-        Validator _validator = Validator(
-            registry.getContract(registry.VALIDATOR())
-        );
+        Validator _validator = Validator(registry.getContract(registry.VALIDATOR()));
         uint256 _validatorCount = 0;
         address _lastSigner = address(0);
 
@@ -312,8 +258,7 @@ contract MainchainGatewayManager is
         uint32 _standard,
         uint256 _number
     ) internal onlyMappedToken(_token, _standard) returns (uint256 _depositId) {
-        (, address _sidechainToken, uint32 _tokenStandard) = registry
-            .getMappedToken(_token, true);
+        (, address _sidechainToken, uint32 _tokenStandard) = registry.getMappedToken(_token, true);
         require(_standard == _tokenStandard);
 
         DepositEntry memory _entry = DepositEntry(
@@ -327,14 +272,7 @@ contract MainchainGatewayManager is
         deposits.push(_entry);
         _depositId = depositCount++;
 
-        emit TokenDeposited(
-            _depositId,
-            _owner,
-            _token,
-            _sidechainToken,
-            _standard,
-            _number
-        );
+        emit TokenDeposited(_depositId, _owner, _token, _sidechainToken, _standard, _number);
     }
 
     function _insertWithdrawalEntry(
@@ -343,11 +281,7 @@ contract MainchainGatewayManager is
         address _token,
         uint256 _number
     ) internal onlyNewWithdrawal(_withdrawalId) {
-        WithdrawalEntry memory _entry = WithdrawalEntry(
-            _owner,
-            _token,
-            _number
-        );
+        WithdrawalEntry memory _entry = WithdrawalEntry(_owner, _token, _number);
 
         withdrawals[_withdrawalId] = _entry;
 
@@ -368,12 +302,7 @@ contract MainchainGatewayManager is
         uint256 _tokenId
     ) internal returns (bool) {
         (bool success, ) = _token.call(
-            abi.encodeWithSelector(
-                IERC721(_token).transferFrom.selector,
-                _from,
-                _to,
-                _tokenId
-            )
+            abi.encodeWithSelector(IERC721(_token).transferFrom.selector, _from, _to, _tokenId)
         );
         return success;
     }

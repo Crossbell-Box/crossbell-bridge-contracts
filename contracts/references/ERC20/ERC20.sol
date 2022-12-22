@@ -8,19 +8,13 @@ contract ERC20 is IERC20 {
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
 
-    function approve(
-        address _spender,
-        uint256 _value
-    ) public returns (bool _success) {
+    function approve(address _spender, uint256 _value) public returns (bool _success) {
         allowance[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
     }
 
-    function transfer(
-        address _to,
-        uint256 _value
-    ) public returns (bool _success) {
+    function transfer(address _to, uint256 _value) public returns (bool _success) {
         require(_to != address(0));
         balanceOf[msg.sender] = balanceOf[msg.sender] - _value;
         balanceOf[_to] = balanceOf[_to] + _value;

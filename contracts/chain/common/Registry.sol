@@ -31,9 +31,7 @@ contract Registry is Ownable {
     mapping(address => TokenMapping) public mainchainMap;
     mapping(address => TokenMapping) public sidechainMap;
 
-    function getContract(
-        string calldata _name
-    ) external view returns (address _address) {
+    function getContract(string calldata _name) external view returns (address _address) {
         bytes32 _code = getCode(_name);
         _address = contractAddresses[_code];
         require(_address != address(0));
@@ -52,10 +50,7 @@ contract Registry is Ownable {
             _mapping.standard == _standard;
     }
 
-    function updateContract(
-        string calldata _name,
-        address _newAddress
-    ) external onlyOwner {
+    function updateContract(string calldata _name, address _newAddress) external onlyOwner {
         bytes32 _code = getCode(_name);
         contractAddresses[_code] = _newAddress;
 
@@ -67,11 +62,7 @@ contract Registry is Ownable {
         address _sidechainToken,
         uint32 _standard
     ) external onlyOwner {
-        TokenMapping memory _map = TokenMapping(
-            _mainchainToken,
-            _sidechainToken,
-            _standard
-        );
+        TokenMapping memory _map = TokenMapping(_mainchainToken, _sidechainToken, _standard);
 
         mainchainMap[_mainchainToken] = _map;
         sidechainMap[_sidechainToken] = _map;
@@ -79,10 +70,7 @@ contract Registry is Ownable {
         emit TokenMapped(_mainchainToken, _sidechainToken, _standard);
     }
 
-    function clearMapToken(
-        address _mainchainToken,
-        address _sidechainToken
-    ) external onlyOwner {
+    function clearMapToken(address _mainchainToken, address _sidechainToken) external onlyOwner {
         TokenMapping storage _mainchainMap = mainchainMap[_mainchainToken];
         _clearMapEntry(_mainchainMap);
 
@@ -93,15 +81,7 @@ contract Registry is Ownable {
     function getMappedToken(
         address _token,
         bool _isMainchain
-    )
-        external
-        view
-        returns (
-            address _mainchainToken,
-            address _sidechainToken,
-            uint32 _standard
-        )
-    {
+    ) external view returns (address _mainchainToken, address _sidechainToken, uint32 _standard) {
         TokenMapping memory _mapping = _getTokenMapping(_token, _isMainchain);
         _mainchainToken = _mapping.mainchainToken;
         _sidechainToken = _mapping.sidechainToken;

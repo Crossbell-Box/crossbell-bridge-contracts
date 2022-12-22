@@ -27,10 +27,7 @@ contract MainchainValidator is Validator, Ownable {
         _removeValidator(nonce++, _validator);
     }
 
-    function updateQuorum(
-        uint256 _numerator,
-        uint256 _denominator
-    ) external onlyOwner {
+    function updateQuorum(uint256 _numerator, uint256 _denominator) external onlyOwner {
         _updateQuorum(nonce++, _numerator, _denominator);
     }
 }

@@ -74,9 +74,7 @@ contract SidechainGatewayStorage is ProxyStorage, Pausable {
         registry = Registry(_registry);
     }
 
-    function updateMaxPendingWithdrawal(
-        uint256 _maxPendingWithdrawal
-    ) public onlyOwner {
+    function updateMaxPendingWithdrawal(uint256 _maxPendingWithdrawal) public onlyOwner {
         maxPendingWithdrawal = _maxPendingWithdrawal;
     }
 
@@ -84,13 +82,8 @@ contract SidechainGatewayStorage is ProxyStorage, Pausable {
         return Validator(registry.getContract(registry.VALIDATOR()));
     }
 
-    function _getAcknowledgementContract()
-        internal
-        view
-        returns (Acknowledgement)
-    {
-        return
-            Acknowledgement(registry.getContract(registry.ACKNOWLEDGEMENT()));
+    function _getAcknowledgementContract() internal view returns (Acknowledgement) {
+        return Acknowledgement(registry.getContract(registry.ACKNOWLEDGEMENT()));
     }
 
     function _getDepositAckChannel() internal view returns (string memory) {

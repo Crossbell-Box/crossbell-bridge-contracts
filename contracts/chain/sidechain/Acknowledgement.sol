@@ -16,14 +16,11 @@ contract Acknowledgement is HasOperators {
     // Mapping from channel => boolean
     mapping(bytes32 => bool) public enabledChannels;
     // Mapping from channel => id => validator => data hash
-    mapping(bytes32 => mapping(uint256 => mapping(address => bytes32)))
-        public validatorAck;
+    mapping(bytes32 => mapping(uint256 => mapping(address => bytes32))) public validatorAck;
     // Mapping from channel => id => data hash => ack count
-    mapping(bytes32 => mapping(uint256 => mapping(bytes32 => uint256)))
-        public ackCount;
+    mapping(bytes32 => mapping(uint256 => mapping(bytes32 => uint256))) public ackCount;
     // Mapping from channel => id => data hash => ack status
-    mapping(bytes32 => mapping(uint256 => mapping(bytes32 => Status)))
-        public ackStatus;
+    mapping(bytes32 => mapping(uint256 => mapping(bytes32 => Status))) public ackStatus;
 
     string public constant DEPOSIT_CHANNEL = "DEPOSIT_CHANNEL";
     string public constant WITHDRAWAL_CHANNEL = "WITHDRAWAL_CHANNEL";
@@ -38,9 +35,7 @@ contract Acknowledgement is HasOperators {
         validator = Validator(_validator);
     }
 
-    function getChannelHash(
-        string memory _name
-    ) public view returns (bytes32 _channel) {
+    function getChannelHash(string memory _name) public view returns (bytes32 _channel) {
         _channel = _getHash(_name);
         _requireValidChannel(_channel);
     }
@@ -107,16 +102,11 @@ contract Acknowledgement is HasOperators {
         return ackStatus[_channel][_id][_hash];
     }
 
-    function _getHash(
-        string memory _name
-    ) internal pure returns (bytes32 _hash) {
+    function _getHash(string memory _name) internal pure returns (bytes32 _hash) {
         _hash = keccak256(abi.encode(_name));
     }
 
     function _requireValidChannel(bytes32 _channelHash) internal view {
-        require(
-            enabledChannels[_channelHash],
-            "Acknowledgement: invalid channel"
-        );
+        require(enabledChannels[_channelHash], "Acknowledgement: invalid channel");
     }
 }

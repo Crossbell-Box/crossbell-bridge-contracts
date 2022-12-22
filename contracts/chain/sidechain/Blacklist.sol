@@ -13,10 +13,7 @@ contract Blacklist is Ownable {
     // Returns whether the contract is still valid or not
     bool public disabled;
 
-    function blacklists(
-        address[] calldata _addresses,
-        bool _status
-    ) external onlyOwner {
+    function blacklists(address[] calldata _addresses, bool _status) external onlyOwner {
         address _addr;
         for (uint256 _i; _i < _addresses.length; _i++) {
             _addr = _addresses[_i];

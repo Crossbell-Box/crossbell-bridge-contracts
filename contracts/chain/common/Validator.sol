@@ -28,11 +28,7 @@ contract Validator is IValidator {
         return _isValidator(_addr);
     }
 
-    function getValidators()
-        external
-        view
-        returns (address[] memory _validators)
-    {
+    function getValidators() external view returns (address[] memory _validators) {
         _validators = validators;
     }
 
@@ -74,11 +70,7 @@ contract Validator is IValidator {
         emit ValidatorRemoved(_id, _validator);
     }
 
-    function _updateQuorum(
-        uint256 _id,
-        uint256 _numerator,
-        uint256 _denominator
-    ) internal {
+    function _updateQuorum(uint256 _id, uint256 _numerator, uint256 _denominator) internal {
         require(_numerator <= _denominator);
         uint256 _previousNumerator = num;
         uint256 _previousDenominator = denom;

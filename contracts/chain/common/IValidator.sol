@@ -14,10 +14,7 @@ interface IValidator {
 
     function isValidator(address _addr) external view returns (bool);
 
-    function getValidators()
-        external
-        view
-        returns (address[] memory _validators);
+    function getValidators() external view returns (address[] memory _validators);
 
     function checkThreshold(uint256 _voteCount) external view returns (bool);
 }

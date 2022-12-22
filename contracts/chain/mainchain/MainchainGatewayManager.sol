@@ -15,44 +15,50 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * @title MainchainGatewayManager
  * @dev Logic to handle deposits and withdrawl on Mainchain.
  */
-contract MainchainGatewayManager is
-    Initializable,
-    Pausable,
-    MainchainGatewayStorage
-{
+contract MainchainGatewayManager is Initializable, Pausable, MainchainGatewayStorage {
     using ECVerify for bytes32;
 
     modifier onlyMappedToken(address _token, uint32 _standard) {
-        require(
-            registry.isTokenMapped(_token, _standard, true),
-            "MainchainGatewayManager: Token is not mapped"
-        );
+        _checkMappedToken(_token, _standard, true);
         _;
     }
 
     modifier onlyNewWithdrawal(uint256 _withdrawalId) {
-        WithdrawalEntry storage _entry = withdrawals[_withdrawalId];
-        require(_entry.owner == address(0) && _entry.tokenAddress == address(0));
+        _checkNewWithdrawal(_withdrawalId);
         _;
     }
 
-    function initialize(
-        address _registry,
-        address _admin
-    ) external initializer {
+    modifier onlyAdmin() {
+        _checkAdmin();
+        _;
+    }
+
+    function _checkNewWithdrawal(uint256 _withdrawalId) internal view {
+        WithdrawalEntry storage _entry = withdrawals[_withdrawalId];
+        require(_entry.owner == address(0) && _entry.tokenAddress == address(0));
+    }
+
+    function _checkMappedToken(address _token, uint32 _standard, bool _isMainchain) internal view {
+        require(
+            registry.isTokenMapped(_token, _standard, _isMainchain),
+            "MainchainGatewayManager: Token is not mapped"
+        );
+    }
+
+    function _checkAdmin() internal view {
+        require(_msgSender() == admin, "onlyAdmin");
+    }
+
+    function initialize(address _registry, address _admin) external initializer {
         registry = Registry(_registry);
         admin = _admin;
     }
 
-    function pause() public whenNotPaused {
-        require(msg.sender == admin, "onlyAdmin");
-
+    function pause() public whenNotPaused onlyAdmin {
         _pause();
     }
 
-    function unpause() public whenPaused {
-        require(msg.sender == admin, "onlyAdmin");
-
+    function unpause() public whenPaused onlyAdmin {
         _unpause();
     }
 

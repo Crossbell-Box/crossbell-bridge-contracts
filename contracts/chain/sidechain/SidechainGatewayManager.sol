@@ -15,27 +15,31 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * @title SidechainGatewayManager
  * @dev Logic to handle deposits and withdrawals on Sidechain.
  */
-contract SidechainGatewayManager is
-    Initializable,
-    Pausable,
-    SidechainGatewayStorage
-{
+contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewayStorage {
     using ECVerify for bytes32;
 
     modifier onlyMappedToken(address _token, uint32 _standard) {
-        require(
-            registry.isTokenMapped(_token, _standard, false),
-            "SidechainGatewayManager: token is not mapped"
-        );
+        _checkMappedToken(_token, _standard, false);
         _;
     }
 
     modifier onlyValidator() {
+        _checkValidator();
+        _;
+    }
+
+    function _checkMappedToken(address _token, uint32 _standard, bool _isMainchain) internal view {
+        require(
+            registry.isTokenMapped(_token, _standard, _isMainchain),
+            "SidechainGatewayManager: Token is not mapped"
+        );
+    }
+
+    function _checkValidator() internal view {
         require(
             _getValidator().isValidator(msg.sender),
             "SidechainGatewayManager: sender is not validator"
         );
-        _;
     }
 
     function initialize(

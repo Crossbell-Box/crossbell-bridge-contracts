@@ -28,6 +28,15 @@ contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewaySto
         _;
     }
 
+    modifier onlyAdmin() {
+        _checkAdmin();
+        _;
+    }
+
+    function _checkAdmin() internal view {
+        require(_msgSender() == admin, "onlyAdmin");
+    }
+
     function _checkMappedToken(address _token, uint32 _standard, bool _isMainchain) internal view {
         require(
             registry.isTokenMapped(_token, _standard, _isMainchain),
@@ -37,7 +46,7 @@ contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewaySto
 
     function _checkValidator() internal view {
         require(
-            _getValidator().isValidator(msg.sender),
+            _getValidator().isValidator(_msgSender()),
             "SidechainGatewayManager: sender is not validator"
         );
     }
@@ -52,16 +61,20 @@ contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewaySto
         admin = _admin;
     }
 
-    function pause() public whenNotPaused {
-        require(msg.sender == admin, "onlyAdmin");
-
+    function pause() external whenNotPaused onlyAdmin {
         _pause();
     }
 
-    function unpause() public whenPaused {
-        require(msg.sender == admin, "onlyAdmin");
-
+    function unpause() external whenPaused onlyAdmin {
         _unpause();
+    }
+
+    function updateRegistry(address _registry) external onlyAdmin {
+        registry = Registry(_registry);
+    }
+
+    function updateMaxPendingWithdrawal(uint256 _maxPendingWithdrawal) external onlyAdmin {
+        maxPendingWithdrawal = _maxPendingWithdrawal;
     }
 
     fallback() external payable {

@@ -54,12 +54,16 @@ contract MainchainGatewayManager is Initializable, Pausable, MainchainGatewaySto
         admin = _admin;
     }
 
-    function pause() public whenNotPaused onlyAdmin {
+    function pause() external whenNotPaused onlyAdmin {
         _pause();
     }
 
-    function unpause() public whenPaused onlyAdmin {
+    function unpause() external whenPaused onlyAdmin {
         _unpause();
+    }
+
+    function updateRegistry(address _registry) external onlyAdmin {
+        registry = Registry(_registry);
     }
 
     // Should be able to withdraw from WETH

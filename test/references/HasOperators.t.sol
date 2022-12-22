@@ -21,6 +21,7 @@ contract HasOperatorsTest is Test, Utils {
     UseHasOperators useHasOperators;
     address[] public operators = [alice, bob];
     address[] public duplicateOperators = [alice, alice];
+    address[] public removeBob = [bob];
 
     function setUp() public {
         hasOperator = new HasOperators();
@@ -57,6 +58,48 @@ contract HasOperatorsTest is Test, Utils {
         hasOperator.removeOperators(operators);
     }
 
+    function testGetOperators() public {
+        address[] memory operatorsList = hasOperator.getOperators();
+        assertEq(operatorsList.length, 0);
+
+        // add duplicate operators
+        hasOperator.addOperators(duplicateOperators);
+        operatorsList = hasOperator.getOperators();
+        assertEq(operatorsList.length, 1);
+        assertEq(operatorsList[0], alice);
+
+        // add 2 operators
+        hasOperator.addOperators(operators);
+        operatorsList = hasOperator.getOperators();
+        assertEq(operatorsList.length, 2);
+        assertEq(operatorsList[0], alice);
+        assertEq(operatorsList[1], bob);
+
+        // remove an operator
+        hasOperator.removeOperators(removeBob);
+        operatorsList = hasOperator.getOperators();
+        assertEq(operatorsList.length, 1);
+        assertEq(operatorsList[0], alice);
+    }
+
+    function testIsOperator() public {
+        // add alice and bob as operators
+        hasOperator.addOperators(operators);
+        bool isOperator = hasOperator.isOperator(alice);
+        assert(isOperator);
+        isOperator = hasOperator.isOperator(bob);
+        assert(isOperator);
+
+        // carol is not operator
+        isOperator = hasOperator.isOperator(carol);
+        assert(!isOperator);
+
+        // remove bob
+        hasOperator.removeOperators(removeBob);
+        isOperator = hasOperator.isOperator(bob);
+        assert(!isOperator);
+    }
+
     function testOnlyOperator() public {
         useHasOperators.addOperators(operators);
         vm.prank(alice);
@@ -74,8 +117,6 @@ contract HasOperatorsTest is Test, Utils {
 
         // deleted operator is not operator
         hasOperator.addOperators(operators);
-        address[] memory removeBob = new address[](1);
-        removeBob[0] = bob;
         hasOperator.removeOperators(removeBob);
         vm.expectRevert(abi.encodePacked("NotOperator"));
         vm.prank(bob);

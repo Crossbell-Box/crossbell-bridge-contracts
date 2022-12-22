@@ -28,9 +28,7 @@ contract HasOperators is Ownable {
         }
     }
 
-    function removeOperators(
-        address[] memory _removedOperators
-    ) public onlyOwner {
+    function removeOperators(address[] memory _removedOperators) public onlyOwner {
         address _operator;
 
         for (uint256 i = 0; i < _removedOperators.length; i++) {

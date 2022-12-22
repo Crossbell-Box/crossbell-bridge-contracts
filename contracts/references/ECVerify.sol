@@ -42,13 +42,9 @@ library ECVerify {
         require(_v == 27 || _v == 28);
 
         if (_mode == SignatureMode.GETH) {
-            _hash = keccak256(
-                abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)
-            );
+            _hash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash));
         } else if (_mode == SignatureMode.TREZOR) {
-            _hash = keccak256(
-                abi.encodePacked("\x19Ethereum Signed Message:\n\x20", _hash)
-            );
+            _hash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n\x20", _hash));
         }
 
         return ecrecover(_hash, _v, _r, _s);

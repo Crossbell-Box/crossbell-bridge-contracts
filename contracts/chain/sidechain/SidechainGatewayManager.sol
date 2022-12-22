@@ -8,12 +8,18 @@ import "../../references/ERC20/IERC20Mintable.sol";
 import "../../references/ERC721/IERC721.sol";
 import "../../references/ERC721/IERC721Mintable.sol";
 import "./SidechainGatewayStorage.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
  * @title SidechainGatewayManager
  * @dev Logic to handle deposits and withdrawals on Sidechain.
  */
-contract SidechainGatewayManager is SidechainGatewayStorage {
+contract SidechainGatewayManager is
+    Initializable,
+    Pausable,
+    SidechainGatewayStorage
+{
     using ECVerify for bytes32;
 
     modifier onlyMappedToken(address _token, uint32 _standard) {
@@ -30,6 +36,28 @@ contract SidechainGatewayManager is SidechainGatewayStorage {
             "SidechainGatewayManager: sender is not validator"
         );
         _;
+    }
+
+    function initialize(
+        address _registry,
+        uint256 _maxPendingWithdrawal,
+        address _admin
+    ) external initializer {
+        registry = Registry(_registry);
+        maxPendingWithdrawal = _maxPendingWithdrawal;
+        admin = _admin;
+    }
+
+    function pause() public whenNotPaused {
+        require(msg.sender == admin, "onlyAdmin");
+
+        _pause();
+    }
+
+    function unpause() public whenPaused {
+        require(msg.sender == admin, "onlyAdmin");
+
+        _unpause();
     }
 
     fallback() external payable {

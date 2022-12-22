@@ -8,12 +8,18 @@ import "../../references/ERC721/IERC721Mintable.sol";
 import "../../references/ECVerify.sol";
 import "./WETH.sol";
 import "./MainchainGatewayStorage.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
  * @title MainchainGatewayManager
  * @dev Logic to handle deposits and withdrawl on Mainchain.
  */
-contract MainchainGatewayManager is MainchainGatewayStorage {
+contract MainchainGatewayManager is
+    Initializable,
+    Pausable,
+    MainchainGatewayStorage
+{
     using ECVerify for bytes32;
 
     modifier onlyMappedToken(address _token, uint32 _standard) {
@@ -30,6 +36,26 @@ contract MainchainGatewayManager is MainchainGatewayStorage {
             _entry.owner == address(0) && _entry.tokenAddress == address(0)
         );
         _;
+    }
+
+    function initialize(
+        address _registry,
+        address _admin
+    ) external initializer {
+        registry = Registry(_registry);
+        admin = _admin;
+    }
+
+    function pause() public whenNotPaused {
+        require(msg.sender == admin, "onlyAdmin");
+
+        _pause();
+    }
+
+    function unpause() public whenPaused {
+        require(msg.sender == admin, "onlyAdmin");
+
+        _unpause();
     }
 
     // Should be able to withdraw from WETH

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../../references/ProxyStorage.sol";
-import "../../references/Pausable.sol";
 import "../common/Validator.sol";
 import "../common/Registry.sol";
 import "./MainchainValidator.sol";
@@ -11,7 +9,7 @@ import "./MainchainValidator.sol";
  * @title GatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract MainchainGatewayStorage is ProxyStorage, Pausable {
+contract MainchainGatewayStorage {
     event TokenDeposited(
         uint256 indexed _depositId,
         address indexed _owner,
@@ -48,7 +46,5 @@ contract MainchainGatewayStorage is ProxyStorage, Pausable {
     DepositEntry[] public deposits;
     mapping(uint256 => WithdrawalEntry) public withdrawals;
 
-    function updateRegistry(address _registry) external onlyOwner {
-        registry = Registry(_registry);
-    }
+    address public admin;
 }

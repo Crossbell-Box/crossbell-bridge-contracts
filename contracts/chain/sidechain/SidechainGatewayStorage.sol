@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../../references/ProxyStorage.sol";
-import "../../references/Pausable.sol";
 import "../common/Validator.sol";
 import "../common/Registry.sol";
 import "./Acknowledgement.sol";
@@ -11,7 +9,7 @@ import "./Acknowledgement.sol";
  * @title SidechainGatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract SidechainGatewayStorage is ProxyStorage, Pausable {
+contract SidechainGatewayStorage {
     event TokenDeposited(
         uint256 indexed depositId,
         address indexed owner,
@@ -70,15 +68,7 @@ contract SidechainGatewayStorage is ProxyStorage, Pausable {
     mapping(address => uint256[]) pendingWithdrawals;
     uint256 public maxPendingWithdrawal;
 
-    function updateRegistry(address _registry) external onlyOwner {
-        registry = Registry(_registry);
-    }
-
-    function updateMaxPendingWithdrawal(
-        uint256 _maxPendingWithdrawal
-    ) public onlyOwner {
-        maxPendingWithdrawal = _maxPendingWithdrawal;
-    }
+    address public admin;
 
     function _getValidator() internal view returns (Validator) {
         return Validator(registry.getContract(registry.VALIDATOR()));

@@ -8,26 +8,62 @@ import "../../references/ERC721/IERC721Mintable.sol";
 import "../../references/ECVerify.sol";
 import "./WETH.sol";
 import "./MainchainGatewayStorage.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
  * @title MainchainGatewayManager
  * @dev Logic to handle deposits and withdrawl on Mainchain.
  */
-contract MainchainGatewayManager is MainchainGatewayStorage {
+contract MainchainGatewayManager is Initializable, Pausable, MainchainGatewayStorage {
     using ECVerify for bytes32;
 
     modifier onlyMappedToken(address _token, uint32 _standard) {
-        require(
-            registry.isTokenMapped(_token, _standard, true),
-            "MainchainGatewayManager: Token is not mapped"
-        );
+        _checkMappedToken(_token, _standard, true);
         _;
     }
 
     modifier onlyNewWithdrawal(uint256 _withdrawalId) {
+        _checkNewWithdrawal(_withdrawalId);
+        _;
+    }
+
+    modifier onlyAdmin() {
+        _checkAdmin();
+        _;
+    }
+
+    function _checkNewWithdrawal(uint256 _withdrawalId) internal view {
         WithdrawalEntry storage _entry = withdrawals[_withdrawalId];
         require(_entry.owner == address(0) && _entry.tokenAddress == address(0));
-        _;
+    }
+
+    function _checkMappedToken(address _token, uint32 _standard, bool _isMainchain) internal view {
+        require(
+            registry.isTokenMapped(_token, _standard, _isMainchain),
+            "MainchainGatewayManager: Token is not mapped"
+        );
+    }
+
+    function _checkAdmin() internal view {
+        require(_msgSender() == admin, "onlyAdmin");
+    }
+
+    function initialize(address _registry, address _admin) external initializer {
+        registry = Registry(_registry);
+        admin = _admin;
+    }
+
+    function pause() external whenNotPaused onlyAdmin {
+        _pause();
+    }
+
+    function unpause() external whenPaused onlyAdmin {
+        _unpause();
+    }
+
+    function updateRegistry(address _registry) external onlyAdmin {
+        registry = Registry(_registry);
     }
 
     // Should be able to withdraw from WETH

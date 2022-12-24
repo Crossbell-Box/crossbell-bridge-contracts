@@ -8,28 +8,73 @@ import "../../references/ERC20/IERC20Mintable.sol";
 import "../../references/ERC721/IERC721.sol";
 import "../../references/ERC721/IERC721Mintable.sol";
 import "./SidechainGatewayStorage.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
  * @title SidechainGatewayManager
  * @dev Logic to handle deposits and withdrawals on Sidechain.
  */
-contract SidechainGatewayManager is SidechainGatewayStorage {
+contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewayStorage {
     using ECVerify for bytes32;
 
     modifier onlyMappedToken(address _token, uint32 _standard) {
-        require(
-            registry.isTokenMapped(_token, _standard, false),
-            "SidechainGatewayManager: token is not mapped"
-        );
+        _checkMappedToken(_token, _standard, false);
         _;
     }
 
     modifier onlyValidator() {
+        _checkValidator();
+        _;
+    }
+
+    modifier onlyAdmin() {
+        _checkAdmin();
+        _;
+    }
+
+    function _checkAdmin() internal view {
+        require(_msgSender() == admin, "onlyAdmin");
+    }
+
+    function _checkMappedToken(address _token, uint32 _standard, bool _isMainchain) internal view {
         require(
-            _getValidator().isValidator(msg.sender),
+            registry.isTokenMapped(_token, _standard, _isMainchain),
+            "SidechainGatewayManager: Token is not mapped"
+        );
+    }
+
+    function _checkValidator() internal view {
+        require(
+            _getValidator().isValidator(_msgSender()),
             "SidechainGatewayManager: sender is not validator"
         );
-        _;
+    }
+
+    function initialize(
+        address _registry,
+        uint256 _maxPendingWithdrawal,
+        address _admin
+    ) external initializer {
+        registry = Registry(_registry);
+        maxPendingWithdrawal = _maxPendingWithdrawal;
+        admin = _admin;
+    }
+
+    function pause() external whenNotPaused onlyAdmin {
+        _pause();
+    }
+
+    function unpause() external whenPaused onlyAdmin {
+        _unpause();
+    }
+
+    function updateRegistry(address _registry) external onlyAdmin {
+        registry = Registry(_registry);
+    }
+
+    function updateMaxPendingWithdrawal(uint256 _maxPendingWithdrawal) external onlyAdmin {
+        maxPendingWithdrawal = _maxPendingWithdrawal;
     }
 
     fallback() external payable {

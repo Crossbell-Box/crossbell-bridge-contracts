@@ -25,4 +25,32 @@ contract Utils is Test {
 
         vm.expectEmit(checkTopic1, checkTopic2, checkTopic3, checkData);
     }
+
+    function toArray(address a) public pure returns (address[] memory) {
+        address[] memory arr = new address[](1);
+        arr[0] = a;
+        return arr;
+    }
+
+    function toArray(
+        address a,
+        address b
+    ) public pure returns (address[] memory) {
+        address[] memory arr = new address[](2);
+        arr[0] = a;
+        arr[1] = b;
+        return arr;
+    }
+
+    function toArray(
+        address a,
+        address b,
+        address c
+    ) public pure returns (address[] memory) {
+        address[] memory arr = new address[](3);
+        arr[0] = a;
+        arr[1] = b;
+        arr[2] = c;
+        return arr;
+    }
 }

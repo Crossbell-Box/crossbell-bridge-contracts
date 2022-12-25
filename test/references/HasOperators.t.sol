@@ -105,7 +105,7 @@ contract HasOperatorsTest is Test, Utils {
         assertEq(operators.length, 1);
         assertEq(operators[0], alice);
 
-        // add 2 operators alice and bob
+        // add 3 operators alice, bob and carol
         address[] memory newOperators = toArray(alice, bob, carol);
         mock.addOperators(newOperators);
         operators = mock.getOperators();
@@ -153,6 +153,7 @@ contract HasOperatorsTest is Test, Utils {
         address[] memory newOperators = toArray(alice);
         mock.addOperators(newOperators);
 
+        // only operator can call doStuff
         vm.prank(alice);
         mock.doStuff();
         assertEq(mock.count(), 1);

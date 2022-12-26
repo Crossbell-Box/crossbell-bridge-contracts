@@ -16,11 +16,14 @@ contract Acknowledgement is HasOperators {
     // Mapping from channel => boolean
     mapping(bytes32 => bool) public enabledChannels;
     // Mapping from channel => id => validator => data hash
-    mapping(bytes32 => mapping(uint256 => mapping(address => bytes32))) public validatorAck;
+    mapping(bytes32 => mapping(uint256 => mapping(uint256 => mapping(address => bytes32))))
+        public validatorAck;
     // Mapping from channel => id => data hash => ack count
-    mapping(bytes32 => mapping(uint256 => mapping(bytes32 => uint256))) public ackCount;
+    mapping(bytes32 => mapping(uint256 => mapping(uint256 => mapping(bytes32 => uint256))))
+        public ackCount;
     // Mapping from channel => id => data hash => ack status
-    mapping(bytes32 => mapping(uint256 => mapping(bytes32 => Status))) public ackStatus;
+    mapping(bytes32 => mapping(uint256 => mapping(uint256 => mapping(bytes32 => Status))))
+        public ackStatus;
 
     string public constant DEPOSIT_CHANNEL = "DEPOSIT_CHANNEL";
     string public constant WITHDRAWAL_CHANNEL = "WITHDRAWAL_CHANNEL";
@@ -57,49 +60,52 @@ contract Acknowledgement is HasOperators {
 
     function acknowledge(
         string memory _channelName,
+        uint256 _chainId,
         uint256 _id,
         bytes32 _hash,
         address _validator
     ) public onlyOperator returns (Status) {
         bytes32 _channel = getChannelHash(_channelName);
         require(
-            validatorAck[_channel][_id][_validator] == bytes32(0),
+            validatorAck[_channel][_chainId][_id][_validator] == bytes32(0),
             "Acknowledgement: the validator already acknowledged"
         );
 
-        validatorAck[_channel][_id][_validator] = _hash;
-        Status _status = ackStatus[_channel][_id][_hash];
-        uint256 _count = ackCount[_channel][_id][_hash];
+        validatorAck[_channel][_chainId][_id][_validator] = _hash;
+        Status _status = ackStatus[_channel][_chainId][_id][_hash];
+        uint256 _count = ackCount[_channel][_chainId][_id][_hash];
 
         if (validator.checkThreshold(_count + 1)) {
             if (_status == Status.NotApproved) {
-                ackStatus[_channel][_id][_hash] = Status.FirstApproved;
+                ackStatus[_channel][_chainId][_id][_hash] = Status.FirstApproved;
             } else {
-                ackStatus[_channel][_id][_hash] = Status.AlreadyApproved;
+                ackStatus[_channel][_chainId][_id][_hash] = Status.AlreadyApproved;
             }
         }
 
-        ackCount[_channel][_id][_hash]++;
+        ackCount[_channel][_chainId][_id][_hash]++;
 
-        return ackStatus[_channel][_id][_hash];
+        return ackStatus[_channel][_chainId][_id][_hash];
     }
 
     function hasValidatorAcknowledged(
         string memory _channelName,
+        uint256 _chainId,
         uint256 _id,
         address _validator
     ) public view returns (bool) {
         bytes32 _channel = _getHash(_channelName);
-        return validatorAck[_channel][_id][_validator] != bytes32(0);
+        return validatorAck[_channel][_chainId][_id][_validator] != bytes32(0);
     }
 
     function getAcknowledgementStatus(
         string memory _channelName,
+        uint256 _chainId,
         uint256 _id,
         bytes32 _hash
     ) public view returns (Status) {
         bytes32 _channel = _getHash(_channelName);
-        return ackStatus[_channel][_id][_hash];
+        return ackStatus[_channel][_chainId][_id][_hash];
     }
 
     function _getHash(string memory _name) internal pure returns (bytes32 _hash) {

@@ -10,6 +10,7 @@ import "./Acknowledgement.sol";
  */
 contract SidechainValidator is Validator {
     Acknowledgement public acknowledgement;
+    uint256 public constant ETHEREUM_CHAIN_ID = 1; // ethereum chainId
 
     modifier onlyValidator() {
         require(_isValidator(msg.sender));
@@ -30,6 +31,7 @@ contract SidechainValidator is Validator {
 
         Acknowledgement.Status _status = acknowledgement.acknowledge(
             _getAckChannel(),
+            ETHEREUM_CHAIN_ID,
             _id,
             _hash,
             msg.sender
@@ -46,6 +48,7 @@ contract SidechainValidator is Validator {
 
         Acknowledgement.Status _status = acknowledgement.acknowledge(
             _getAckChannel(),
+            ETHEREUM_CHAIN_ID,
             _id,
             _hash,
             msg.sender
@@ -64,6 +67,7 @@ contract SidechainValidator is Validator {
 
         Acknowledgement.Status _status = acknowledgement.acknowledge(
             _getAckChannel(),
+            ETHEREUM_CHAIN_ID,
             _id,
             _hash,
             msg.sender

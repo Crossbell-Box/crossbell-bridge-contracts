@@ -2,12 +2,8 @@
 pragma solidity 0.8.10;
 
 import "forge-std/Test.sol";
-import "../../contracts/references/HasOperators.sol";
+import "../../contracts/mocks/HasOperatorsMock.sol";
 import "../helpers/utils.sol";
-
-contract UseHasOperators is HasOperators {
-    function isOperator() public onlyOperator {}
-}
 
 contract HasOperatorsTest is Test, Utils {
     address public alice = address(0x1111);
@@ -17,109 +13,165 @@ contract HasOperatorsTest is Test, Utils {
     event OperatorAdded(address indexed _operator);
     event OperatorRemoved(address indexed _operator);
 
-    HasOperators hasOperator;
-    UseHasOperators useHasOperators;
-    address[] public operators = [alice, bob];
-    address[] public duplicateOperators = [alice, alice];
-    address[] public removeBob = [bob];
+    HasOperatorsMock mock;
 
     function setUp() public {
-        hasOperator = new HasOperators();
-        useHasOperators = new UseHasOperators();
+        mock = new HasOperatorsMock();
     }
 
     function testAddOperators() public {
+        address[] memory newOperators = array(alice, bob);
+        // expect events
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         emit OperatorAdded(alice);
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         emit OperatorAdded(bob);
-        hasOperator.addOperators(operators);
+        // add operators
+        mock.addOperators(newOperators);
+
+        // check operators
+        assertEq(mock.getOperators(), newOperators);
+
+        // check isOperator
+        for (uint256 i = 0; i < newOperators.length; i++) {
+            assertTrue(mock.isOperator(newOperators[i]));
+        }
+
+        // carol is not operator
+        assertFalse(mock.isOperator(carol));
     }
 
     function testAddOperatorsFail() public {
+        address[] memory newOperators = array(alice, bob);
+
         vm.prank(alice);
         vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
-        hasOperator.addOperators(operators);
+        mock.addOperators(newOperators);
+
+        // check operators
+        assertEq(mock.getOperators().length, 0);
+
+        // check isOperator
+        for (uint256 i = 0; i < newOperators.length; i++) {
+            assertFalse(mock.isOperator(newOperators[i]));
+        }
     }
 
     function testRemoveOperators() public {
-        hasOperator.addOperators(operators);
-
+        address[] memory newOperators = array(alice, bob);
+        mock.addOperators(newOperators);
+        // expect events
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         emit OperatorRemoved(alice);
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         emit OperatorRemoved(bob);
-        hasOperator.removeOperators(operators);
+        // remove operators
+        mock.removeOperators(newOperators);
+
+        // check operators
+        assertEq(mock.getOperators().length, 0);
+
+        // check isOperator
+        for (uint256 i = 0; i < newOperators.length; i++) {
+            assertFalse(mock.isOperator(newOperators[i]));
+        }
+
+        // can remove an nonexistent operator
+        mock.removeOperators(array(carol));
     }
 
     function testRemoveOperatorsFail() public {
-        vm.prank(alice);
+        address[] memory operators = array(alice, bob, carol);
+
         vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
-        hasOperator.removeOperators(operators);
+        vm.prank(alice);
+        mock.removeOperators(operators);
+
+        // add operators, and then fail to remove operators
+        mock.addOperators(operators);
+        vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
+        vm.prank(alice);
+        mock.removeOperators(operators);
+        // check operators
+        assertEq(mock.getOperators(), operators);
     }
 
     function testGetOperators() public {
-        address[] memory operatorsList = hasOperator.getOperators();
-        assertEq(operatorsList.length, 0);
+        assertEq(mock.getOperators().length, 0);
 
         // add duplicate operators
-        hasOperator.addOperators(duplicateOperators);
-        operatorsList = hasOperator.getOperators();
-        assertEq(operatorsList.length, 1);
-        assertEq(operatorsList[0], alice);
+        address[] memory duplicateOperators = array(alice, alice);
+        mock.addOperators(duplicateOperators);
+        // check operators
+        address[] memory operators = mock.getOperators();
+        assertEq(operators, array(alice));
 
-        // add 2 operators
-        hasOperator.addOperators(operators);
-        operatorsList = hasOperator.getOperators();
-        assertEq(operatorsList.length, 2);
-        assertEq(operatorsList[0], alice);
-        assertEq(operatorsList[1], bob);
+        // add 3 operators alice, bob and carol
+        address[] memory newOperators = array(alice, bob, carol);
+        mock.addOperators(newOperators);
+        // check operators
+        operators = mock.getOperators();
+        assertEq(operators, array(alice, bob, carol));
 
-        // remove an operator
-        hasOperator.removeOperators(removeBob);
-        operatorsList = hasOperator.getOperators();
-        assertEq(operatorsList.length, 1);
-        assertEq(operatorsList[0], alice);
+        // remove bob
+        mock.removeOperators(array(bob));
+        // check operators
+        operators = mock.getOperators();
+        assertEq(operators, array(alice, carol));
+
+        // remove alice
+        mock.removeOperators(array(alice));
+        // check operators
+        operators = mock.getOperators();
+        assertEq(operators, array(carol));
+
+        // remove carol
+        mock.removeOperators(array(carol));
+        // check operators
+        operators = mock.getOperators();
+        assertEq(operators.length, 0);
     }
 
     function testIsOperator() public {
         // add alice and bob as operators
-        hasOperator.addOperators(operators);
-        bool isOperator = hasOperator.isOperator(alice);
-        assert(isOperator);
-        isOperator = hasOperator.isOperator(bob);
-        assert(isOperator);
+        address[] memory newOperators = array(alice, bob);
+        mock.addOperators(newOperators);
+        assertTrue(mock.isOperator(alice));
+        assertTrue(mock.isOperator(bob));
 
         // carol is not operator
-        isOperator = hasOperator.isOperator(carol);
-        assert(!isOperator);
+        assertFalse(mock.isOperator(carol));
 
         // remove bob
-        hasOperator.removeOperators(removeBob);
-        isOperator = hasOperator.isOperator(bob);
-        assert(!isOperator);
+        mock.removeOperators(array(bob));
+        assertFalse(mock.isOperator(bob));
+        assertTrue(mock.isOperator(alice));
     }
 
     function testOnlyOperator() public {
-        useHasOperators.addOperators(operators);
-        vm.prank(alice);
-        useHasOperators.isOperator();
+        address[] memory newOperators = array(alice);
+        mock.addOperators(newOperators);
 
-        vm.prank(bob);
-        useHasOperators.isOperator();
+        // only operator can call doStuff, which can in increase count by 1
+        vm.prank(alice);
+        mock.doStuff();
+        assertEq(mock.count(), 1);
     }
 
     function testOnlyOperatorFail() public {
         // not operator
         vm.expectRevert(abi.encodePacked("NotOperator"));
         vm.prank(alice);
-        useHasOperators.isOperator();
+        mock.doStuff();
+
+        address[] memory newOperators = array(alice, bob);
+        mock.addOperators(newOperators);
+        mock.removeOperators(newOperators);
 
         // deleted operator is not operator
-        hasOperator.addOperators(operators);
-        hasOperator.removeOperators(removeBob);
         vm.expectRevert(abi.encodePacked("NotOperator"));
         vm.prank(bob);
-        useHasOperators.isOperator();
+        mock.doStuff();
+        assertEq(mock.count(), 0);
     }
 }

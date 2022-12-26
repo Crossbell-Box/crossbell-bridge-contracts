@@ -4,7 +4,7 @@ pragma solidity 0.8.10;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-contract HasOperators is Ownable {
+abstract contract HasOperators is Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     event OperatorAdded(address indexed _operator);
@@ -13,7 +13,7 @@ contract HasOperators is Ownable {
     EnumerableSet.AddressSet internal operators;
 
     modifier onlyOperator() {
-        _isOperator(msg.sender);
+        _checkOperator();
         _;
     }
 
@@ -44,10 +44,14 @@ contract HasOperators is Ownable {
     }
 
     function isOperator(address _operator) external view returns (bool) {
+        return _isOperator(_operator);
+    }
+
+    function _isOperator(address _operator) internal view returns (bool) {
         return operators.contains(_operator);
     }
 
-    function _isOperator(address _operator) internal view {
-        require(operators.contains(_operator), "NotOperator");
+    function _checkOperator() internal view {
+        require(_isOperator(_msgSender()), "NotOperator");
     }
 }

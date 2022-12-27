@@ -13,9 +13,8 @@ contract MainchainValidator is Validator, Ownable {
 
     constructor(
         address[] memory _validators,
-        uint256 _num,
-        uint256 _denom
-    ) Validator(_validators, _num, _denom) {}
+        uint256 _requirement
+    ) Validator(_validators, _requirement) {}
 
     function addValidators(address[] calldata _validators) external onlyOwner {
         for (uint256 _i; _i < _validators.length; ++_i) {
@@ -27,7 +26,7 @@ contract MainchainValidator is Validator, Ownable {
         _removeValidator(nonce++, _validator);
     }
 
-    function updateQuorum(uint256 _numerator, uint256 _denominator) external onlyOwner {
-        _updateQuorum(nonce++, _numerator, _denominator);
+    function changeRequirement(uint256 _required) external onlyOwner {
+        _changeRequirement(nonce++, _required);
     }
 }

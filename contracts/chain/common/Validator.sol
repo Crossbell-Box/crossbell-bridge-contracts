@@ -9,69 +9,57 @@ contract Validator is IValidator {
 
     EnumerableSet.AddressSet internal validators;
 
-    uint256 public num;
-    uint256 public denom;
+    uint256 public required;
 
-    constructor(address[] memory _validators, uint256 _num, uint256 _denom) {
-        for (uint256 _i = 0; _i < _validators.length; _i++) {
-            validators.add(_validators[i]);
-        }
-
-        num = _num;
-        denom = _denom;
-    }
-
-    function isValidator(address _addr) external view returns (bool) {
-        _isValidator(_addr);
+    modifier validRequirement(uint _required) {
+        require(_required <= validators.length() && _required != 0, "invalid required number");
         _;
     }
 
-    function getValidators()
-        external
-        view
-        returns (address[] memory _validators)
-    {
+    constructor(address[] memory _validators, uint256 _required) {
+        for (uint256 _i = 0; _i < _validators.length; _i++) {
+            validators.add(_validators[_i]);
+        }
+
+        required = _required;
+    }
+
+    function isValidator(address _addr) external view returns (bool) {
+        return _isValidator(_addr);
+    }
+
+    function getValidators() external view returns (address[] memory _validators) {
         return validators.values();
     }
 
     function checkThreshold(uint256 _voteCount) external view returns (bool) {
-        return _voteCount * denom >= num * validatorCount;
+        return _voteCount >= required;
     }
 
-    function _isValidator(address _addr) internal view {
-        require(validators.contains(_addr), "NotValidator");
+    function _isValidator(address _addr) internal view returns (bool) {
+        return validators.contains(_addr);
     }
 
     function _addValidator(uint256 _id, address _validator) internal {
-        require(_validators.add(_validator), "ValidatorAlreadyExists");
+        require(validators.add(_validator), "ValidatorAlreadyExists");
 
         emit ValidatorAdded(_id, _validator);
     }
 
     function _removeValidator(uint256 _id, address _validator) internal {
-        require(_validators.remove(_validator), "ValidatorNotExists");
+        require(validators.remove(_validator), "ValidatorNotExists");
 
         emit ValidatorRemoved(_id, _validator);
     }
 
-    function _updateQuorum(
+    function _changeRequirement(
         uint256 _id,
-        uint256 _numerator,
-        uint256 _denominator
-    ) internal {
-        require(_numerator <= _denominator);
-        uint256 _previousNumerator = num;
-        uint256 _previousDenominator = denom;
+        uint256 _required
+    ) internal validRequirement(_required) {
+        uint256 _previousRequired = required;
 
-        num = _numerator;
-        denom = _denominator;
+        required = _required;
 
-        emit ThresholdUpdated(
-            _id,
-            _numerator,
-            _denominator,
-            _previousNumerator,
-            _previousDenominator
-        );
+        emit RequirementChanged(_id, _required, _previousRequired);
     }
 }

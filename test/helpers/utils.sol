@@ -32,21 +32,14 @@ contract Utils is Test {
         return arr;
     }
 
-    function array(
-        address a,
-        address b
-    ) public pure returns (address[] memory) {
+    function array(address a, address b) public pure returns (address[] memory) {
         address[] memory arr = new address[](2);
         arr[0] = a;
         arr[1] = b;
         return arr;
     }
 
-    function array(
-        address a,
-        address b,
-        address c
-    ) public pure returns (address[] memory) {
+    function array(address a, address b, address c) public pure returns (address[] memory) {
         address[] memory arr = new address[](3);
         arr[0] = a;
         arr[1] = b;

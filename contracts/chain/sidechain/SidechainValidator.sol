@@ -20,9 +20,8 @@ contract SidechainValidator is Validator {
     constructor(
         address _acknowledgement,
         address[] memory _validators,
-        uint256 _num,
-        uint256 _denom
-    ) Validator(_validators, _num, _denom) {
+        uint256 _required
+    ) Validator(_validators, _required) {
         acknowledgement = Acknowledgement(_acknowledgement);
     }
 
@@ -58,12 +57,8 @@ contract SidechainValidator is Validator {
         }
     }
 
-    function updateQuorum(
-        uint256 _id,
-        uint256 _numerator,
-        uint256 _denominator
-    ) external onlyValidator {
-        bytes32 _hash = keccak256(abi.encode("updateQuorum", _numerator, _denominator));
+    function changeRequirement(uint256 _id, uint256 _required) external onlyValidator {
+        bytes32 _hash = keccak256(abi.encode("changeRequirement", _required));
 
         Acknowledgement.Status _status = acknowledgement.acknowledge(
             _getAckChannel(),
@@ -73,7 +68,7 @@ contract SidechainValidator is Validator {
             msg.sender
         );
         if (_status == Acknowledgement.Status.FirstApproved) {
-            _updateQuorum(_id, _numerator, _denominator);
+            _changeRequirement(_id, _required);
         }
     }
 

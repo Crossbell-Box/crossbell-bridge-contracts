@@ -2,22 +2,19 @@
 pragma solidity 0.8.10;
 
 import "./IValidator.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 contract Validator is IValidator {
-    mapping(address => bool) validatorMap;
-    address[] public validators;
-    uint256 public validatorCount;
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    EnumerableSet.AddressSet internal validators;
 
     uint256 public num;
     uint256 public denom;
 
     constructor(address[] memory _validators, uint256 _num, uint256 _denom) {
-        validators = _validators;
-        validatorCount = _validators.length;
-
-        for (uint256 _i = 0; _i < validatorCount; _i++) {
-            address _validator = _validators[_i];
-            validatorMap[_validator] = true;
+        for (uint256 _i = 0; _i < _validators.length; _i++) {
+            validators.add(_validators[i]);
         }
 
         num = _num;
@@ -25,7 +22,8 @@ contract Validator is IValidator {
     }
 
     function isValidator(address _addr) external view returns (bool) {
-        return _isValidator(_addr);
+        _isValidator(_addr);
+        _;
     }
 
     function getValidators()
@@ -33,43 +31,25 @@ contract Validator is IValidator {
         view
         returns (address[] memory _validators)
     {
-        _validators = validators;
+        return validators.values();
     }
 
     function checkThreshold(uint256 _voteCount) external view returns (bool) {
         return _voteCount * denom >= num * validatorCount;
     }
 
-    function _isValidator(address _addr) internal view returns (bool) {
-        return validatorMap[_addr];
+    function _isValidator(address _addr) internal view {
+        require(validators.contains(_addr), "NotValidator");
     }
 
     function _addValidator(uint256 _id, address _validator) internal {
-        require(!_isValidator(_validator));
-
-        validators.push(_validator);
-        validatorMap[_validator] = true;
-        validatorCount++;
+        require(_validators.add(_validator), "ValidatorAlreadyExists");
 
         emit ValidatorAdded(_id, _validator);
     }
 
     function _removeValidator(uint256 _id, address _validator) internal {
-        require(_isValidator(_validator));
-
-        uint256 _index;
-        for (uint256 _i = 0; _i < validatorCount; _i++) {
-            if (validators[_i] == _validator) {
-                _index = _i;
-                break;
-            }
-        }
-
-        validatorMap[_validator] = false;
-        validators[_index] = validators[validatorCount - 1];
-        validators.pop();
-
-        validatorCount--;
+        require(_validators.remove(_validator), "ValidatorNotExists");
 
         emit ValidatorRemoved(_id, _validator);
     }

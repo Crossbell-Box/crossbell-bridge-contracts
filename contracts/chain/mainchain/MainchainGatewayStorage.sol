@@ -13,30 +13,22 @@ contract MainchainGatewayStorage {
     event TokenDeposited(
         uint256 indexed _depositId,
         address indexed _owner,
-        address indexed _tokenAddress,
-        address _sidechainAddress,
-        uint32 _standard,
-        uint256 _tokenNumber // ERC-20 amount or ERC721 tokenId
+        uint256 indexed _tokenNumber // ERC-20 amount
     );
 
     event TokenWithdrew(
         uint256 indexed _withdrawId,
         address indexed _owner,
-        address indexed _tokenAddress,
-        uint256 _tokenNumber
+        uint256 indexed _tokenNumber
     );
 
     struct DepositEntry {
         address owner;
-        address tokenAddress;
-        address sidechainAddress;
-        uint32 standard;
         uint256 tokenNumber;
     }
 
     struct WithdrawalEntry {
         address owner;
-        address tokenAddress;
         uint256 tokenNumber;
     }
 

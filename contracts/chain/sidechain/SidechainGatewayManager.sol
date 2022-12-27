@@ -2,12 +2,11 @@
 pragma solidity 0.8.10;
 pragma experimental ABIEncoderV2;
 
+import "../../references/IERC20Mintable.sol";
 import "../../references/ECVerify.sol";
-import "../../references/ERC20/IERC20.sol";
-import "../../references/ERC20/IERC20Mintable.sol";
-import "../../references/ERC721/IERC721.sol";
-import "../../references/ERC721/IERC721Mintable.sol";
 import "./SidechainGatewayStorage.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
@@ -303,10 +302,7 @@ contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewaySto
     function _depositERC20For(address _owner, address _token, uint256 _amount) internal {
         uint256 _gatewayBalance = IERC20(_token).balanceOf(address(this));
         if (_gatewayBalance < _amount) {
-            require(
-                IERC20Mintable(_token).mint(address(this), _amount - _gatewayBalance),
-                "SidechainGatewayManager: Minting ERC20 to gateway failed"
-            );
+            IERC20Mintable(token).mint(address(this), _amount - _gatewayBalance);
         }
 
         require(

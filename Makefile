@@ -2,7 +2,7 @@
 # (-include to ignore error if it does not exist)
 -include .env
 
-all: clean install build foundry-test
+all: clean install build foundry-test abi docgen
 
 # Install proper solc version.
 solc:; nix-env -f https://github.com/dapphub/dapptools/archive/master.tar.gz -iA solc-static-versions.solc_0_8_10
@@ -39,3 +39,9 @@ snapshot :; forge clean && forge snapshot
 
 # Rename all instances of femplate with the new repo name
 rename :; chmod +x ./scripts/* && ./scripts/rename.sh
+
+# export abi
+abi :; yarn run hardhat export-abi
+
+# generate docs
+docgen :; yarn docgen

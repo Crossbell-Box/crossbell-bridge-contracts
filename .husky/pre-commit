@@ -7,8 +7,10 @@ yarn lint
 
 # unit test
 echo "Running test"
-yarn test
+# yarn test
 
+# generate docs
 yarn docgen
-npx validate-branch-name
 
+# check branch name format
+npx validate-branch-name

@@ -9,33 +9,30 @@ import "./MainchainValidator.sol";
  * @title GatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract MainchainGatewayStorage {
-    event TokenDeposited(
-        uint256 indexed _depositId,
-        address indexed _owner,
-        uint256 indexed _tokenNumber // ERC-20 amount
+contract MainchainBridgeStorage {
+    event RequestDeposit(
+        uint256 indexed depositId,
+        address indexed owner,
+        uint256 indexed transformedAmount, // ERC-20 amount
+        uint256 originalAmount
     );
 
-    event TokenWithdrew(
-        uint256 indexed _withdrawId,
-        address indexed _owner,
-        uint256 indexed _tokenNumber
-    );
+    event Withdrew(uint256 indexed withdrawId, address indexed owner, uint256 indexed amount);
 
     struct DepositEntry {
         address owner;
-        uint256 tokenNumber;
+        uint256 transformedAmount;
+        uint256 originalAmount;
     }
 
     struct WithdrawalEntry {
         address owner;
-        uint256 tokenNumber;
+        uint256 amount;
     }
 
     Registry public registry;
 
     uint256 public depositCount;
-    DepositEntry[] public deposits;
     mapping(uint256 => WithdrawalEntry) public withdrawals;
 
     address public admin;

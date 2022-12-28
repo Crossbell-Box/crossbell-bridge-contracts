@@ -9,19 +9,27 @@ import "./Acknowledgement.sol";
  * @title SidechainGatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract SidechainGatewayStorage {
-    event TokenDeposited(
-        uint256 indexed _chainId,
+contract SidechainBridgeStorage {
+    event Deposited(
+        uint256 indexed chainId,
         uint256 indexed depositId,
         address indexed owner,
-        uint256 tokenNumber // ERC-20 amount or ERC721 tokenId
+        uint256 tokenNumber // ERC-20 amount
     );
 
-    event TokenWithdrew(
-        uint256 indexed _chainId,
-        uint256 indexed _withdrawId,
-        address indexed _owner,
-        uint256 _tokenNumber
+    event AckDeposit(
+        uint256 indexed chainId,
+        uint256 indexed depositId,
+        address indexed owner,
+        uint256 tokenNumber // ERC-20 amount
+    );
+
+    event RequestWithdrawal(
+        uint256 indexed chainId,
+        uint256 indexed withdrawId,
+        address indexed owner,
+        uint256 transformedAmount,
+        uint256 originalAmount
     );
 
     event RequestTokenWithdrawalSigAgain(
@@ -32,6 +40,7 @@ contract SidechainGatewayStorage {
     );
 
     struct DepositEntry {
+        uint256 chainId;
         address owner;
         uint256 tokenNumber;
     }
@@ -39,12 +48,8 @@ contract SidechainGatewayStorage {
     struct WithdrawalEntry {
         uint256 chainId;
         address owner;
+        uint256 transformedAmount;
         uint256 tokenNumber;
-    }
-
-    struct PendingWithdrawalInfo {
-        uint256[] withdrawalIds;
-        uint256 count;
     }
 
     // Final deposit state, update only once when there is enough acknowledgement
@@ -53,15 +58,12 @@ contract SidechainGatewayStorage {
 
     // chainId => withdrawCount
     mapping(uint256 => uint256) public withdrawalCounts;
-    // chainId =>  WithdrawalEntry[]
-    mapping(uint256 => WithdrawalEntry[]) public withdrawals;
-    // chainId => withdrawId => address => signature
+    // chainId =>  withdrawId =>WithdrawalEntry
+    mapping(uint256 => mapping(uint256 => WithdrawalEntry)) public withdrawals;
+    // chainId => withdrawId  => signature
     mapping(uint256 => mapping(uint256 => mapping(address => bytes))) public withdrawalSig;
     // chainId => withdrawId => address[]
     mapping(uint256 => mapping(uint256 => address[])) public withdrawalSigners;
-
-    // address => chainId => withdrawIds
-    mapping(address => mapping(uint256 => uint256[])) public userWithdrawals;
 
     address public admin;
     Registry public registry;

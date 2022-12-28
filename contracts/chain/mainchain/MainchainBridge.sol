@@ -2,17 +2,18 @@
 pragma solidity 0.8.10;
 
 import "../../references/ECVerify.sol";
-import "./MainchainGatewayStorage.sol";
+import "../../references/Constants.sol";
+import "./MainchainBridgeStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
- * @title MainchainGatewayManager
+ * @title MainchainBridge
  * @dev Logic to handle deposits and withdrawl on Mainchain.
  */
-contract MainchainGatewayManager is Initializable, Pausable, MainchainGatewayStorage {
+abstract contract MainchainBridge is Initializable, Pausable, MainchainBridgeStorage {
     using ECVerify for bytes32;
     using SafeERC20 for IERC20;
 
@@ -53,60 +54,35 @@ contract MainchainGatewayManager is Initializable, Pausable, MainchainGatewaySto
         registry = Registry(_registry);
     }
 
-    /**
-     * @dev Get the current chainId
-     * @return chainId The current chainId
-     */
-    function getChainId() public view virtual returns (uint256 chainId) {
-        this; // Silence state mutability warning without generating any additional byte code
-        assembly {
-            chainId := chainid()
-        }
-    }
-
-    function depositERC20(uint256 _amount) external whenNotPaused returns (uint256) {
-        return depositERC20For(msg.sender, _amount);
-    }
-
-    function depositERC20For(
-        address _user,
+    function requestDeposit(
+        address _owner,
         uint256 _amount
-    ) public whenNotPaused returns (uint256) {
+    ) external virtual whenNotPaused returns (uint256 depositId) {
         address token = registry.getContract(registry.TOKEN());
-
         IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
 
-        return _createDepositEntry(_user, _amount);
+        return _createDepositEntry(_owner, _amount);
     }
 
-    function withdrawERC20(
+    function withdraw(
         uint256 _chainId,
         uint256 _withdrawalId,
+        address _owner,
         uint256 _amount,
         bytes memory _signatures
-    ) public whenNotPaused {
-        withdrawERC20For(_chainId, _withdrawalId, msg.sender, _amount, _signatures);
-    }
-
-    function withdrawERC20For(
-        uint256 _chainId,
-        uint256 _withdrawalId,
-        address _user,
-        uint256 _amount,
-        bytes memory _signatures
-    ) public whenNotPaused {
-        require(_chainId == getChainId(), "MainchainGatewayManager: invalid chainId");
+    ) external virtual whenNotPaused {
+        require(_chainId == block.chainid, "MainchainGatewayManager: invalid chainId");
 
         bytes32 _hash = keccak256(
-            abi.encodePacked("withdrawERC20", _chainId, _withdrawalId, _user, _amount)
+            abi.encodePacked("withdrawERC20", _chainId, _withdrawalId, _owner, _amount)
         );
 
         require(verifySignatures(_hash, _signatures));
 
         address token = registry.getContract(registry.TOKEN());
-        IERC20(token).safeTransfer(_user, _amount);
+        IERC20(token).safeTransfer(_owner, _amount);
 
-        _insertWithdrawalEntry(_withdrawalId, _user, _amount);
+        _insertWithdrawalEntry(_withdrawalId, _owner, _amount);
     }
 
     /**
@@ -134,25 +110,31 @@ contract MainchainGatewayManager is Initializable, Pausable, MainchainGatewaySto
 
     function _createDepositEntry(
         address _owner,
-        uint256 _number
+        uint256 _originalAmount
     ) internal returns (uint256 _depositId) {
-        DepositEntry memory _entry = DepositEntry(_owner, _number);
-
-        deposits.push(_entry);
         _depositId = depositCount++;
 
-        emit TokenDeposited(_depositId, _owner, _number);
+        // transform token amount by different chain
+        uint256 transformedAmount = _transformAmount(_originalAmount);
+
+        emit RequestDeposit(_depositId, _owner, transformedAmount, _originalAmount);
     }
 
     function _insertWithdrawalEntry(
         uint256 _withdrawalId,
         address _owner,
-        uint256 _number
+        uint256 _amount
     ) internal onlyNewWithdrawal(_withdrawalId) {
-        WithdrawalEntry memory _entry = WithdrawalEntry(_owner, _number);
+        WithdrawalEntry memory _entry = WithdrawalEntry(_owner, _amount);
 
         withdrawals[_withdrawalId] = _entry;
 
-        emit TokenWithdrew(_withdrawalId, _owner, _number);
+        emit Withdrew(_withdrawalId, _owner, _amount);
     }
+
+    // as there are different token decimals on different chains, so the amount need to be transformed
+    // this function should be overridden by subclasses
+    function _transformAmount(
+        uint256 amount
+    ) internal pure virtual returns (uint256 transformedAmount);
 }

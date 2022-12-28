@@ -4,20 +4,18 @@ pragma experimental ABIEncoderV2;
 
 import "../../references/IERC20Mintable.sol";
 import "../../references/ECVerify.sol";
-import "./SidechainGatewayStorage.sol";
+import "../../references/Constants.sol";
+import "./SidechainBridgeStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../../references/ERC20/IERC20Mintable.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
-
-
 /**
- * @title SidechainGatewayManager
+ * @title SidechainBridge
  * @dev Logic to handle deposits and withdrawals on Sidechain.
  */
-contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewayStorage {
+abstract contract SidechainBridge is Initializable, Pausable, SidechainBridgeStorage {
     using ECVerify for bytes32;
     using SafeERC20 for IERC20;
 
@@ -76,21 +74,21 @@ contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewaySto
         }
     }
 
-    function batchDepositERCTokenFor(
+    function batchAckDeposit(
         uint256[] calldata _chainIds,
         uint256[] calldata _depositIds,
         address[] calldata _owners,
-        uint256[] calldata _tokenNumbers
+        uint256[] calldata _amounts
     ) external whenNotPaused onlyValidator {
         require(
             _depositIds.length == _chainIds.length &&
                 _depositIds.length == _owners.length &&
-                _depositIds.length == _tokenNumbers.length,
+                _depositIds.length == _amounts.length,
             "SidechainGatewayManager: invalid input array length"
         );
 
         for (uint256 _i; _i < _depositIds.length; _i++) {
-            depositERCTokenFor(_chainIds[_i], _depositIds[_i], _owners[_i], _tokenNumbers[_i]);
+            _ackDeposit(_chainIds[_i], _depositIds[_i], _owners[_i], _amounts[_i]);
         }
     }
 
@@ -117,20 +115,22 @@ contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewaySto
         }
     }
 
-    function withdrawERC20(
-        uint256 _chainId,
-        uint256 _amount
-    ) external whenNotPaused returns (uint256) {
-        return withdrawERC20For(_chainId, msg.sender, _amount);
-    }
-
-    function depositERCTokenFor(
+    function ackDeposit(
         uint256 _chainId,
         uint256 _depositId,
         address _owner,
         uint256 _tokenNumber
-    ) public whenNotPaused onlyValidator {
-        bytes32 _hash = keccak256(abi.encode(_owner, _chainId, _depositId, _tokenNumber));
+    ) external {
+        _ackDeposit(_chainId, _depositId, _owner, _tokenNumber);
+    }
+
+    function _ackDeposit(
+        uint256 _chainId,
+        uint256 _depositId,
+        address _owner,
+        uint256 _amount
+    ) internal whenNotPaused onlyValidator {
+        bytes32 _hash = keccak256(abi.encode(_owner, _chainId, _depositId, _amount));
 
         Acknowledgement.Status _status = _getAcknowledgementContract().acknowledge(
             _getDepositAckChannel(),
@@ -141,14 +141,16 @@ contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewaySto
         );
 
         if (_status == Acknowledgement.Status.FirstApproved) {
-            _depositERC20For(_owner, _tokenNumber);
+            _depositFor(_owner, _amount);
 
-            deposits[_chainId][_depositId] = DepositEntry(_owner, _tokenNumber);
-            emit TokenDeposited(_chainId, _depositId, _owner, _tokenNumber);
+            deposits[_chainId][_depositId] = DepositEntry(_chainId, _owner, _amount);
+            emit Deposited(_chainId, _depositId, _owner, _amount);
         }
+
+        emit AckDeposit(_chainId, _depositId, _owner, _amount);
     }
 
-    function withdrawERC20For(
+    function requestWithdrawal(
         uint256 _chainId,
         address _owner,
         uint256 _amount
@@ -216,15 +218,12 @@ contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewaySto
         }
     }
 
-    function _depositERC20For(address _owner, uint256 _amount) internal {
+    function _depositFor(address _owner, uint256 _amount) internal {
         address token = registry.getContract(registry.TOKEN());
 
         uint256 _gatewayBalance = IERC20(token).balanceOf(address(this));
         if (_gatewayBalance < _amount) {
-            require(
-                IERC20Mintable(token).mint(address(this), _amount - _gatewayBalance),
-                "SidechainGatewayManager: Minting ERC20 to gateway failed"
-            );
+            IERC20Mintable(token).mint(address(this), _amount - _gatewayBalance);
         }
 
         IERC20(token).safeTransfer(_owner, _amount);
@@ -237,17 +236,27 @@ contract SidechainGatewayManager is Initializable, Pausable, SidechainGatewaySto
     function _createWithdrawalEntry(
         uint256 _chainId,
         address _owner,
-        uint256 _number
+        uint256 _originalAmount
     ) internal returns (uint256 _withdrawalId) {
-        WithdrawalEntry memory _entry = WithdrawalEntry(_chainId, _owner, _number);
-        withdrawals[_chainId].push(_entry);
+        _withdrawalId = withdrawalCounts[_chainId]++;
 
-        _withdrawalId = withdrawalCounts[_chainId];
-        withdrawalCounts[_chainId]++;
+        // transform token amount by different chain
+        uint256 transformedAmount = _transformAmount(_chainId, _originalAmount);
 
-        // save user withdrawal history
-        userWithdrawals[_owner][_chainId].push(_withdrawalId);
+        withdrawals[_chainId][_withdrawalId] = WithdrawalEntry(
+            _chainId,
+            _owner,
+            transformedAmount,
+            _originalAmount
+        );
 
-        emit TokenWithdrew(_chainId, _withdrawalId, _owner, _number);
+        emit RequestWithdrawal(_chainId, _withdrawalId, _owner, transformedAmount, _originalAmount);
     }
+
+    // as there are different token decimals on different chains, so the amount need to be transformed
+    // this function should be overridden by subclasses
+    function _transformAmount(
+        uint256 _chainId,
+        uint256 _amount
+    ) internal pure virtual returns (uint256 _transformedAmount);
 }

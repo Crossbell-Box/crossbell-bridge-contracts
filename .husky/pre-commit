@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# lint
+echo "Running lint"
+yarn lint
+
+# unit test
+echo "Running test"
+# yarn test
+
+# generate docs
+yarn docgen
+
+# check branch name format
+npx validate-branch-name

@@ -22,5 +22,5 @@ artifacts_foundry
 
 # Ignore flattened files
 flattened.txt
-node_modules
 out/
+build-info/

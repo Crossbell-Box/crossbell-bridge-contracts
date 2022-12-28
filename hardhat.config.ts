@@ -6,6 +6,7 @@ import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 import "solidity-docgen";
 import * as dotenv from "dotenv";
+import "hardhat-abi-exporter";
 
 dotenv.config();
 
@@ -50,4 +51,10 @@ module.exports = {
             },
         ],
     },
+
+    abiExporter: {
+        path: './build-info',
+        pretty: true,
+        except: ['@openzeppelin']
+    }
 } as HardhatUserConfig;

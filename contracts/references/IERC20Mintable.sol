@@ -2,5 +2,5 @@
 pragma solidity 0.8.10;
 
 interface IERC20Mintable {
-    function mint(address to, uint256 amount) external;
+    function mint(address to, uint256 amount) external returns (bool _success);
 }

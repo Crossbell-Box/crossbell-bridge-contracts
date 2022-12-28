@@ -7,11 +7,8 @@ import "../../references/ECVerify.sol";
 import "./SidechainGatewayStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../../references/ERC20/IERC20Mintable.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-
-
 
 /**
  * @title SidechainGatewayManager

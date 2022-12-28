@@ -4,12 +4,10 @@ pragma solidity 0.8.10;
 interface IValidator {
     event ValidatorAdded(uint256 indexed _id, address indexed _validator);
     event ValidatorRemoved(uint256 indexed _id, address indexed _validator);
-    event ThresholdUpdated(
+    event RequirementChanged(
         uint256 indexed _id,
-        uint256 indexed _numerator,
-        uint256 indexed _denominator,
-        uint256 _previousNumerator,
-        uint256 _previousDenominator
+        uint256 indexed _requirement,
+        uint256 indexed _previousRequired
     );
 
     function isValidator(address _addr) external view returns (bool);

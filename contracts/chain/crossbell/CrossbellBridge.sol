@@ -3,7 +3,7 @@ pragma solidity 0.8.10;
 
 import "../sidechain/SidechainBridge.sol";
 
-contract CrossbellGatewayManager is SidechainBridge {
+contract CrossbellBridge is SidechainBridge {
     function _transformAmount(
         uint256 _chainId,
         uint256 _amount

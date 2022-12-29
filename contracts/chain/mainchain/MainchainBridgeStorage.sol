@@ -4,20 +4,32 @@ pragma solidity 0.8.10;
 import "../common/Validator.sol";
 import "../common/Registry.sol";
 import "./MainchainValidator.sol";
+import "../../IMappedToken.sol";
 
 /**
  * @title GatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract MainchainBridgeStorage {
+contract MainchainBridgeStorage is IMappedToken {
+    event TokenMapped(
+        address[] mainchainTokens,
+        address[] crossbellTokens,
+        uint8[] crossbellTokensDecimals
+    );
+
     event RequestDeposit(
         uint256 indexed depositId,
         address indexed owner,
-        uint256 indexed transformedAmount, // ERC-20 amount
-        uint256 originalAmount
+        address indexed token,
+        uint256 amount // ERC-20 amount
     );
 
-    event Withdrew(uint256 indexed withdrawId, address indexed owner, uint256 indexed amount);
+    event Withdrew(
+        uint256 indexed withdrawId,
+        address indexed owner,
+        address indexed token,
+        uint256 amount
+    );
 
     struct DepositEntry {
         address owner;
@@ -27,13 +39,20 @@ contract MainchainBridgeStorage {
 
     struct WithdrawalEntry {
         address owner;
+        address token;
         uint256 amount;
     }
 
-    Registry public registry;
+    Validator public validator;
 
     uint256 public depositCount;
     mapping(uint256 => WithdrawalEntry) public withdrawals;
 
     address public admin;
+
+    /// @dev Crossbell network id
+    uint256 public crossbellChainId;
+
+    // @dev Mapping from mainchain token => token address on crossbell network
+    mapping(address => MappedToken) internal crossbellToken;
 }

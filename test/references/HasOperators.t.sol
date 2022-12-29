@@ -76,7 +76,7 @@ contract HasOperatorsTest is Test, Utils {
             assertFalse(mock.isOperator(newOperators[i]));
         }
 
-        // can remove an nonexistent operator
+        // can remove a nonexistent operator
         mock.removeOperators(array(carol));
     }
 
@@ -152,7 +152,7 @@ contract HasOperatorsTest is Test, Utils {
         address[] memory newOperators = array(alice);
         mock.addOperators(newOperators);
 
-        // only operator can call doStuff, which can in increase count by 1
+        // only operator can call doStuff, which can increase count by 1
         vm.prank(alice);
         mock.doStuff();
         assertEq(mock.count(), 1);

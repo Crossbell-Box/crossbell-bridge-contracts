@@ -3,6 +3,7 @@ pragma solidity 0.8.10;
 
 import "../common/Validator.sol";
 import "./Acknowledgement.sol";
+import "../../references/Constants.sol";
 
 /**
  * @title Validator
@@ -10,7 +11,6 @@ import "./Acknowledgement.sol";
  */
 contract SidechainValidator is Validator {
     Acknowledgement public acknowledgement;
-    uint256 public constant ETHEREUM_CHAIN_ID = 1; // ethereum chainId
 
     modifier onlyValidator() {
         require(_isValidator(msg.sender));
@@ -30,7 +30,7 @@ contract SidechainValidator is Validator {
 
         Acknowledgement.Status _status = acknowledgement.acknowledge(
             _getAckChannel(),
-            ETHEREUM_CHAIN_ID,
+            Constants.ETHEREUM_CHAIN_ID,
             _id,
             _hash,
             msg.sender
@@ -47,7 +47,7 @@ contract SidechainValidator is Validator {
 
         Acknowledgement.Status _status = acknowledgement.acknowledge(
             _getAckChannel(),
-            ETHEREUM_CHAIN_ID,
+            Constants.ETHEREUM_CHAIN_ID,
             _id,
             _hash,
             msg.sender
@@ -62,7 +62,7 @@ contract SidechainValidator is Validator {
 
         Acknowledgement.Status _status = acknowledgement.acknowledge(
             _getAckChannel(),
-            ETHEREUM_CHAIN_ID,
+            Constants.ETHEREUM_CHAIN_ID,
             _id,
             _hash,
             msg.sender

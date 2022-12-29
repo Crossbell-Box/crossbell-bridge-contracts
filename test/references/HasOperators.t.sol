@@ -22,9 +22,9 @@ contract HasOperatorsTest is Test, Utils {
     function testAddOperators() public {
         address[] memory newOperators = array(alice, bob);
         // expect events
-        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
+        expectEmit(CheckAll);
         emit OperatorAdded(alice);
-        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
+        expectEmit(CheckAll);
         emit OperatorAdded(bob);
         // add operators
         mock.addOperators(newOperators);
@@ -61,9 +61,9 @@ contract HasOperatorsTest is Test, Utils {
         address[] memory newOperators = array(alice, bob);
         mock.addOperators(newOperators);
         // expect events
-        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
+        expectEmit(CheckAll);
         emit OperatorRemoved(alice);
-        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
+        expectEmit(CheckAll);
         emit OperatorRemoved(bob);
         // remove operators
         mock.removeOperators(newOperators);

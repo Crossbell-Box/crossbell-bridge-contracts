@@ -2,9 +2,9 @@
 pragma solidity 0.8.10;
 pragma experimental ABIEncoderV2;
 
-import "../../references/IERC20Mintable.sol";
-import "../../references/ECVerify.sol";
-import "../../references/Constants.sol";
+import "../interfaces/IERC20Mintable.sol";
+import "../libraries/ECVerify.sol";
+import "../libraries/Constants.sol";
 import "./CrossbellGatewayStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";

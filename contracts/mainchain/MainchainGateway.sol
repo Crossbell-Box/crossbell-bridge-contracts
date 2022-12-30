@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../../references/ECVerify.sol";
-import "../../references/Constants.sol";
+import "../libraries/ECVerify.sol";
+import "../libraries/Constants.sol";
 import "./MainchainGatewayStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";

@@ -3,7 +3,7 @@ pragma solidity 0.8.10;
 
 import "../common/Validator.sol";
 import "../common/Registry.sol";
-import "../../IMappedToken.sol";
+import "../interfaces/IMappedToken.sol";
 
 /**
  * @title GatewayStorage

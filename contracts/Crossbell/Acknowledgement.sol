@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../../references/HasOperators.sol";
+import "./HasOperators.sol";
 import "../common/Validator.sol";
 
 contract Acknowledgement is HasOperators {

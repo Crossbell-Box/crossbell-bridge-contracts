@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import "../../references/IERC20Mintable.sol";
 import "../../references/ECVerify.sol";
 import "../../references/Constants.sol";
-import "./SidechainBridgeStorage.sol";
+import "./CrossbellGatewayStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * @title SidechainBridge
  * @dev Logic to handle deposits and withdrawals on Sidechain.
  */
-abstract contract SidechainBridge is Initializable, Pausable, SidechainBridgeStorage {
+abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayStorage {
     using ECVerify for bytes32;
     using SafeERC20 for IERC20;
 

@@ -9,7 +9,7 @@ import "./Acknowledgement.sol";
  * @title SidechainGatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract SidechainBridgeStorage {
+contract CrossbellGatewayStorage {
     event Deposited(
         uint256 indexed chainId,
         uint256 indexed depositId,

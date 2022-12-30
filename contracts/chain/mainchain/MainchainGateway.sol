@@ -3,7 +3,7 @@ pragma solidity 0.8.10;
 
 import "../../references/ECVerify.sol";
 import "../../references/Constants.sol";
-import "./MainchainBridgeStorage.sol";
+import "./MainchainGatewayStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * @title MainchainBridge
  * @dev Logic to handle deposits and withdrawl on Mainchain.
  */
-abstract contract MainchainBridge is Initializable, Pausable, MainchainBridgeStorage {
+abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayStorage {
     using ECVerify for bytes32;
     using SafeERC20 for IERC20;
 

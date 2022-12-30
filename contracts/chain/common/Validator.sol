@@ -3,8 +3,9 @@ pragma solidity 0.8.10;
 
 import "./IValidator.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Validator is IValidator {
+contract Validator is IValidator, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     EnumerableSet.AddressSet internal validators;
@@ -24,6 +25,22 @@ contract Validator is IValidator {
         required = _required;
     }
 
+    function addValidators(address[] calldata _validators) external onlyOwner {
+        for (uint256 _i; _i < _validators.length; ++_i) {
+            _addValidator(_validators[_i]);
+        }
+    }
+
+    function removeValidators(address[] calldata _validators) external onlyOwner {
+        for (uint256 _i; _i < _validators.length; ++_i) {
+            _removeValidator(_validators[_i]);
+        }
+    }
+
+    function changeRequirement(uint256 _required) external onlyOwner {
+        _changeRequirement(_required);
+    }
+
     function isValidator(address _addr) external view returns (bool) {
         return _isValidator(_addr);
     }
@@ -40,26 +57,23 @@ contract Validator is IValidator {
         return validators.contains(_addr);
     }
 
-    function _addValidator(uint256 _id, address _validator) internal {
+    function _addValidator(address _validator) internal {
         require(validators.add(_validator), "ValidatorAlreadyExists");
 
-        emit ValidatorAdded(_id, _validator);
+        emit ValidatorAdded(_validator);
     }
 
-    function _removeValidator(uint256 _id, address _validator) internal {
+    function _removeValidator(address _validator) internal {
         require(validators.remove(_validator), "ValidatorNotExists");
 
-        emit ValidatorRemoved(_id, _validator);
+        emit ValidatorRemoved(_validator);
     }
 
-    function _changeRequirement(
-        uint256 _id,
-        uint256 _required
-    ) internal validRequirement(_required) {
+    function _changeRequirement(uint256 _required) internal validRequirement(_required) {
         uint256 _previousRequired = required;
 
         required = _required;
 
-        emit RequirementChanged(_id, _required, _previousRequired);
+        emit RequirementChanged(_required, _previousRequired);
     }
 }

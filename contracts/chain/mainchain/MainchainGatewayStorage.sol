@@ -3,14 +3,13 @@ pragma solidity 0.8.10;
 
 import "../common/Validator.sol";
 import "../common/Registry.sol";
-import "./MainchainValidator.sol";
 import "../../IMappedToken.sol";
 
 /**
  * @title GatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract MainchainBridgeStorage is IMappedToken {
+contract MainchainGatewayStorage is IMappedToken {
     event TokenMapped(
         address[] mainchainTokens,
         address[] crossbellTokens,

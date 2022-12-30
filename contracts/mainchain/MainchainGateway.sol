@@ -2,7 +2,6 @@
 pragma solidity 0.8.10;
 
 import "../libraries/ECVerify.sol";
-import "../libraries/Constants.sol";
 import "./MainchainGatewayStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
@@ -146,16 +145,16 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
     function _transformDepositAmount(
         address token,
         uint256 amount,
-        uint8 crossbellTokenDecimals
+        uint8 destinationDecimals
     ) internal view returns (uint256 transformedAmount) {
         uint8 decimals = IERC20Metadata(token).decimals();
 
-        if (crossbellTokenDecimals == decimals) {
+        if (destinationDecimals == decimals) {
             transformedAmount = amount;
-        } else if (crossbellTokenDecimals > decimals) {
-            transformedAmount = amount * 10 ** (crossbellTokenDecimals - decimals);
+        } else if (destinationDecimals > decimals) {
+            transformedAmount = amount * 10 ** (destinationDecimals - decimals);
         } else {
-            transformedAmount = amount / (10 ** (decimals - crossbellTokenDecimals));
+            transformedAmount = amount / (10 ** (decimals - destinationDecimals));
         }
     }
 

@@ -4,9 +4,9 @@ pragma experimental ABIEncoderV2;
 
 import "../interfaces/IERC20Mintable.sol";
 import "../libraries/ECVerify.sol";
-import "../libraries/Constants.sol";
 import "./CrossbellGatewayStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
@@ -30,28 +30,24 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
     }
 
     function _checkAdmin() internal view {
-        require(_msgSender() == admin, "onlyAdmin");
+        require(_msgSender() == _admin, "onlyAdmin");
     }
 
     function _checkValidator() internal view {
         require(
-            _getValidator().isValidator(_msgSender()),
+            _validator.isValidator(_msgSender()),
             "SidechainGatewayManager: sender is not validator"
         );
     }
 
     function initialize(
-        address _registry,
-        uint256[] memory _activeChainIds,
-        address _admin
+        address validator,
+        address acknowledgement,
+        address admin
     ) external initializer {
-        registry = Registry(_registry);
-
-        for (uint256 i = 0; i < _activeChainIds.length; i++) {
-            activeChainIds[_activeChainIds[i]] = true;
-        }
-
-        admin = _admin;
+        _validator = Validator(validator);
+        _acknowledgement = Acknowledgement(acknowledgement);
+        _admin = admin;
     }
 
     function pause() external whenNotPaused onlyAdmin {
@@ -62,124 +58,148 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
         _unpause();
     }
 
-    function addActiveChainIds(uint256[] calldata chainIds) external onlyAdmin {
-        for (uint256 i = 0; i < chainIds.length; i++) {
-            activeChainIds[chainIds[i]] = true;
-        }
-    }
-
-    function removeActiveChainIds(uint256[] calldata chainIds) external onlyAdmin {
-        for (uint256 i = 0; i < chainIds.length; i++) {
-            activeChainIds[chainIds[i]] = false;
-        }
-    }
-
     function batchAckDeposit(
-        uint256[] calldata _chainIds,
-        uint256[] calldata _depositIds,
-        address[] calldata _owners,
-        uint256[] calldata _amounts
+        uint256[] calldata chainIds,
+        uint256[] calldata depositIds,
+        address[] calldata owners,
+        address[] calldata tokens,
+        uint256[] calldata amounts
     ) external whenNotPaused onlyValidator {
         require(
-            _depositIds.length == _chainIds.length &&
-                _depositIds.length == _owners.length &&
-                _depositIds.length == _amounts.length,
+            depositIds.length == chainIds.length &&
+                depositIds.length == owners.length &&
+                depositIds.length == amounts.length,
             "SidechainGatewayManager: invalid input array length"
         );
 
-        for (uint256 _i; _i < _depositIds.length; _i++) {
-            _ackDeposit(_chainIds[_i], _depositIds[_i], _owners[_i], _amounts[_i]);
+        for (uint256 i; i < depositIds.length; i++) {
+            _ackDeposit(chainIds[i], depositIds[i], owners[i], tokens[i], amounts[i]);
         }
     }
 
     function batchSubmitWithdrawalSignatures(
-        uint256[] calldata _chainIds,
-        uint256[] calldata _withdrawalIds,
-        bool[] calldata _shouldReplaces,
-        bytes[] calldata _sigs
+        uint256[] calldata chainIds,
+        uint256[] calldata withdrawalIds,
+        bool[] calldata shouldReplaces,
+        bytes[] calldata sigs
     ) external whenNotPaused onlyValidator {
         require(
-            _withdrawalIds.length == _chainIds.length &&
-                _withdrawalIds.length == _shouldReplaces.length &&
-                _withdrawalIds.length == _sigs.length,
+            withdrawalIds.length == chainIds.length &&
+                withdrawalIds.length == shouldReplaces.length &&
+                withdrawalIds.length == sigs.length,
             "SidechainGatewayManager: invalid input array length"
         );
 
-        for (uint256 _i; _i < _withdrawalIds.length; _i++) {
-            submitWithdrawalSignatures(
-                _chainIds[_i],
-                _withdrawalIds[_i],
-                _shouldReplaces[_i],
-                _sigs[_i]
-            );
+        for (uint256 i; i < withdrawalIds.length; i++) {
+            submitWithdrawalSignatures(chainIds[i], withdrawalIds[i], shouldReplaces[i], sigs[i]);
         }
     }
 
     function ackDeposit(
-        uint256 _chainId,
-        uint256 _depositId,
-        address _owner,
-        uint256 _tokenNumber
+        uint256 chainId,
+        uint256 depositId,
+        address owner,
+        address token,
+        uint256 amount
     ) external {
-        _ackDeposit(_chainId, _depositId, _owner, _tokenNumber);
+        _ackDeposit(chainId, depositId, owner, token, amount);
     }
 
     function _ackDeposit(
-        uint256 _chainId,
-        uint256 _depositId,
-        address _owner,
-        uint256 _amount
+        uint256 chainId,
+        uint256 depositId,
+        address owner,
+        address token,
+        uint256 amount
     ) internal whenNotPaused onlyValidator {
-        bytes32 _hash = keccak256(abi.encode(_owner, _chainId, _depositId, _amount));
+        bytes32 hash = keccak256(abi.encode(owner, chainId, depositId, token, amount));
 
-        Acknowledgement.Status _status = _getAcknowledgementContract().acknowledge(
+        Acknowledgement.Status status = _acknowledgement.acknowledge(
             _getDepositAckChannel(),
-            _chainId,
-            _depositId,
-            _hash,
+            chainId,
+            depositId,
+            hash,
             msg.sender
         );
 
-        if (_status == Acknowledgement.Status.FirstApproved) {
-            _depositFor(_owner, _amount);
+        if (status == Acknowledgement.Status.FirstApproved) {
+            _depositFor(owner, token, amount);
 
-            deposits[_chainId][_depositId] = DepositEntry(_chainId, _owner, _amount);
-            emit Deposited(_chainId, _depositId, _owner, _amount);
+            _deposits[chainId][depositId] = DepositEntry(chainId, owner, token, amount);
+            emit Deposited(chainId, depositId, owner, token, amount);
         }
 
-        emit AckDeposit(_chainId, _depositId, _owner, _amount);
+        emit AckDeposit(chainId, depositId, owner, token, amount);
     }
 
     function requestWithdrawal(
-        uint256 _chainId,
-        address _owner,
-        uint256 _amount
-    ) public whenNotPaused returns (uint256) {
-        require(activeChainIds[_chainId], "SidechainGatewayManager: chainId is not supported");
+        uint256 chainId,
+        address owner,
+        address token,
+        uint256 amount
+    ) public whenNotPaused returns (uint256 withdrawId) {
+        MappedToken memory mainchainToken = getMainchainToken(chainId, token);
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
-        address token = registry.getContract(registry.TOKEN());
-        IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
+        // transform token amount by different chain
+        uint256 transformedAmount = _transformWithdrawalAmount(
+            token,
+            amount,
+            mainchainToken.decimals
+        );
 
-        return _createWithdrawalEntry(_chainId, _owner, _amount);
+        withdrawId = _withdrawalCounts[chainId]++;
+        _withdrawals[chainId][withdrawId] = WithdrawalEntry(
+            chainId,
+            owner,
+            token,
+            transformedAmount,
+            amount
+        );
+
+        emit RequestWithdrawal(chainId, withdrawId, owner, token, transformedAmount, amount);
+    }
+
+    function _transformWithdrawalAmount(
+        address token,
+        uint256 amount,
+        uint8 destinationDecimals
+    ) internal view returns (uint256 transformedAmount) {
+        uint8 decimals = IERC20Metadata(token).decimals();
+
+        if (destinationDecimals == decimals) {
+            transformedAmount = amount;
+        } else if (destinationDecimals > decimals) {
+            transformedAmount = amount * 10 ** (destinationDecimals - decimals);
+        } else {
+            transformedAmount = amount / (10 ** (decimals - destinationDecimals));
+        }
+    }
+
+    function getMainchainToken(
+        uint256 chainId,
+        address crossbellToken
+    ) public view returns (MappedToken memory token) {
+        token = _mainchainToken[crossbellToken][chainId];
     }
 
     function submitWithdrawalSignatures(
-        uint256 _chainId,
-        uint256 _withdrawalId,
-        bool _shouldReplace,
-        bytes memory _sig
+        uint256 chainId,
+        uint256 withdrawalId,
+        bool shouldReplace,
+        bytes memory sig
     ) public whenNotPaused onlyValidator {
-        bytes memory _currentSig = withdrawalSig[_chainId][_withdrawalId][msg.sender];
+        bytes memory currentSig = withdrawalSig[chainId][withdrawalId][msg.sender];
 
-        bool _alreadyHasSig = _currentSig.length != 0;
+        bool alreadyHasSig = currentSig.length != 0;
 
-        if (!_shouldReplace && _alreadyHasSig) {
+        if (!shouldReplace && alreadyHasSig) {
             return;
         }
 
-        withdrawalSig[_chainId][_withdrawalId][msg.sender] = _sig;
-        if (!_alreadyHasSig) {
-            withdrawalSigners[_chainId][_withdrawalId].push(msg.sender);
+        withdrawalSig[chainId][withdrawalId][msg.sender] = sig;
+        if (!alreadyHasSig) {
+            _withdrawalSigners[chainId][withdrawalId].push(msg.sender);
         }
     }
 
@@ -187,76 +207,52 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
      * Request signature again, in case the withdrawer didn't submit to mainchain in time and the set of the validator
      * has changed. Later on this should require some penaties, e.g some money.
      */
-    function requestSignatureAgain(uint256 _chainId, uint256 _withdrawalId) public whenNotPaused {
-        WithdrawalEntry memory _entry = withdrawals[_chainId][_withdrawalId];
+    function requestSignatureAgain(uint256 chainId, uint256 withdrawalId) public whenNotPaused {
+        WithdrawalEntry memory entry = _withdrawals[chainId][withdrawalId];
 
-        require(_entry.owner == msg.sender, "SidechainGatewayManager: sender is not entry owner");
+        require(entry.owner == msg.sender, "SidechainGatewayManager: sender is not entry owner");
 
         emit RequestTokenWithdrawalSigAgain(
-            _chainId,
-            _withdrawalId,
-            _entry.owner,
-            _entry.tokenNumber
+            chainId,
+            withdrawalId,
+            entry.owner,
+            entry.token,
+            entry.tokenNumber
         );
     }
 
     function getWithdrawalSigners(
-        uint256 _chainId,
-        uint256 _withdrawalId
+        uint256 chainId,
+        uint256 withdrawalId
     ) public view returns (address[] memory) {
-        return withdrawalSigners[_chainId][_withdrawalId];
+        return _withdrawalSigners[chainId][withdrawalId];
     }
 
     function getWithdrawalSignatures(
-        uint256 _chainId,
-        uint256 _withdrawalId
-    ) public view returns (address[] memory _signers, bytes[] memory _sigs) {
-        _signers = getWithdrawalSigners(_chainId, _withdrawalId);
-        _sigs = new bytes[](_signers.length);
-        for (uint256 _i = 0; _i < _signers.length; _i++) {
-            _sigs[_i] = withdrawalSig[_chainId][_withdrawalId][_signers[_i]];
+        uint256 chainId,
+        uint256 withdrawalId
+    ) public view returns (address[] memory signers, bytes[] memory sigs) {
+        signers = getWithdrawalSigners(chainId, withdrawalId);
+        sigs = new bytes[](signers.length);
+        for (uint256 i = 0; i < signers.length; i++) {
+            sigs[i] = withdrawalSig[chainId][withdrawalId][signers[i]];
         }
     }
 
-    function _depositFor(address _owner, uint256 _amount) internal {
-        address token = registry.getContract(registry.TOKEN());
-
-        uint256 _gatewayBalance = IERC20(token).balanceOf(address(this));
-        if (_gatewayBalance < _amount) {
-            IERC20Mintable(token).mint(address(this), _amount - _gatewayBalance);
+    function _depositFor(address owner, address token, uint256 amount) internal {
+        uint256 gatewayBalance = IERC20(token).balanceOf(address(this));
+        if (gatewayBalance < amount) {
+            IERC20Mintable(token).mint(address(this), amount - gatewayBalance);
         }
 
-        IERC20(token).safeTransfer(_owner, _amount);
+        IERC20(token).safeTransfer(owner, amount);
     }
 
-    function _alreadyReleased(uint256 _chainId, uint256 _depositId) internal view returns (bool) {
-        return deposits[_chainId][_depositId].owner != address(0);
+    function _getDepositAckChannel() internal view returns (string memory) {
+        return _acknowledgement.DEPOSIT_CHANNEL();
     }
 
-    function _createWithdrawalEntry(
-        uint256 _chainId,
-        address _owner,
-        uint256 _originalAmount
-    ) internal returns (uint256 _withdrawalId) {
-        _withdrawalId = withdrawalCounts[_chainId]++;
-
-        // transform token amount by different chain
-        uint256 transformedAmount = _transformAmount(_chainId, _originalAmount);
-
-        withdrawals[_chainId][_withdrawalId] = WithdrawalEntry(
-            _chainId,
-            _owner,
-            transformedAmount,
-            _originalAmount
-        );
-
-        emit RequestWithdrawal(_chainId, _withdrawalId, _owner, transformedAmount, _originalAmount);
+    function _getWithdrawalAckChannel() internal view returns (string memory) {
+        return _acknowledgement.WITHDRAWAL_CHANNEL();
     }
-
-    // as there are different token decimals on different chains, so the amount need to be transformed
-    // this function should be overridden by subclasses
-    function _transformAmount(
-        uint256 _chainId,
-        uint256 _amount
-    ) internal pure virtual returns (uint256 _transformedAmount);
 }

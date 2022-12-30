@@ -8,72 +8,68 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract Validator is IValidator, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    EnumerableSet.AddressSet internal validators;
+    EnumerableSet.AddressSet internal _validators;
 
-    uint256 public required;
+    uint256 public _requiredNumber;
 
-    modifier validRequirement(uint _required) {
-        require(_required <= validators.length() && _required != 0, "invalid required number");
-        _;
-    }
-
-    constructor(address[] memory _validators, uint256 _required) {
-        for (uint256 _i = 0; _i < _validators.length; _i++) {
-            validators.add(_validators[_i]);
+    constructor(address[] memory validators, uint256 requiredNumber) {
+        for (uint256 i = 0; i < validators.length; i++) {
+            _addValidator(validators[i]);
         }
 
-        required = _required;
+        _requiredNumber = requiredNumber;
     }
 
-    function addValidators(address[] calldata _validators) external onlyOwner {
-        for (uint256 _i; _i < _validators.length; ++_i) {
-            _addValidator(_validators[_i]);
+    function addValidators(address[] calldata validators) external onlyOwner {
+        for (uint256 i; i < validators.length; i++) {
+            _addValidator(validators[i]);
         }
     }
 
-    function removeValidators(address[] calldata _validators) external onlyOwner {
-        for (uint256 _i; _i < _validators.length; ++_i) {
-            _removeValidator(_validators[_i]);
+    function removeValidators(address[] calldata validators) external onlyOwner {
+        for (uint256 i; i < validators.length; i++) {
+            _removeValidator(validators[i]);
         }
     }
 
-    function changeRequirement(uint256 _required) external onlyOwner {
-        _changeRequirement(_required);
+    function changeRequiredNumber(uint256 newRequiredNumber) external onlyOwner {
+        require(
+            newRequiredNumber <= _validators.length() && newRequiredNumber != 0,
+            "InvalidRequiredNumber"
+        );
+
+        uint256 _previousRequiredNumber = _requiredNumber;
+
+        _requiredNumber = newRequiredNumber;
+
+        emit RequirementChanged(newRequiredNumber, _previousRequiredNumber);
     }
 
-    function isValidator(address _addr) external view returns (bool) {
-        return _isValidator(_addr);
+    function isValidator(address addr) external view returns (bool) {
+        return _isValidator(addr);
     }
 
-    function getValidators() external view returns (address[] memory _validators) {
-        return validators.values();
+    function getValidators() external view returns (address[] memory validators) {
+        return _validators.values();
     }
 
-    function checkThreshold(uint256 _voteCount) external view returns (bool) {
-        return _voteCount >= required;
+    function checkThreshold(uint256 voteCount) external view returns (bool) {
+        return voteCount >= _requiredNumber;
     }
 
-    function _isValidator(address _addr) internal view returns (bool) {
-        return validators.contains(_addr);
+    function _isValidator(address addr) internal view returns (bool) {
+        return _validators.contains(addr);
     }
 
-    function _addValidator(address _validator) internal {
-        require(validators.add(_validator), "ValidatorAlreadyExists");
+    function _addValidator(address validator) internal {
+        require(_validators.add(validator), "ValidatorAlreadyExists");
 
-        emit ValidatorAdded(_validator);
+        emit ValidatorAdded(validator);
     }
 
-    function _removeValidator(address _validator) internal {
-        require(validators.remove(_validator), "ValidatorNotExists");
+    function _removeValidator(address validator) internal {
+        require(_validators.remove(validator), "ValidatorNotExists");
 
-        emit ValidatorRemoved(_validator);
-    }
-
-    function _changeRequirement(uint256 _required) internal validRequirement(_required) {
-        uint256 _previousRequired = required;
-
-        required = _required;
-
-        emit RequirementChanged(_required, _previousRequired);
+        emit ValidatorRemoved(validator);
     }
 }

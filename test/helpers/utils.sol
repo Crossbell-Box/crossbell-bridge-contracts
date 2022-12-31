@@ -47,4 +47,18 @@ contract Utils is Test {
         arr[2] = c;
         return arr;
     }
+
+    function array(
+        address a,
+        address b,
+        address c,
+        address d
+    ) public pure returns (address[] memory) {
+        address[] memory arr = new address[](4);
+        arr[0] = a;
+        arr[1] = b;
+        arr[2] = c;
+        arr[3] = d;
+        return arr;
+    }
 }

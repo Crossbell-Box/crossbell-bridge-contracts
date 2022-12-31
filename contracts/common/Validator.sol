@@ -10,7 +10,7 @@ contract Validator is IValidator, Ownable {
 
     EnumerableSet.AddressSet internal _validators;
 
-    uint256 public _requiredNumber;
+    uint256 internal _requiredNumber;
 
     constructor(address[] memory validators, uint256 requiredNumber) {
         for (uint256 i = 0; i < validators.length; i++) {
@@ -51,6 +51,10 @@ contract Validator is IValidator, Ownable {
 
     function getValidators() external view returns (address[] memory validators) {
         return _validators.values();
+    }
+
+    function getRequiredNumber() external view returns (uint256) {
+        return _requiredNumber;
     }
 
     function checkThreshold(uint256 voteCount) external view returns (bool) {

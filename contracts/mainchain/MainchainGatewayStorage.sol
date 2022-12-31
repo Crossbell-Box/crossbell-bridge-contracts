@@ -17,40 +17,40 @@ contract MainchainGatewayStorage is IMappedToken {
 
     event RequestDeposit(
         uint256 indexed depositId,
-        address indexed owner,
+        address indexed recipient,
         address indexed token,
         uint256 amount // ERC-20 amount
     );
 
     event Withdrew(
         uint256 indexed withdrawId,
-        address indexed owner,
+        address indexed recipient,
         address indexed token,
         uint256 amount
     );
 
     struct DepositEntry {
-        address owner;
+        address recipient;
         uint256 transformedAmount;
         uint256 originalAmount;
     }
 
     struct WithdrawalEntry {
-        address owner;
+        address recipient;
         address token;
         uint256 amount;
     }
 
-    Validator public validator;
+    Validator public _validator;
 
-    uint256 public depositCount;
-    mapping(uint256 => WithdrawalEntry) public withdrawals;
+    uint256 public _depositCount;
+    mapping(uint256 => WithdrawalEntry) public _withdrawals;
 
-    address public admin;
+    address public _admin;
 
     /// @dev Crossbell network id
-    uint256 public crossbellChainId;
+    uint256 public _crossbellChainId;
 
     // @dev Mapping from mainchain token => token address on crossbell network
-    mapping(address => MappedToken) internal crossbellToken;
+    mapping(address => MappedToken) internal _crossbellToken;
 }

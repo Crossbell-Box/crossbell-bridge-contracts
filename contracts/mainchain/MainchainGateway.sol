@@ -3,6 +3,7 @@ pragma solidity 0.8.10;
 
 import "../libraries/ECVerify.sol";
 import "./MainchainGatewayStorage.sol";
+import "../interfaces/IValidator.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -29,16 +30,13 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
     function initialize(
         address validator,
         address admin,
-        uint256 crossbellChainId,
         address[] calldata mainchainTokens,
         address[] calldata crossbellTokens,
         uint8[] calldata crossbellTokenDecimals
     ) external initializer {
-        _validator = Validator(validator);
+        _validator = validator;
 
         _admin = admin;
-        _crossbellChainId = crossbellChainId;
-
         // map crossbell tokens
         if (mainchainTokens.length > 0) {
             _mapTokens(mainchainTokens, crossbellTokens, crossbellTokenDecimals);
@@ -102,7 +100,7 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
 
         for (uint256 i = 0; i < signatureCount; i++) {
             address signer = hash.recover(signatures, i * 66);
-            if (_validator.isValidator(signer)) {
+            if (IValidator(_validator).isValidator(signer)) {
                 validatorCount++;
             }
             // Prevent duplication of signatures
@@ -110,7 +108,7 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
             lastSigner = signer;
         }
 
-        return _validator.checkThreshold(validatorCount);
+        return IValidator(_validator).checkThreshold(validatorCount);
     }
 
     function _insertWithdrawalEntry(
@@ -162,8 +160,10 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
         );
 
         for (uint256 i; i < mainchainTokens.length; i++) {
-            _crossbellToken[mainchainTokens[i]].tokenAddr = crossbellTokens[i];
-            _crossbellToken[mainchainTokens[i]].decimals = crossbellTokenDecimals[i];
+            _crossbellToken[mainchainTokens[i]] = MappedToken({
+                tokenAddr: crossbellTokens[i],
+                decimals: crossbellTokenDecimals[i]
+            });
         }
 
         emit TokenMapped(mainchainTokens, crossbellTokens, crossbellTokenDecimals);

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../common/Validator.sol";
 import "./Acknowledgement.sol";
 import "../interfaces/IMappedToken.sol";
 
@@ -10,6 +9,13 @@ import "../interfaces/IMappedToken.sol";
  * @dev Storage of deposit and withdraw information.
  */
 contract CrossbellGatewayStorage is IMappedToken {
+    event TokenMapped(
+        address[] crossbellTokens,
+        uint256[] chainIds,
+        address[] mainchainTokens,
+        uint8[] crossbellTokensDecimals
+    );
+
     event Deposited(
         uint256 indexed chainId,
         uint256 indexed depositId,
@@ -75,6 +81,6 @@ contract CrossbellGatewayStorage is IMappedToken {
     mapping(address => mapping(uint256 => MappedToken)) internal _mainchainToken;
     address public _admin;
 
-    Validator public _validator;
+    address public _validator;
     Acknowledgement public _acknowledgement;
 }

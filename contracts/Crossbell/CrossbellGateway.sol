@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import "../interfaces/IERC20Mintable.sol";
 import "../libraries/ECVerify.sol";
+import "../interfaces/IValidator.sol";
 import "./CrossbellGatewayStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
@@ -35,7 +36,7 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
 
     function _checkValidator() internal view {
         require(
-            _validator.isValidator(_msgSender()),
+            IValidator(_validator).isValidator(_msgSender()),
             "SidechainGatewayManager: sender is not validator"
         );
     }
@@ -43,11 +44,20 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
     function initialize(
         address validator,
         address acknowledgement,
-        address admin
+        address admin,
+        address[] calldata crossbellTokens,
+        uint256[] calldata chainIds,
+        address[] calldata mainchainTokens,
+        uint8[] calldata mainchainTokenDecimals
     ) external initializer {
-        _validator = Validator(validator);
+        _validator = validator;
         _acknowledgement = Acknowledgement(acknowledgement);
         _admin = admin;
+
+        // map mainchain tokens
+        if (crossbellTokens.length > 0) {
+            _mapTokens(crossbellTokens, chainIds, mainchainTokens, mainchainTokenDecimals);
+        }
     }
 
     function pause() external whenNotPaused onlyAdmin {
@@ -257,5 +267,27 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
 
     function _getWithdrawalAckChannel() internal view returns (string memory) {
         return _acknowledgement.WITHDRAWAL_CHANNEL();
+    }
+
+    function _mapTokens(
+        address[] calldata crossbellTokens,
+        uint256[] calldata chainIds,
+        address[] calldata mainchainTokens,
+        uint8[] calldata mainchainTokenDecimals
+    ) internal virtual {
+        require(
+            crossbellTokens.length == mainchainTokens.length &&
+                crossbellTokens.length == mainchainTokenDecimals.length &&
+                crossbellTokens.length == chainIds.length,
+            "InvalidArrayLength"
+        );
+
+        for (uint i = 0; i < crossbellTokens.length; i++) {
+            _mainchainToken[crossbellTokens[i]][chainIds[i]] = MappedToken({
+                tokenAddr: mainchainTokens[i],
+                decimals: mainchainTokenDecimals[i]
+            });
+        }
+        emit TokenMapped(crossbellTokens, chainIds, mainchainTokens, mainchainTokenDecimals);
     }
 }

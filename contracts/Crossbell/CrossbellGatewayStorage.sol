@@ -13,7 +13,7 @@ contract CrossbellGatewayStorage is IMappedToken {
     event Deposited(
         uint256 indexed chainId,
         uint256 indexed depositId,
-        address indexed owner,
+        address indexed recipient,
         address token,
         uint256 amount // ERC-20 amount
     );
@@ -21,7 +21,7 @@ contract CrossbellGatewayStorage is IMappedToken {
     event AckDeposit(
         uint256 indexed chainId,
         uint256 indexed depositId,
-        address indexed owner,
+        address indexed recipient,
         address token,
         uint256 tokenNumber // ERC-20 amount
     );
@@ -29,13 +29,13 @@ contract CrossbellGatewayStorage is IMappedToken {
     event RequestWithdrawal(
         uint256 indexed chainId,
         uint256 indexed withdrawId,
-        address indexed owner,
+        address indexed recipient,
         address token,
         uint256 transformedAmount,
         uint256 originalAmount
     );
 
-    event RequestTokenWithdrawalSigAgain(
+    event RequestWithdrawalSigAgain(
         uint256 indexed chainId,
         uint256 indexed withdrawalId,
         address indexed owner,
@@ -45,17 +45,17 @@ contract CrossbellGatewayStorage is IMappedToken {
 
     struct DepositEntry {
         uint256 chainId;
-        address owner;
+        address recipient;
         address token;
-        uint256 tokenNumber;
+        uint256 amount;
     }
 
     struct WithdrawalEntry {
         uint256 chainId;
-        address owner;
+        address recipient;
         address token;
         uint256 transformedAmount;
-        uint256 tokenNumber;
+        uint256 amount;
     }
 
     // Final deposit state, update only once when there is enough acknowledgement

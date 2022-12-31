@@ -14,105 +14,105 @@ contract Acknowledgement is HasOperators {
         AlreadyApproved
     }
     // Mapping from channel => boolean
-    mapping(bytes32 => bool) public enabledChannels;
+    mapping(bytes32 => bool) public _enabledChannels;
     // Mapping from channel => id => validator => data hash
     mapping(bytes32 => mapping(uint256 => mapping(uint256 => mapping(address => bytes32))))
-        public validatorAck;
+        public _validatorAck;
     // Mapping from channel => id => data hash => ack count
     mapping(bytes32 => mapping(uint256 => mapping(uint256 => mapping(bytes32 => uint256))))
-        public ackCount;
+        public _ackCount;
     // Mapping from channel => id => data hash => ack status
     mapping(bytes32 => mapping(uint256 => mapping(uint256 => mapping(bytes32 => Status))))
-        public ackStatus;
+        public _ackStatus;
 
     string public constant DEPOSIT_CHANNEL = "DEPOSIT_CHANNEL";
     string public constant WITHDRAWAL_CHANNEL = "WITHDRAWAL_CHANNEL";
     string public constant VALIDATOR_CHANNEL = "VALIDATOR_CHANNEL";
 
-    Validator public validator;
+    Validator public _validator;
 
-    constructor(address _validator) {
+    constructor(address validator) {
         addChannel(DEPOSIT_CHANNEL);
         addChannel(WITHDRAWAL_CHANNEL);
         addChannel(VALIDATOR_CHANNEL);
-        validator = Validator(_validator);
+        _validator = Validator(validator);
     }
 
-    function getChannelHash(string memory _name) public view returns (bytes32 _channel) {
-        _channel = _getHash(_name);
-        _requireValidChannel(_channel);
+    function getChannelHash(string memory name) public view returns (bytes32 channel) {
+        channel = _getHash(name);
+        _requireValidChannel(channel);
     }
 
-    function addChannel(string memory _name) public onlyOwner {
-        bytes32 _channel = _getHash(_name);
-        enabledChannels[_channel] = true;
+    function addChannel(string memory name) public onlyOwner {
+        bytes32 channel = _getHash(name);
+        _enabledChannels[channel] = true;
     }
 
-    function removeChannel(string memory _name) public onlyOwner {
-        bytes32 _channel = _getHash(_name);
-        _requireValidChannel(_channel);
-        delete enabledChannels[_channel];
+    function removeChannel(string memory name) public onlyOwner {
+        bytes32 channel = _getHash(name);
+        _requireValidChannel(channel);
+        delete _enabledChannels[channel];
     }
 
-    function updateValidator(address _validator) public onlyOwner {
-        validator = Validator(_validator);
+    function updateValidator(address validator) public onlyOwner {
+        _validator = Validator(validator);
     }
 
     function acknowledge(
-        string memory _channelName,
-        uint256 _chainId,
-        uint256 _id,
-        bytes32 _hash,
-        address _validator
+        string memory channelName,
+        uint256 chainId,
+        uint256 id,
+        bytes32 hash,
+        address validator
     ) public onlyOperator returns (Status) {
-        bytes32 _channel = getChannelHash(_channelName);
+        bytes32 channel = getChannelHash(channelName);
         require(
-            validatorAck[_channel][_chainId][_id][_validator] == bytes32(0),
+            _validatorAck[channel][chainId][id][validator] == bytes32(0),
             "Acknowledgement: the validator already acknowledged"
         );
 
-        validatorAck[_channel][_chainId][_id][_validator] = _hash;
-        Status _status = ackStatus[_channel][_chainId][_id][_hash];
-        uint256 _count = ackCount[_channel][_chainId][_id][_hash];
+        _validatorAck[channel][chainId][id][validator] = hash;
+        Status status = _ackStatus[channel][chainId][id][hash];
+        uint256 count = _ackCount[channel][chainId][id][hash];
 
-        if (validator.checkThreshold(_count + 1)) {
-            if (_status == Status.NotApproved) {
-                ackStatus[_channel][_chainId][_id][_hash] = Status.FirstApproved;
+        if (_validator.checkThreshold(count + 1)) {
+            if (status == Status.NotApproved) {
+                _ackStatus[channel][chainId][id][hash] = Status.FirstApproved;
             } else {
-                ackStatus[_channel][_chainId][_id][_hash] = Status.AlreadyApproved;
+                _ackStatus[channel][chainId][id][hash] = Status.AlreadyApproved;
             }
         }
 
-        ackCount[_channel][_chainId][_id][_hash]++;
+        _ackCount[channel][chainId][id][hash]++;
 
-        return ackStatus[_channel][_chainId][_id][_hash];
+        return _ackStatus[channel][chainId][id][hash];
     }
 
     function hasValidatorAcknowledged(
-        string memory _channelName,
-        uint256 _chainId,
-        uint256 _id,
-        address _validator
+        string memory channelName,
+        uint256 chainId,
+        uint256 id,
+        address validator
     ) public view returns (bool) {
-        bytes32 _channel = _getHash(_channelName);
-        return validatorAck[_channel][_chainId][_id][_validator] != bytes32(0);
+        bytes32 channel = _getHash(channelName);
+        return _validatorAck[channel][chainId][id][validator] != bytes32(0);
     }
 
     function getAcknowledgementStatus(
-        string memory _channelName,
-        uint256 _chainId,
-        uint256 _id,
-        bytes32 _hash
+        string memory channelName,
+        uint256 chainId,
+        uint256 id,
+        bytes32 hash
     ) public view returns (Status) {
-        bytes32 _channel = _getHash(_channelName);
-        return ackStatus[_channel][_chainId][_id][_hash];
+        bytes32 channel = _getHash(channelName);
+        return _ackStatus[channel][chainId][id][hash];
     }
 
-    function _getHash(string memory _name) internal pure returns (bytes32 _hash) {
-        _hash = keccak256(abi.encode(_name));
+    function _getHash(string memory name) internal pure returns (bytes32 hash) {
+        hash = keccak256(abi.encode(name));
     }
 
-    function _requireValidChannel(bytes32 _channelHash) internal view {
-        require(enabledChannels[_channelHash], "Acknowledgement: invalid channel");
+    function _requireValidChannel(bytes32 channelHash) internal view {
+        require(_enabledChannels[channelHash], "Acknowledgement: invalid channel");
     }
 }

@@ -61,19 +61,19 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
     function batchAckDeposit(
         uint256[] calldata chainIds,
         uint256[] calldata depositIds,
-        address[] calldata owners,
+        address[] calldata recipients,
         address[] calldata tokens,
         uint256[] calldata amounts
     ) external whenNotPaused onlyValidator {
         require(
             depositIds.length == chainIds.length &&
-                depositIds.length == owners.length &&
+                depositIds.length == recipients.length &&
                 depositIds.length == amounts.length,
             "SidechainGatewayManager: invalid input array length"
         );
 
         for (uint256 i; i < depositIds.length; i++) {
-            _ackDeposit(chainIds[i], depositIds[i], owners[i], tokens[i], amounts[i]);
+            _ackDeposit(chainIds[i], depositIds[i], recipients[i], tokens[i], amounts[i]);
         }
     }
 
@@ -98,21 +98,21 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
     function ackDeposit(
         uint256 chainId,
         uint256 depositId,
-        address owner,
+        address recipient,
         address token,
         uint256 amount
     ) external {
-        _ackDeposit(chainId, depositId, owner, token, amount);
+        _ackDeposit(chainId, depositId, recipient, token, amount);
     }
 
     function _ackDeposit(
         uint256 chainId,
         uint256 depositId,
-        address owner,
+        address recipient,
         address token,
         uint256 amount
     ) internal whenNotPaused onlyValidator {
-        bytes32 hash = keccak256(abi.encode(owner, chainId, depositId, token, amount));
+        bytes32 hash = keccak256(abi.encode(recipient, chainId, depositId, token, amount));
 
         Acknowledgement.Status status = _acknowledgement.acknowledge(
             _getDepositAckChannel(),
@@ -123,18 +123,18 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
         );
 
         if (status == Acknowledgement.Status.FirstApproved) {
-            _depositFor(owner, token, amount);
+            _depositFor(recipient, token, amount);
 
-            _deposits[chainId][depositId] = DepositEntry(chainId, owner, token, amount);
-            emit Deposited(chainId, depositId, owner, token, amount);
+            _deposits[chainId][depositId] = DepositEntry(chainId, recipient, token, amount);
+            emit Deposited(chainId, depositId, recipient, token, amount);
         }
 
-        emit AckDeposit(chainId, depositId, owner, token, amount);
+        emit AckDeposit(chainId, depositId, recipient, token, amount);
     }
 
     function requestWithdrawal(
         uint256 chainId,
-        address owner,
+        address recipient,
         address token,
         uint256 amount
     ) public whenNotPaused returns (uint256 withdrawId) {
@@ -151,13 +151,13 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
         withdrawId = _withdrawalCounts[chainId]++;
         _withdrawals[chainId][withdrawId] = WithdrawalEntry(
             chainId,
-            owner,
+            recipient,
             token,
             transformedAmount,
             amount
         );
 
-        emit RequestWithdrawal(chainId, withdrawId, owner, token, transformedAmount, amount);
+        emit RequestWithdrawal(chainId, withdrawId, recipient, token, transformedAmount, amount);
     }
 
     function _transformWithdrawalAmount(
@@ -205,19 +205,22 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
 
     /**
      * Request signature again, in case the withdrawer didn't submit to mainchain in time and the set of the validator
-     * has changed. Later on this should require some penaties, e.g some money.
+     * has changed.
      */
     function requestSignatureAgain(uint256 chainId, uint256 withdrawalId) public whenNotPaused {
         WithdrawalEntry memory entry = _withdrawals[chainId][withdrawalId];
 
-        require(entry.owner == msg.sender, "SidechainGatewayManager: sender is not entry owner");
+        require(
+            entry.recipient == msg.sender,
+            "SidechainGatewayManager: sender is not entry owner"
+        );
 
-        emit RequestTokenWithdrawalSigAgain(
+        emit RequestWithdrawalSigAgain(
             chainId,
             withdrawalId,
-            entry.owner,
+            entry.recipient,
             entry.token,
-            entry.tokenNumber
+            entry.amount
         );
     }
 
@@ -239,13 +242,13 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
         }
     }
 
-    function _depositFor(address owner, address token, uint256 amount) internal {
+    function _depositFor(address recipient, address token, uint256 amount) internal {
         uint256 gatewayBalance = IERC20(token).balanceOf(address(this));
         if (gatewayBalance < amount) {
             IERC20Mintable(token).mint(address(this), amount - gatewayBalance);
         }
 
-        IERC20(token).safeTransfer(owner, amount);
+        IERC20(token).safeTransfer(recipient, amount);
     }
 
     function _getDepositAckChannel() internal view returns (string memory) {

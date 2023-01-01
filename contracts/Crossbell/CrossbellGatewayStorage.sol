@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "./Acknowledgement.sol";
 import "../interfaces/IMappedToken.sol";
 
 /**
@@ -64,23 +63,38 @@ contract CrossbellGatewayStorage is IMappedToken {
         uint256 amount;
     }
 
+    // Acknowledge status, once the acknowledgements reach the threshold the 1st
+    // time, it can take effect to the system. E.g. confirm a deposit.
+    // Acknowledgments after that should not have any effects.
+    enum Status {
+        NotApproved,
+        FirstApproved,
+        AlreadyApproved
+    }
+
     // Final deposit state, update only once when there is enough acknowledgement
     // chainId => depositId => DepositEntry
-    mapping(uint256 => mapping(uint256 => DepositEntry)) public _deposits;
+    mapping(uint256 => mapping(uint256 => DepositEntry)) internal _deposits;
 
     // chainId => withdrawCount
-    mapping(uint256 => uint256) public _withdrawalCounts;
+    mapping(uint256 => uint256) internal _withdrawalCounts;
     // chainId =>  withdrawId =>WithdrawalEntry
-    mapping(uint256 => mapping(uint256 => WithdrawalEntry)) public _withdrawals;
+    mapping(uint256 => mapping(uint256 => WithdrawalEntry)) internal _withdrawals;
     // chainId => withdrawId  => signature
-    mapping(uint256 => mapping(uint256 => mapping(address => bytes))) public withdrawalSig;
+    mapping(uint256 => mapping(uint256 => mapping(address => bytes))) internal withdrawalSig;
     // chainId => withdrawId => address[]
-    mapping(uint256 => mapping(uint256 => address[])) public _withdrawalSigners;
+    mapping(uint256 => mapping(uint256 => address[])) internal _withdrawalSigners;
 
     // Mapping from token address => chain id => mainchain token address
     mapping(address => mapping(uint256 => MappedToken)) internal _mainchainToken;
     address public _admin;
 
-    address public _validator;
-    Acknowledgement public _acknowledgement;
+    address internal _validator;
+
+    // Mapping from chainId => id => validator => data hash
+    mapping(uint256 => mapping(uint256 => mapping(address => bytes32))) internal _validatorAck;
+    // Mapping from chainId => id => data hash => ack count
+    mapping(uint256 => mapping(uint256 => mapping(bytes32 => uint256))) internal _ackCount;
+    // Mapping from chainId => id => data hash => ack status
+    mapping(uint256 => mapping(uint256 => mapping(bytes32 => Status))) internal _ackStatus;
 }

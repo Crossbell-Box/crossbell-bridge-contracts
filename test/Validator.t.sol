@@ -89,7 +89,7 @@ contract ValidatorTest is Test, Utils {
         // alice is not owner of validator contract
         vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
         vm.prank(alice);
-        validator.removeValidators(array(alice));
+        validator.removeValidators(array(dave));
 
         // check if dave is a validator
         assertFalse(validator.isValidator(dave));

@@ -5,6 +5,7 @@ import "./libraries/ECVerify.sol";
 import "./libraries/DataTypes.sol";
 import "./storage/MainchainGatewayStorage.sol";
 import "./interfaces/IValidator.sol";
+import "./interfaces/IMainchainGateway.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -15,7 +16,12 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * @title MainchainBridge
  * @dev Logic to handle deposits and withdrawl on Mainchain.
  */
-abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayStorage {
+abstract contract MainchainGateway is
+    IMainchainGateway,
+    Initializable,
+    Pausable,
+    MainchainGatewayStorage
+{
     using ECVerify for bytes32;
     using SafeERC20 for IERC20;
 
@@ -58,7 +64,7 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
         uint256 amount
     ) external whenNotPaused returns (uint256 depositId) {
         DataTypes.MappedToken memory crossbellToken = _getCrossbellToken(token);
-        require(crossbellToken.tokenAddr != address(0), "MainchainBridge: unsupported token");
+        require(crossbellToken.tokenAddr != address(0), "UnsupportedToken");
 
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
@@ -77,13 +83,13 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
         uint256 amount,
         bytes calldata signatures
     ) external whenNotPaused {
-        require(chainId == block.chainid, "MainchainGatewayManager: invalid chainId");
+        require(chainId == block.chainid, "InvalidChainId");
 
         bytes32 hash = keccak256(
             abi.encodePacked("withdrawERC20", chainId, withdrawalId, recipient, token, amount)
         );
 
-        require(_verifySignatures(hash, signatures));
+        require(_verifySignatures(hash, signatures), "VerifySignaturesInvalid");
 
         IERC20(token).safeTransfer(recipient, amount);
 
@@ -115,7 +121,7 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
                 validatorCount++;
             }
             // Prevent duplication of signatures
-            require(signer > lastSigner);
+            require(signer > lastSigner, "DuplicatedSignatures");
             lastSigner = signer;
         }
 
@@ -173,7 +179,7 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
         require(
             mainchainTokens.length == crossbellTokens.length &&
                 mainchainTokens.length == crossbellTokenDecimals.length,
-            "MainchainBridge: invalid array length"
+            "InvalidArrayLength"
         );
 
         for (uint256 i; i < mainchainTokens.length; i++) {

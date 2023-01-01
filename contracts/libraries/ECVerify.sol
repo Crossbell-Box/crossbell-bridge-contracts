@@ -18,7 +18,7 @@ library ECVerify {
         bytes memory signature,
         uint256 index
     ) internal pure returns (address _signer) {
-        require(signature.length >= index + 66);
+        require(signature.length >= index + 66, "InvalidSignatureLength");
 
         SignatureMode mode = SignatureMode(uint8(signature[index]));
         bytes32 r;
@@ -36,7 +36,7 @@ library ECVerify {
             v += 27;
         }
 
-        require(v == 27 || v == 28);
+        require(v == 27 || v == 28, "InvalidSignatureV");
 
         if (mode == SignatureMode.GETH) {
             hash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));

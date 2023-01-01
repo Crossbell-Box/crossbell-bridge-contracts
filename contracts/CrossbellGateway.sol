@@ -41,10 +41,7 @@ abstract contract CrossbellGateway is
     }
 
     function _checkValidator() internal view {
-        require(
-            IValidator(_validator).isValidator(_msgSender()),
-            "SidechainGatewayManager: sender is not validator"
-        );
+        require(IValidator(_validator).isValidator(_msgSender()), "NotValidator");
     }
 
     function initialize(
@@ -227,10 +224,7 @@ abstract contract CrossbellGateway is
     function requestSignatureAgain(uint256 chainId, uint256 withdrawalId) external whenNotPaused {
         WithdrawalEntry memory entry = _withdrawals[chainId][withdrawalId];
 
-        require(
-            entry.recipient == msg.sender,
-            "SidechainGatewayManager: sender is not entry owner"
-        );
+        require(entry.recipient == msg.sender, "NotEntryOwner");
 
         emit RequestWithdrawalSigAgain(
             chainId,
@@ -247,10 +241,7 @@ abstract contract CrossbellGateway is
         bytes32 hash,
         address validator
     ) internal returns (DataTypes.Status) {
-        require(
-            _validatorAck[chainId][id][validator] == bytes32(0),
-            "Validator already acknowledged"
-        );
+        require(_validatorAck[chainId][id][validator] == bytes32(0), "AlreadyAcknowledged");
 
         _validatorAck[chainId][id][validator] = hash;
         DataTypes.Status status = _ackStatus[chainId][id][hash];

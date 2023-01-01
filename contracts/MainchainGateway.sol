@@ -13,15 +13,10 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
- * @title MainchainBridge
+ * @title MainchainGateway
  * @dev Logic to handle deposits and withdrawl on Mainchain.
  */
-abstract contract MainchainGateway is
-    IMainchainGateway,
-    Initializable,
-    Pausable,
-    MainchainGatewayStorage
-{
+contract MainchainGateway is IMainchainGateway, Initializable, Pausable, MainchainGatewayStorage {
     using ECVerify for bytes32;
     using SafeERC20 for IERC20;
 
@@ -50,14 +45,27 @@ abstract contract MainchainGateway is
         }
     }
 
+    /**
+     * @notice Pause interaction with the gateway contract
+     */
     function pause() external whenNotPaused onlyAdmin {
         _pause();
     }
 
+    /**
+     * @notice Resume interaction with the gateway contract
+     */
     function unpause() external whenPaused onlyAdmin {
         _unpause();
     }
 
+    /**
+     * @notice Request deposit to crossbell chain
+     * @param recipient Address to receive deposit on crossbell chain
+     * @param token Address of token to deposit
+     * @param amount Amount of token to deposit
+     * @return depositId Deposit id
+     */
     function requestDeposit(
         address recipient,
         address token,
@@ -75,6 +83,15 @@ abstract contract MainchainGateway is
         emit RequestDeposit(depositId, recipient, crossbellToken.tokenAddr, transformedAmount);
     }
 
+    /**
+     * @notice Withdraw based on the validator signatures.
+     * @param chainId ChainId
+     * @param withdrawalId Withdrawal ID from crossbell chain
+     * @param recipient Address to receive withdrawal on mainchain chain
+     * @param token Address of token to withdraw
+     * @param amount Amount of token to withdraw
+     * @param signatures Validator signatures for withdrawal
+     */
     function withdraw(
         uint256 chainId,
         uint256 withdrawalId,
@@ -159,6 +176,11 @@ abstract contract MainchainGateway is
         }
     }
 
+    /**
+     * @notice Get mapped tokens from crossbell chain.
+     * @param mainchainToken Token address on mainchain
+     * @return token Mapped token from crossbell chain
+     */
     function getCrossbellToken(
         address mainchainToken
     ) external view returns (DataTypes.MappedToken memory token) {

@@ -14,15 +14,10 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
- * @title SidechainBridge
+ * @title CrossbellGateway
  * @dev Logic to handle deposits and withdrawals on Sidechain.
  */
-abstract contract CrossbellGateway is
-    ICrossbellGateway,
-    Initializable,
-    Pausable,
-    CrossbellGatewayStorage
-{
+contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, CrossbellGatewayStorage {
     using ECVerify for bytes32;
     using SafeERC20 for IERC20;
 
@@ -61,10 +56,16 @@ abstract contract CrossbellGateway is
         }
     }
 
+    /**
+     * @notice Pause interaction with the gateway contract
+     */
     function pause() external whenNotPaused onlyAdmin {
         _pause();
     }
 
+    /**
+     * @notice Resume interaction with the gateway contract
+     */
     function unpause() external whenPaused onlyAdmin {
         _unpause();
     }

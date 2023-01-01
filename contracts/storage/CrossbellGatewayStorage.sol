@@ -7,7 +7,7 @@ import "../libraries/DataTypes.sol";
  * @title SidechainGatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract CrossbellGatewayStorage {
+abstract contract CrossbellGatewayStorage {
     event TokenMapped(
         address[] crossbellTokens,
         uint256[] chainIds,

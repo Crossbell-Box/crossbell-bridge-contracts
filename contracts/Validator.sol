@@ -21,13 +21,13 @@ contract Validator is IValidator, Ownable {
     }
 
     function addValidators(address[] calldata validators) external onlyOwner {
-        for (uint256 i; i < validators.length; i++) {
+        for (uint256 i = 0; i < validators.length; i++) {
             _addValidator(validators[i]);
         }
     }
 
     function removeValidators(address[] calldata validators) external onlyOwner {
-        for (uint256 i; i < validators.length; i++) {
+        for (uint256 i = 0; i < validators.length; i++) {
             _removeValidator(validators[i]);
         }
     }

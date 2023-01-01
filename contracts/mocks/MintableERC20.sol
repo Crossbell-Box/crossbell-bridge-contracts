@@ -7,10 +7,10 @@ contract MintableERC20 is ERC20PresetMinterPauser {
     uint8 internal _decimals;
 
     constructor(
-        string memory name,
-        string memory symbol,
+        string memory name_,
+        string memory symbol_,
         uint8 decimals_
-    ) ERC20PresetMinterPauser(name, symbol) {
+    ) ERC20PresetMinterPauser(name_, symbol_) {
         _decimals = decimals_;
     }
 

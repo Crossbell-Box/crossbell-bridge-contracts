@@ -79,7 +79,10 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         // transform token amount by different chain
         uint256 transformedAmount = _transformDepositAmount(token, amount, crossbellToken.decimals);
 
-        depositId = _depositCount++;
+        depositId = _depositCount;
+        unchecked {
+            _depositCount++;
+        }
         emit RequestDeposit(depositId, recipient, crossbellToken.tokenAddr, transformedAmount);
     }
 
@@ -101,16 +104,19 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         bytes calldata signatures
     ) external whenNotPaused {
         require(chainId == block.chainid, "InvalidChainId");
+        require(_withdrawals[withdrawalId].recipient == address(0), "NotNewWithdrawal");
 
         bytes32 hash = keccak256(
             abi.encodePacked("withdrawERC20", chainId, withdrawalId, recipient, token, amount)
         );
-
         require(_verifySignatures(hash, signatures), "VerifySignaturesInvalid");
 
+        // record withdrawal
+        _withdrawals[withdrawalId] = WithdrawalEntry(recipient, token, amount);
+        // transfer
         IERC20(token).safeTransfer(recipient, amount);
 
-        _insertWithdrawalEntry(withdrawalId, recipient, token, amount);
+        emit Withdrew(withdrawalId, recipient, token, amount);
     }
 
     /**
@@ -143,19 +149,6 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         }
 
         return IValidator(_validator).checkThreshold(validatorCount);
-    }
-
-    function _insertWithdrawalEntry(
-        uint256 withdrawalId,
-        address recipient,
-        address token,
-        uint256 amount
-    ) internal {
-        require(_withdrawals[withdrawalId].recipient == address(0), "NotNewWithdrawal");
-
-        _withdrawals[withdrawalId] = WithdrawalEntry(recipient, token, amount);
-
-        emit Withdrew(withdrawalId, recipient, token, amount);
     }
 
     // as there are different token decimals on different chains, so the amount need to be transformed

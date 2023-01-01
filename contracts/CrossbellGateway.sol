@@ -154,7 +154,10 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
             mainchainToken.decimals
         );
 
-        withdrawId = _withdrawalCounts[chainId]++;
+        withdrawId = _withdrawalCounts[chainId];
+        unchecked {
+            _withdrawalCounts[chainId]++;
+        }
         _withdrawals[chainId][withdrawId] = WithdrawalEntry(
             chainId,
             recipient,

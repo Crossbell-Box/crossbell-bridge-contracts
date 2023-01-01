@@ -7,7 +7,7 @@ import "../libraries/DataTypes.sol";
  * @title GatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract MainchainGatewayStorage {
+abstract contract MainchainGatewayStorage {
     event TokenMapped(
         address[] mainchainTokens,
         address[] crossbellTokens,

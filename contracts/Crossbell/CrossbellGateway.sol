@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/IERC20Mintable.sol";
 import "../libraries/ECVerify.sol";
 import "../interfaces/IValidator.sol";
+import "../interfaces/ICrossbellGateway.sol";
 import "./CrossbellGatewayStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
@@ -16,7 +17,12 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * @title SidechainBridge
  * @dev Logic to handle deposits and withdrawals on Sidechain.
  */
-abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayStorage {
+abstract contract CrossbellGateway is
+    ICrossbellGateway,
+    Initializable,
+    Pausable,
+    CrossbellGatewayStorage
+{
     using ECVerify for bytes32;
     using SafeERC20 for IERC20;
 
@@ -99,7 +105,7 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
         );
 
         for (uint256 i; i < withdrawalIds.length; i++) {
-            submitWithdrawalSignatures(chainIds[i], withdrawalIds[i], shouldReplaces[i], sigs[i]);
+            _submitWithdrawalSignatures(chainIds[i], withdrawalIds[i], shouldReplaces[i], sigs[i]);
         }
     }
 
@@ -122,9 +128,9 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
     ) internal whenNotPaused onlyValidator {
         bytes32 hash = keccak256(abi.encode(recipient, chainId, depositId, token, amount));
 
-        Status status = _acknowledge(chainId, depositId, hash, msg.sender);
+        DataTypes.Status status = _acknowledge(chainId, depositId, hash, msg.sender);
 
-        if (status == Status.FirstApproved) {
+        if (status == DataTypes.Status.FirstApproved) {
             _depositFor(recipient, token, amount);
 
             _deposits[chainId][depositId] = DepositEntry(chainId, recipient, token, amount);
@@ -140,7 +146,7 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
         address token,
         uint256 amount
     ) external whenNotPaused returns (uint256 withdrawId) {
-        MappedToken memory mainchainToken = _getMainchainToken(chainId, token);
+        DataTypes.MappedToken memory mainchainToken = _getMainchainToken(chainId, token);
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         // transform token amount by different chain
@@ -181,7 +187,7 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
     function getMainchainToken(
         uint256 chainId,
         address crossbellToken
-    ) external view returns (MappedToken memory token) {
+    ) external view returns (DataTypes.MappedToken memory token) {
         return _getMainchainToken(chainId, crossbellToken);
     }
 
@@ -189,8 +195,17 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
         uint256 chainId,
         uint256 withdrawalId,
         bool shouldReplace,
-        bytes memory sig
-    ) public whenNotPaused onlyValidator {
+        bytes calldata sig
+    ) external {
+        _submitWithdrawalSignatures(chainId, withdrawalId, shouldReplace, sig);
+    }
+
+    function _submitWithdrawalSignatures(
+        uint256 chainId,
+        uint256 withdrawalId,
+        bool shouldReplace,
+        bytes calldata sig
+    ) internal whenNotPaused onlyValidator {
         bytes memory currentSig = withdrawalSig[chainId][withdrawalId][msg.sender];
 
         bool alreadyHasSig = currentSig.length != 0;
@@ -231,21 +246,21 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
         uint256 id,
         bytes32 hash,
         address validator
-    ) internal returns (Status) {
+    ) internal returns (DataTypes.Status) {
         require(
             _validatorAck[chainId][id][validator] == bytes32(0),
             "Validator already acknowledged"
         );
 
         _validatorAck[chainId][id][validator] = hash;
-        Status status = _ackStatus[chainId][id][hash];
+        DataTypes.Status status = _ackStatus[chainId][id][hash];
         uint256 count = _ackCount[chainId][id][hash];
 
         if (IValidator(_validator).checkThreshold(count + 1)) {
-            if (status == Status.NotApproved) {
-                _ackStatus[chainId][id][hash] = Status.FirstApproved;
+            if (status == DataTypes.Status.NotApproved) {
+                _ackStatus[chainId][id][hash] = DataTypes.Status.FirstApproved;
             } else {
-                _ackStatus[chainId][id][hash] = Status.AlreadyApproved;
+                _ackStatus[chainId][id][hash] = DataTypes.Status.AlreadyApproved;
             }
         }
 
@@ -258,7 +273,7 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
         uint256 chainId,
         uint256 id,
         bytes32 hash
-    ) external view returns (Status) {
+    ) external view returns (DataTypes.Status) {
         return _ackStatus[chainId][id][hash];
     }
 
@@ -299,7 +314,7 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
     function _getMainchainToken(
         uint256 chainId,
         address crossbellToken
-    ) internal view returns (MappedToken memory token) {
+    ) internal view returns (DataTypes.MappedToken memory token) {
         token = _mainchainToken[crossbellToken][chainId];
     }
 
@@ -317,7 +332,7 @@ abstract contract CrossbellGateway is Initializable, Pausable, CrossbellGatewayS
         );
 
         for (uint i = 0; i < crossbellTokens.length; i++) {
-            _mainchainToken[crossbellTokens[i]][chainIds[i]] = MappedToken({
+            _mainchainToken[crossbellTokens[i]][chainIds[i]] = DataTypes.MappedToken({
                 tokenAddr: mainchainTokens[i],
                 decimals: mainchainTokenDecimals[i]
             });

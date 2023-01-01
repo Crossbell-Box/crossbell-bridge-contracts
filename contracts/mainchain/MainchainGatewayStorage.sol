@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../interfaces/IMappedToken.sol";
+import "../libraries/DataTypes.sol";
 
 /**
  * @title GatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract MainchainGatewayStorage is IMappedToken {
+contract MainchainGatewayStorage {
     event TokenMapped(
         address[] mainchainTokens,
         address[] crossbellTokens,
@@ -48,5 +48,5 @@ contract MainchainGatewayStorage is IMappedToken {
     address public _admin;
 
     // @dev Mapping from mainchain token => token address on crossbell network
-    mapping(address => MappedToken) internal _crossbellToken;
+    mapping(address => DataTypes.MappedToken) internal _crossbellToken;
 }

@@ -3,7 +3,7 @@ pragma solidity 0.8.10;
 
 import "forge-std/Test.sol";
 import "./helpers/utils.sol";
-import "../contracts/common/Validator.sol";
+import "../contracts/Validator.sol";
 
 contract ValidatorTest is Test, Utils {
     address internal alice = address(0x1111);

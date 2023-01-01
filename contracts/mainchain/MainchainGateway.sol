@@ -2,6 +2,7 @@
 pragma solidity 0.8.10;
 
 import "../libraries/ECVerify.sol";
+import "../libraries/DataTypes.sol";
 import "./MainchainGatewayStorage.sol";
 import "../interfaces/IValidator.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -55,8 +56,8 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
         address recipient,
         address token,
         uint256 amount
-    ) external virtual whenNotPaused returns (uint256 depositId) {
-        MappedToken memory crossbellToken = getCrossbellToken(token);
+    ) external whenNotPaused returns (uint256 depositId) {
+        DataTypes.MappedToken memory crossbellToken = _getCrossbellToken(token);
         require(crossbellToken.tokenAddr != address(0), "MainchainBridge: unsupported token");
 
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
@@ -74,15 +75,15 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
         address recipient,
         address token,
         uint256 amount,
-        bytes memory signatures
-    ) external virtual whenNotPaused {
+        bytes calldata signatures
+    ) external whenNotPaused {
         require(chainId == block.chainid, "MainchainGatewayManager: invalid chainId");
 
         bytes32 hash = keccak256(
             abi.encodePacked("withdrawERC20", chainId, withdrawalId, recipient, token, amount)
         );
 
-        require(verifySignatures(hash, signatures));
+        require(_verifySignatures(hash, signatures));
 
         IERC20(token).safeTransfer(recipient, amount);
 
@@ -92,7 +93,17 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
     /**
      * @dev returns true if there is enough signatures from validators.
      */
-    function verifySignatures(bytes32 hash, bytes memory signatures) public view returns (bool) {
+    function verifySignatures(
+        bytes32 hash,
+        bytes calldata signatures
+    ) external view returns (bool) {
+        return _verifySignatures(hash, signatures);
+    }
+
+    function _verifySignatures(
+        bytes32 hash,
+        bytes calldata signatures
+    ) internal view returns (bool) {
         uint256 signatureCount = signatures.length / 66;
 
         uint256 validatorCount = 0;
@@ -144,7 +155,13 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
 
     function getCrossbellToken(
         address mainchainToken
-    ) public view returns (MappedToken memory token) {
+    ) external view returns (DataTypes.MappedToken memory token) {
+        return _getCrossbellToken(mainchainToken);
+    }
+
+    function _getCrossbellToken(
+        address mainchainToken
+    ) internal view returns (DataTypes.MappedToken memory token) {
         token = _crossbellToken[mainchainToken];
     }
 
@@ -160,7 +177,7 @@ abstract contract MainchainGateway is Initializable, Pausable, MainchainGatewayS
         );
 
         for (uint256 i; i < mainchainTokens.length; i++) {
-            _crossbellToken[mainchainTokens[i]] = MappedToken({
+            _crossbellToken[mainchainTokens[i]] = DataTypes.MappedToken({
                 tokenAddr: crossbellTokens[i],
                 decimals: crossbellTokenDecimals[i]
             });

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "../interfaces/IMappedToken.sol";
+import "../libraries/DataTypes.sol";
 
 /**
  * @title SidechainGatewayStorage
  * @dev Storage of deposit and withdraw information.
  */
-contract CrossbellGatewayStorage is IMappedToken {
+contract CrossbellGatewayStorage {
     event TokenMapped(
         address[] crossbellTokens,
         uint256[] chainIds,
@@ -63,15 +63,6 @@ contract CrossbellGatewayStorage is IMappedToken {
         uint256 amount;
     }
 
-    // Acknowledge status, once the acknowledgements reach the threshold the 1st
-    // time, it can take effect to the system. E.g. confirm a deposit.
-    // Acknowledgments after that should not have any effects.
-    enum Status {
-        NotApproved,
-        FirstApproved,
-        AlreadyApproved
-    }
-
     // Final deposit state, update only once when there is enough acknowledgement
     // chainId => depositId => DepositEntry
     mapping(uint256 => mapping(uint256 => DepositEntry)) internal _deposits;
@@ -86,7 +77,7 @@ contract CrossbellGatewayStorage is IMappedToken {
     mapping(uint256 => mapping(uint256 => address[])) internal _withdrawalSigners;
 
     // Mapping from token address => chain id => mainchain token address
-    mapping(address => mapping(uint256 => MappedToken)) internal _mainchainToken;
+    mapping(address => mapping(uint256 => DataTypes.MappedToken)) internal _mainchainToken;
     address public _admin;
 
     address internal _validator;
@@ -96,5 +87,6 @@ contract CrossbellGatewayStorage is IMappedToken {
     // Mapping from chainId => id => data hash => ack count
     mapping(uint256 => mapping(uint256 => mapping(bytes32 => uint256))) internal _ackCount;
     // Mapping from chainId => id => data hash => ack status
-    mapping(uint256 => mapping(uint256 => mapping(bytes32 => Status))) internal _ackStatus;
+    mapping(uint256 => mapping(uint256 => mapping(bytes32 => DataTypes.Status)))
+        internal _ackStatus;
 }

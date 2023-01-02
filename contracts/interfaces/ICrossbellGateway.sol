@@ -63,4 +63,16 @@ interface ICrossbellGateway {
         uint256 chainId,
         uint256 withdrawalId
     ) external view returns (address[] memory signers, bytes[] memory sigs);
+
+    /**
+     * @notice Returns the address of the validator contract.
+     * @return The validator contract address
+     */
+    function getValidatorContract() external view returns (address);
+
+    /**
+     * @notice Returns the admin address of the gateway contract.
+     * @return The admin address
+     */
+    function getAdmin() external view returns (address);
 }

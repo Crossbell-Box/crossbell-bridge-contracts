@@ -34,15 +34,11 @@ abstract contract MainchainGatewayStorage {
         uint256 originalAmount;
     }
 
-    // keccak256("withdraw(uint256 chainId,uint256 withdrawalId,address recipient,address token,uint256 amount,bytes signatures)")
-    bytes32 public constant TYPE_HASH =
-        0xed7a87d78461bdc12aba24d19e67131757b33eab78ae3c422b3617d69a018b2f;
+    address internal _validator;
 
-    address public _validator;
-
-    uint256 public _depositCount;
-    address public _admin;
-    mapping(uint256 => bytes32) public _withdrawalHash;
+    uint256 internal _depositCount;
+    address internal _admin;
+    mapping(uint256 => bytes32) internal _withdrawalHash;
 
     // @dev Mapping from mainchain token => token address on crossbell network
     mapping(address => DataTypes.MappedToken) internal _crossbellToken;

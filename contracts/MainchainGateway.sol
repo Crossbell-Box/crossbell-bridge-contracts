@@ -20,6 +20,10 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
     using ECVerify for bytes32;
     using SafeERC20 for IERC20;
 
+    // keccak256("withdraw(uint256 chainId,uint256 withdrawalId,address recipient,address token,uint256 amount,bytes signatures)")
+    bytes32 public constant TYPE_HASH =
+        0xed7a87d78461bdc12aba24d19e67131757b33eab78ae3c422b3617d69a018b2f;
+
     modifier onlyAdmin() {
         _checkAdmin();
         _;
@@ -129,6 +133,50 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         return _verifySignatures(hash, signatures);
     }
 
+    /**
+     * @notice Returns the address of the validator contract.
+     * @return The validator contract address
+     */
+    function getValidatorContract() external view returns (address) {
+        return _validator;
+    }
+
+    /**
+     * @notice Returns the admin address of the gateway contract.
+     * @return The admin address
+     */
+    function getAdmin() external view returns (address) {
+        return _admin;
+    }
+
+    /**
+     * @notice Returns the deposit count of the gateway contract.
+     * @return The deposit count
+     */
+    function getDepositCount() external view returns (uint256) {
+        return _depositCount;
+    }
+
+    /**
+     * @notice Returns the withdrawal hash by withdrawal id.
+     * @param withdrawalId WithdrawalId to query
+     * @return The withdrawal hash
+     */
+    function getWithdrawalHash(uint256 withdrawalId) external view returns (bytes32) {
+        return _withdrawalHash[withdrawalId];
+    }
+
+    /**
+     * @notice Gets mapped tokens from crossbell chain.
+     * @param mainchainToken Token address on mainchain
+     * @return token Mapped token from crossbell chain
+     */
+    function getCrossbellToken(
+        address mainchainToken
+    ) external view returns (DataTypes.MappedToken memory token) {
+        return _getCrossbellToken(mainchainToken);
+    }
+
     function _verifySignatures(
         bytes32 hash,
         bytes calldata signatures
@@ -167,17 +215,6 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         } else {
             transformedAmount = amount / (10 ** (decimals - destinationDecimals));
         }
-    }
-
-    /**
-     * @notice Get mapped tokens from crossbell chain.
-     * @param mainchainToken Token address on mainchain
-     * @return token Mapped token from crossbell chain
-     */
-    function getCrossbellToken(
-        address mainchainToken
-    ) external view returns (DataTypes.MappedToken memory token) {
-        return _getCrossbellToken(mainchainToken);
     }
 
     function _getCrossbellToken(

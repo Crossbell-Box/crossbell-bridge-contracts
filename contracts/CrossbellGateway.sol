@@ -290,6 +290,22 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         }
     }
 
+    /**
+     * @notice Returns the address of the validator contract.
+     * @return The validator contract address
+     */
+    function getValidatorContract() external view returns (address) {
+        return _validator;
+    }
+
+    /**
+     * @notice Returns the admin address of the gateway contract.
+     * @return The admin address
+     */
+    function getAdmin() external view returns (address) {
+        return _admin;
+    }
+
     function _depositFor(address recipient, address token, uint256 amount) internal {
         uint256 gatewayBalance = IERC20(token).balanceOf(address(this));
         if (gatewayBalance < amount) {

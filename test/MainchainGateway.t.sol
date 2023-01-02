@@ -18,6 +18,10 @@ contract MainchainGatewayTest is Test, Utils {
 
     address internal admin = address(0x777);
 
+    // events
+    event Paused(address account);
+    event Unpaused(address account);
+
     // validators
     uint256 internal validator1PrivateKey = 1;
     uint256 internal validator2PrivateKey = 2;
@@ -60,8 +64,8 @@ contract MainchainGatewayTest is Test, Utils {
 
     function testSetupState() public {
         // check status after initialization
-        assertEq(gateway._admin(), admin);
-        assertEq(gateway._validator(), address(validator));
+        assertEq(gateway.getAdmin(), admin);
+        assertEq(gateway.getValidatorContract(), address(validator));
         DataTypes.MappedToken memory token = gateway.getCrossbellToken(address(mainchainToken));
         assertEq(token.tokenAddr, address(crossbellToken));
         assertEq(token.decimals, 18);
@@ -81,11 +85,79 @@ contract MainchainGatewayTest is Test, Utils {
         );
 
         // check status
-        assertEq(gateway._admin(), admin);
-        assertEq(gateway._validator(), address(validator));
+        assertEq(gateway.getAdmin(), admin);
+        assertEq(gateway.getValidatorContract(), address(validator));
         DataTypes.MappedToken memory token = gateway.getCrossbellToken(address(mainchainToken));
         assertEq(token.tokenAddr, address(crossbellToken));
         assertEq(token.decimals, 18);
+    }
+
+    function testPause() public {
+        // check paused
+        assertFalse(gateway.paused());
+
+        // expect events
+        expectEmit(CheckAll);
+        emit Paused(admin);
+        vm.prank(admin);
+        gateway.pause();
+
+        // check paused
+        assertEq(gateway.paused(), true);
+    }
+
+    function testPauseFail() public {
+        // check paused
+        assertEq(gateway.paused(), false);
+
+        // case 1: caller is not admin
+        vm.expectRevert(abi.encodePacked("onlyAdmin"));
+        gateway.pause();
+        // check paused
+        assertEq(gateway.paused(), false);
+
+        // pause gateway
+        vm.startPrank(admin);
+        gateway.pause();
+        // case 2: gateway has been paused
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        gateway.pause();
+        vm.stopPrank();
+    }
+
+    function testUnpause() public {
+        vm.prank(admin);
+        gateway.pause();
+        // check paused
+        assertEq(gateway.paused(), true);
+
+        // expect events
+        expectEmit(CheckAll);
+        emit Unpaused(admin);
+        vm.prank(admin);
+        gateway.unpause();
+
+        // check paused
+        assertEq(gateway.paused(), false);
+    }
+
+    function testUnpauseFail() public {
+        assertEq(gateway.paused(), false);
+        // case 1: gateway not paused
+        vm.expectRevert(abi.encodePacked("Pausable: not paused"));
+        gateway.unpause();
+        // check paused
+        assertEq(gateway.paused(), false);
+
+        // case 1: caller is not admin
+        vm.prank(admin);
+        gateway.pause();
+        // check paused
+        assertEq(gateway.paused(), true);
+        vm.expectRevert(abi.encodePacked("onlyAdmin"));
+        gateway.unpause();
+        // check paused
+        assertEq(gateway.paused(), true);
     }
 
     function testVerifySignatures() public {

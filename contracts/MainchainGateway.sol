@@ -107,7 +107,7 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
 
         bytes32 hash = keccak256(
-            abi.encodePacked("withdrawERC20", chainId, withdrawalId, recipient, token, amount)
+            abi.encodePacked(TYPE_HASH, chainId, withdrawalId, recipient, token, amount)
         );
         require(_verifySignatures(hash, signatures), "InsufficientSignaturesNumber");
 

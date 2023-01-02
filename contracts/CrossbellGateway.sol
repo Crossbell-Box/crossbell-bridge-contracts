@@ -131,7 +131,12 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         if (status == DataTypes.Status.FirstApproved) {
             _depositFor(recipient, token, amount);
 
-            _deposits[chainId][depositId] = DepositEntry(chainId, recipient, token, amount);
+            _deposits[chainId][depositId] = DataTypes.DepositEntry(
+                chainId,
+                recipient,
+                token,
+                amount
+            );
             emit Deposited(chainId, depositId, recipient, token, amount);
         }
 
@@ -158,7 +163,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         unchecked {
             _withdrawalCounts[chainId]++;
         }
-        _withdrawals[chainId][withdrawId] = WithdrawalEntry(
+        _withdrawals[chainId][withdrawId] = DataTypes.WithdrawalEntry(
             chainId,
             recipient,
             token,
@@ -207,7 +212,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         bool shouldReplace,
         bytes calldata sig
     ) internal whenNotPaused onlyValidator {
-        bytes memory currentSig = withdrawalSig[chainId][withdrawalId][msg.sender];
+        bytes memory currentSig = _withdrawalSig[chainId][withdrawalId][msg.sender];
 
         bool alreadyHasSig = currentSig.length != 0;
 
@@ -215,7 +220,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
             return;
         }
 
-        withdrawalSig[chainId][withdrawalId][msg.sender] = sig;
+        _withdrawalSig[chainId][withdrawalId][msg.sender] = sig;
         if (!alreadyHasSig) {
             _withdrawalSigners[chainId][withdrawalId].push(msg.sender);
         }
@@ -226,7 +231,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
      * has changed.
      */
     function requestSignatureAgain(uint256 chainId, uint256 withdrawalId) external whenNotPaused {
-        WithdrawalEntry memory entry = _withdrawals[chainId][withdrawalId];
+        DataTypes.WithdrawalEntry memory entry = _withdrawals[chainId][withdrawalId];
 
         require(entry.recipient == msg.sender, "NotEntryOwner");
 
@@ -264,12 +269,28 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         return _ackStatus[chainId][id][hash];
     }
 
+    function getValidatorAcknowledgementHash(
+        uint256 chainId,
+        uint256 id,
+        address validator
+    ) external view returns (bytes32) {
+        return _validatorAck[chainId][id][validator];
+    }
+
     function getAcknowledgementStatus(
         uint256 chainId,
         uint256 id,
         bytes32 hash
     ) external view returns (DataTypes.Status) {
         return _ackStatus[chainId][id][hash];
+    }
+
+    function getAcknowledgementCount(
+        uint256 chainId,
+        uint256 id,
+        bytes32 hash
+    ) external view returns (uint256) {
+        return _ackCount[chainId][id][hash];
     }
 
     function getWithdrawalSigners(
@@ -286,7 +307,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         signers = _getWithdrawalSigners(chainId, withdrawalId);
         sigs = new bytes[](signers.length);
         for (uint256 i = 0; i < signers.length; i++) {
-            sigs[i] = withdrawalSig[chainId][withdrawalId][signers[i]];
+            sigs[i] = _withdrawalSig[chainId][withdrawalId][signers[i]];
         }
     }
 
@@ -304,6 +325,24 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
      */
     function getAdmin() external view returns (address) {
         return _admin;
+    }
+
+    function getDepositEntry(
+        uint256 chainId,
+        uint256 depositId
+    ) external view returns (DataTypes.DepositEntry memory) {
+        return _deposits[chainId][depositId];
+    }
+
+    function getWithdrawalCount(uint256 chainId) external view returns (uint256) {
+        return _withdrawalCounts[chainId];
+    }
+
+    function getWithdrawalEntry(
+        uint256 chainId,
+        uint256 withdrawalId
+    ) external view returns (DataTypes.WithdrawalEntry memory) {
+        return _withdrawals[chainId][withdrawalId];
     }
 
     function _depositFor(address recipient, address token, uint256 amount) internal {

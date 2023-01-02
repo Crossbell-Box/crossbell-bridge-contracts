@@ -48,11 +48,23 @@ interface ICrossbellGateway {
 
     function requestSignatureAgain(uint256 chainId, uint256 withdrawalId) external;
 
+    function getValidatorAcknowledgementHash(
+        uint256 chainId,
+        uint256 id,
+        address validator
+    ) external view returns (bytes32);
+
     function getAcknowledgementStatus(
         uint256 chainId,
         uint256 id,
         bytes32 hash
     ) external view returns (DataTypes.Status);
+
+    function getAcknowledgementCount(
+        uint256 chainId,
+        uint256 id,
+        bytes32 hash
+    ) external view returns (uint256);
 
     function getWithdrawalSigners(
         uint256 chainId,
@@ -75,4 +87,16 @@ interface ICrossbellGateway {
      * @return The admin address
      */
     function getAdmin() external view returns (address);
+
+    function getDepositEntry(
+        uint256 chainId,
+        uint256 depositId
+    ) external view returns (DataTypes.DepositEntry memory);
+
+    function getWithdrawalCount(uint256 chainId) external view returns (uint256);
+
+    function getWithdrawalEntry(
+        uint256 chainId,
+        uint256 withdrawalId
+    ) external view returns (DataTypes.WithdrawalEntry memory);
 }

@@ -48,31 +48,16 @@ abstract contract CrossbellGatewayStorage {
         uint256 amount
     );
 
-    struct DepositEntry {
-        uint256 chainId;
-        address recipient;
-        address token;
-        uint256 amount;
-    }
-
-    struct WithdrawalEntry {
-        uint256 chainId;
-        address recipient;
-        address token;
-        uint256 transformedAmount;
-        uint256 amount;
-    }
-
     // Final deposit state, update only once when there is enough acknowledgement
     // chainId => depositId => DepositEntry
-    mapping(uint256 => mapping(uint256 => DepositEntry)) internal _deposits;
+    mapping(uint256 => mapping(uint256 => DataTypes.DepositEntry)) internal _deposits;
 
     // chainId => withdrawCount
     mapping(uint256 => uint256) internal _withdrawalCounts;
     // chainId =>  withdrawId =>WithdrawalEntry
-    mapping(uint256 => mapping(uint256 => WithdrawalEntry)) internal _withdrawals;
+    mapping(uint256 => mapping(uint256 => DataTypes.WithdrawalEntry)) internal _withdrawals;
     // chainId => withdrawId  => signature
-    mapping(uint256 => mapping(uint256 => mapping(address => bytes))) internal withdrawalSig;
+    mapping(uint256 => mapping(uint256 => mapping(address => bytes))) internal _withdrawalSig;
     // chainId => withdrawId => address[]
     mapping(uint256 => mapping(uint256 => address[])) internal _withdrawalSigners;
 

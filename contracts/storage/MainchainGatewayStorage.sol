@@ -28,12 +28,6 @@ abstract contract MainchainGatewayStorage {
         uint256 amount
     );
 
-    struct DepositEntry {
-        address recipient;
-        uint256 transformedAmount;
-        uint256 originalAmount;
-    }
-
     address internal _validator;
 
     uint256 internal _depositCount;

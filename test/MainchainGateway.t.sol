@@ -138,6 +138,6 @@ contract MainchainGatewayTest is Test, Utils {
         );
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, prefixedHash);
-        return abi.encodePacked(uint8(1), r, s, v); // add SignatureMode "1" for GETH
+        return abi.encodePacked(r, s, v);
     }
 }

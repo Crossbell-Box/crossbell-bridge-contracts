@@ -104,15 +104,15 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         bytes calldata signatures
     ) external whenNotPaused {
         require(chainId == block.chainid, "InvalidChainId");
-        require(_withdrawals[withdrawalId].recipient == address(0), "NotNewWithdrawal");
+        require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
 
         bytes32 hash = keccak256(
             abi.encodePacked("withdrawERC20", chainId, withdrawalId, recipient, token, amount)
         );
-        require(_verifySignatures(hash, signatures), "VerifySignaturesInvalid");
+        require(_verifySignatures(hash, signatures), "InsufficientSignaturesNumber");
 
-        // record withdrawal
-        _withdrawals[withdrawalId] = WithdrawalEntry(recipient, token, amount);
+        // record withdrawal hash
+        _withdrawalHash[withdrawalId] = hash;
         // transfer
         IERC20(token).safeTransfer(recipient, amount);
 
@@ -133,18 +133,18 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         bytes32 hash,
         bytes calldata signatures
     ) internal view returns (bool) {
-        uint256 signatureCount = signatures.length / 66;
+        uint256 signatureCount = signatures.length / 65;
 
         uint256 validatorCount = 0;
         address lastSigner = address(0);
 
         for (uint256 i = 0; i < signatureCount; i++) {
-            address signer = hash.recover(signatures, i * 66);
+            address signer = hash.recover(signatures, i * 65);
             if (IValidator(_validator).isValidator(signer)) {
                 validatorCount++;
             }
             // Prevent duplication of signatures
-            require(signer > lastSigner, "DuplicatedSignatures");
+            require(signer > lastSigner, "InvalidOrder");
             lastSigner = signer;
         }
 

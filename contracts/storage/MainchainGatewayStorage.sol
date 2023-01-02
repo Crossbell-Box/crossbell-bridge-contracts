@@ -34,18 +34,11 @@ abstract contract MainchainGatewayStorage {
         uint256 originalAmount;
     }
 
-    struct WithdrawalEntry {
-        address recipient;
-        address token;
-        uint256 amount;
-    }
-
     address public _validator;
 
     uint256 public _depositCount;
-    mapping(uint256 => WithdrawalEntry) public _withdrawals;
-
     address public _admin;
+    mapping(uint256 => bytes32) public _withdrawalHash;
 
     // @dev Mapping from mainchain token => token address on crossbell network
     mapping(address => DataTypes.MappedToken) internal _crossbellToken;

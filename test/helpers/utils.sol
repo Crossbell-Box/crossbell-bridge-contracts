@@ -27,9 +27,22 @@ contract Utils is Test {
         vm.expectEmit(checkTopic1, checkTopic2, checkTopic3, checkData);
     }
 
+    function array(uint256 a) public pure returns (uint256[] memory) {
+        uint256[] memory arr = new uint256[](1);
+        arr[0] = a;
+        return arr;
+    }
+
     function array(address a) public pure returns (address[] memory) {
         address[] memory arr = new address[](1);
         arr[0] = a;
+        return arr;
+    }
+
+    function array(uint256 a, uint256 b) public pure returns (uint256[] memory) {
+        uint256[] memory arr = new uint256[](2);
+        arr[0] = a;
+        arr[1] = b;
         return arr;
     }
 
@@ -40,11 +53,33 @@ contract Utils is Test {
         return arr;
     }
 
+    function array(uint256 a, uint256 b, uint256 c) public pure returns (uint256[] memory) {
+        uint256[] memory arr = new uint256[](3);
+        arr[0] = a;
+        arr[1] = b;
+        arr[2] = c;
+        return arr;
+    }
+
     function array(address a, address b, address c) public pure returns (address[] memory) {
         address[] memory arr = new address[](3);
         arr[0] = a;
         arr[1] = b;
         arr[2] = c;
+        return arr;
+    }
+
+    function array(
+        uint256 a,
+        uint256 b,
+        uint256 c,
+        uint256 d
+    ) public pure returns (uint256[] memory) {
+        uint256[] memory arr = new uint256[](4);
+        arr[0] = a;
+        arr[1] = b;
+        arr[2] = c;
+        arr[3] = d;
         return arr;
     }
 

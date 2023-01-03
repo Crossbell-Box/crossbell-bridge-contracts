@@ -27,6 +27,15 @@ interface IMainchainGateway {
         uint256 amount
     );
 
+    /// @dev Emitted when the thresholds for locked withdrawals are updated
+    event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds);
+
+    /// @dev Emitted when the withdrawal is locked
+    event WithdrawalLocked(uint256 indexed withdrawId);
+
+    /// @dev Emitted when the withdrawal is unlocked
+    event WithdrawalUnlocked(uint256 indexed withdrawId);
+
     function TYPE_HASH() external view returns (bytes32);
 
     /**
@@ -40,7 +49,8 @@ interface IMainchainGateway {
     function unpause() external;
 
     /**
-     * @notice Request deposit to crossbell chain
+     * @notice Request deposit to crossbell chain.
+     *
      * @param recipient Address to receive deposit on crossbell chain
      * @param token Address of token to deposit
      * @param amount Amount of token to deposit
@@ -68,7 +78,29 @@ interface IMainchainGateway {
         address token,
         uint256 amount,
         bytes calldata signatures
+    ) external returns (bool locked);
+
+    /**
+     * @notice Approves a specific withdrawal..
+     * Note that the caller must have WITHDRAWAL_UNLOCKER_ROLE.
+     * @param chainId ChainId
+     * @param withdrawalId Withdrawal ID from crossbell chain
+     * @param recipient Address to receive withdrawal on mainchain chain
+     * @param token Address of token to withdraw
+     * @param amount Amount of token to withdraw
+     */
+    function unlockWithdrawal(
+        uint256 chainId,
+        uint256 withdrawalId,
+        address recipient,
+        address token,
+        uint256 amount
     ) external;
+
+    /**
+     * @notice Sets the amount thresholds to lock withdrawal.
+     */
+    function setLockedThresholds(address[] calldata tokens, uint256[] calldata thresholds) external;
 
     /**
      * @notice Returns true if there is enough signatures from validators.
@@ -80,12 +112,6 @@ interface IMainchainGateway {
      * @return The validator contract address
      */
     function getValidatorContract() external view returns (address);
-
-    /**
-     * @notice Returns the admin address of the gateway contract.
-     * @return The admin address
-     */
-    function getAdmin() external view returns (address);
 
     /**
      * @notice Returns the deposit count of the gateway contract.

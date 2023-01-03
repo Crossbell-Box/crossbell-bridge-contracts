@@ -7,8 +7,12 @@ import "./helpers/utils.sol";
 import "../contracts/MainchainGateway.sol";
 import "../contracts/Validator.sol";
 import "../contracts/mocks/MintableERC20.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MainchainGatewayTest is Test, Utils {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant WITHDRAWAL_UNLOCKER_ROLE = keccak256("WITHDRAWAL_UNLOCKER_ROLE");
+
     address internal alice = address(0x111);
     address internal bob = address(0x222);
     address internal carol = address(0x333);
@@ -21,6 +25,20 @@ contract MainchainGatewayTest is Test, Utils {
     // events
     event Paused(address account);
     event Unpaused(address account);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event RequestDeposit(
+        uint256 indexed depositId,
+        address indexed recipient,
+        address indexed token,
+        uint256 amount // ERC-20 amount
+    );
+    event Withdrew(
+        uint256 indexed withdrawId,
+        address indexed recipient,
+        address indexed token,
+        uint256 amount
+    );
 
     // validators
     uint256 internal validator1PrivateKey = 1;
@@ -36,9 +54,12 @@ contract MainchainGatewayTest is Test, Utils {
     MintableERC20 internal mainchainToken;
     MintableERC20 internal crossbellToken;
 
+    uint256 internal constant INITIAL_AMOUNT_MAINCHAIN = 200 * 10 ** 6;
+    uint256 internal constant INITIAL_AMOUNT_CROSSBELL = 200 * 10 ** 18;
+
     function setUp() public {
         // setup ERC20 token
-        mainchainToken = new MintableERC20("mainchain ERC20", "ERC20", 18);
+        mainchainToken = new MintableERC20("mainchain ERC20", "ERC20", 6);
         crossbellToken = new MintableERC20("crossbell ERC20", "ERC20", 18);
 
         uint8[] memory decimals = new uint8[](1);
@@ -52,22 +73,23 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.initialize(
             address(validator),
             admin,
+            admin,
             array(address(mainchainToken)),
+            array(INITIAL_AMOUNT_MAINCHAIN),
             array(address(crossbellToken)),
             decimals
         );
 
         // mint tokens
-        mainchainToken.mint(alice, 100 ether);
-        crossbellToken.mint(alice, 100 ether);
+        mainchainToken.mint(alice, INITIAL_AMOUNT_MAINCHAIN);
+        crossbellToken.mint(alice, INITIAL_AMOUNT_MAINCHAIN);
     }
 
     function testSetupState() public {
         // check status after initialization
-        assertEq(gateway.getAdmin(), admin);
         assertEq(gateway.getValidatorContract(), address(validator));
         DataTypes.MappedToken memory token = gateway.getCrossbellToken(address(mainchainToken));
-        assertEq(token.tokenAddr, address(crossbellToken));
+        assertEq(token.token, address(crossbellToken));
         assertEq(token.decimals, 18);
     }
 
@@ -79,16 +101,17 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.initialize(
             address(validator),
             bob,
+            bob,
             array(address(mainchainToken)),
+            array(INITIAL_AMOUNT_MAINCHAIN),
             array(address(crossbellToken)),
             decimals
         );
 
         // check status
-        assertEq(gateway.getAdmin(), admin);
         assertEq(gateway.getValidatorContract(), address(validator));
         DataTypes.MappedToken memory token = gateway.getCrossbellToken(address(mainchainToken));
-        assertEq(token.tokenAddr, address(crossbellToken));
+        assertEq(token.token, address(crossbellToken));
         assertEq(token.decimals, 18);
     }
 
@@ -111,7 +134,14 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.paused(), false);
 
         // case 1: caller is not admin
-        vm.expectRevert(abi.encodePacked("onlyAdmin"));
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(this)),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
         gateway.pause();
         // check paused
         assertEq(gateway.paused(), false);
@@ -154,10 +184,133 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.pause();
         // check paused
         assertEq(gateway.paused(), true);
-        vm.expectRevert(abi.encodePacked("onlyAdmin"));
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(this)),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
         gateway.unpause();
         // check paused
         assertEq(gateway.paused(), true);
+    }
+
+    function testRequestDeposit() public {
+        uint256 amount = 1 * 10 ** 6;
+        uint256 crossbellAmount = amount * 10 ** 12; // transformed amount
+
+        vm.startPrank(alice);
+        // approve token
+        mainchainToken.approve(address(gateway), amount);
+        // expect events
+        expectEmit(CheckAll);
+        emit Transfer(alice, address(gateway), amount);
+        expectEmit(CheckAll);
+        emit RequestDeposit(0, alice, address(crossbellToken), crossbellAmount);
+        // requestDeposit
+        gateway.requestDeposit(alice, address(mainchainToken), amount);
+        vm.stopPrank();
+
+        // check balances
+        assertEq(mainchainToken.balanceOf(address(gateway)), amount);
+        assertEq(mainchainToken.balanceOf(alice), INITIAL_AMOUNT_MAINCHAIN - amount);
+        // check deposit count
+        assertEq(gateway.getDepositCount(), 1);
+    }
+
+    function testRequestDepositFail() public {
+        uint256 amount = 1 ether;
+        address fakeToken = address(0x0001);
+
+        // case 1: unmapped token
+        vm.expectRevert(abi.encodePacked("UnsupportedToken"));
+        vm.prank(alice);
+        gateway.requestDeposit(alice, fakeToken, amount);
+
+        // case 2: paused
+        // pause gateway
+        vm.prank(admin);
+        gateway.pause();
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        vm.prank(alice);
+        gateway.requestDeposit(alice, fakeToken, amount);
+
+        // check balances
+        assertEq(mainchainToken.balanceOf(address(gateway)), 0);
+        assertEq(mainchainToken.balanceOf(alice), INITIAL_AMOUNT_MAINCHAIN);
+        // check deposit count
+        assertEq(gateway.getDepositCount(), 0);
+    }
+
+    function testWithdraw() public {
+        // mint tokens to mainchain gateway contract
+        mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
+
+        // withdrawal info
+        address recipient = bob;
+        address token = address(mainchainToken);
+        uint256 amount = 1 * 10 ** 6;
+        uint256 chainId = 1337;
+        uint256 withdrawalId = 1;
+        bytes32 hash = keccak256(
+            abi.encodePacked(
+                gateway.TYPE_HASH(),
+                chainId, // chainId
+                withdrawalId, // withdrawId
+                recipient,
+                token,
+                amount
+            )
+        );
+        bytes memory signatures = _getTwoSignatures(hash);
+
+        vm.prank(bob);
+        vm.chainId(chainId); // set block.chainid
+        // expect events
+        expectEmit(CheckAll);
+        emit Withdrew(withdrawalId, recipient, token, amount);
+        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, signatures);
+
+        // check balances
+        assertEq(mainchainToken.balanceOf(address(gateway)), INITIAL_AMOUNT_MAINCHAIN - amount);
+        assertEq(mainchainToken.balanceOf(bob), amount);
+        // check withdrawal hash
+        assertEq(gateway.getWithdrawalHash(withdrawalId), hash);
+    }
+
+    function testWithdrawFail() public {
+        uint256 amount = 1 ether;
+        // mint tokens to mainchain gateway contract
+        mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
+
+        bytes32 hash = keccak256(
+            abi.encodePacked(
+                gateway.TYPE_HASH(),
+                uint256(1001),
+                uint256(1),
+                alice,
+                address(mainchainToken),
+                amount
+            )
+        );
+
+        // case 1: invalid chainId
+        vm.expectRevert(abi.encodePacked("InvalidChainId"));
+        vm.prank(alice);
+        gateway.withdraw(
+            uint256(1001),
+            uint256(1),
+            alice,
+            address(mainchainToken),
+            amount,
+            _getTwoSignatures(hash)
+        );
+        // case 2: already  withdrawn
+        // case 3: insufficient signatures number
+        // case 4: invalid signer order
+        // case 5: paused
     }
 
     function testVerifySignatures() public {

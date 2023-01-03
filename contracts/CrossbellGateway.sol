@@ -297,9 +297,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
     ) internal view returns (uint256 transformedAmount) {
         uint8 decimals = IERC20Metadata(token).decimals();
 
-        if (destinationDecimals == decimals) {
-            transformedAmount = amount;
-        } else if (destinationDecimals > decimals) {
+        if (destinationDecimals >= decimals) {
             transformedAmount = amount * 10 ** (destinationDecimals - decimals);
         } else {
             transformedAmount = amount / (10 ** (decimals - destinationDecimals));
@@ -392,7 +390,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
 
         for (uint i = 0; i < crossbellTokens.length; i++) {
             _mainchainToken[crossbellTokens[i]][chainIds[i]] = DataTypes.MappedToken({
-                tokenAddr: mainchainTokens[i],
+                token: mainchainTokens[i],
                 decimals: mainchainTokenDecimals[i]
             });
         }

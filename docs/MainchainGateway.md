@@ -10,22 +10,22 @@ _Logic to handle deposits and withdrawals on mainchain._
 bytes32 TYPE_HASH
 ```
 
-### onlyAdmin
+### ADMIN_ROLE
 
 ```solidity
-modifier onlyAdmin()
+bytes32 ADMIN_ROLE
 ```
 
-### _checkAdmin
+### WITHDRAWAL_UNLOCKER_ROLE
 
 ```solidity
-function _checkAdmin() internal view
+bytes32 WITHDRAWAL_UNLOCKER_ROLE
 ```
 
 ### initialize
 
 ```solidity
-function initialize(address validator, address admin, address[] mainchainTokens, address[] crossbellTokens, uint8[] crossbellTokenDecimals) external
+function initialize(address validator, address admin, address withdrawalAuditor, address[] mainchainTokens, uint256[] lockedThresholds, address[] crossbellTokens, uint8[] crossbellTokenDecimals) external
 ```
 
 ### pause
@@ -50,7 +50,7 @@ Resume interaction with the gateway contract
 function requestDeposit(address recipient, address token, uint256 amount) external returns (uint256 depositId)
 ```
 
-Request deposit to crossbell chain
+Request deposit to crossbell chain.
 
 #### Parameters
 
@@ -69,7 +69,7 @@ Request deposit to crossbell chain
 ### withdraw
 
 ```solidity
-function withdraw(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, bytes signatures) external
+function withdraw(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, bytes signatures) external returns (bool locked)
 ```
 
 Withdraw based on the validator signatures.
@@ -84,6 +84,33 @@ Withdraw based on the validator signatures.
 | token | address | Address of token to withdraw |
 | amount | uint256 | Amount of token to withdraw |
 | signatures | bytes | Validator signatures for withdrawal |
+
+### unlockWithdrawal
+
+```solidity
+function unlockWithdrawal(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount) external
+```
+
+Approves a specific withdrawal..
+Note that the caller must have WITHDRAWAL_UNLOCKER_ROLE.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| chainId | uint256 | ChainId |
+| withdrawalId | uint256 | Withdrawal ID from crossbell chain |
+| recipient | address | Address to receive withdrawal on mainchain chain |
+| token | address | Address of token to withdraw |
+| amount | uint256 | Amount of token to withdraw |
+
+### setLockedThresholds
+
+```solidity
+function setLockedThresholds(address[] tokens, uint256[] thresholds) external
+```
+
+Sets the amount thresholds to lock withdrawal.
 
 ### verifySignatures
 
@@ -106,20 +133,6 @@ Returns the address of the validator contract.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | address | The validator contract address |
-
-### getAdmin
-
-```solidity
-function getAdmin() external view returns (address)
-```
-
-Returns the admin address of the gateway contract.
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The admin address |
 
 ### getDepositCount
 
@@ -180,6 +193,23 @@ Get mapped tokens from crossbell chain
 ```solidity
 function _verifySignatures(bytes32 hash, bytes signatures) internal view returns (bool)
 ```
+
+### _setLockedThresholds
+
+```solidity
+function _setLockedThresholds(address[] tokens, uint256[] thresholds) internal
+```
+
+_Sets the amount thresholds to lock withdrawal.
+Note that the array lengths must be equal._
+
+### _lockedWithdrawalRequest
+
+```solidity
+function _lockedWithdrawalRequest(address token, uint256 amount) internal view returns (bool)
+```
+
+_Returns whether the withdrawal request is locked or not._
 
 ### _transformDepositAmount
 

@@ -6,7 +6,7 @@
 
 ```solidity
 struct MappedToken {
-  address tokenAddr;
+  address token;
   uint8 decimals;
 }
 ```

@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 
 /**
  * @title MainchainGateway
- * @dev Logic to handle deposits and withdrawl on Mainchain.
+ * @dev Logic to handle deposits and withdrawals on mainchain.
  */
 contract MainchainGateway is IMainchainGateway, Initializable, Pausable, MainchainGatewayStorage {
     using ECVerify for bytes32;
@@ -49,27 +49,17 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         }
     }
 
-    /**
-     * @notice Pause interaction with the gateway contract
-     */
+    /// @inheritdoc IMainchainGateway
     function pause() external whenNotPaused onlyAdmin {
         _pause();
     }
 
-    /**
-     * @notice Resume interaction with the gateway contract
-     */
+    /// @inheritdoc IMainchainGateway
     function unpause() external whenPaused onlyAdmin {
         _unpause();
     }
 
-    /**
-     * @notice Request deposit to crossbell chain
-     * @param recipient Address to receive deposit on crossbell chain
-     * @param token Address of token to deposit
-     * @param amount Amount of token to deposit
-     * @return depositId Deposit id
-     */
+    /// @inheritdoc IMainchainGateway
     function requestDeposit(
         address recipient,
         address token,
@@ -90,15 +80,7 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         emit RequestDeposit(depositId, recipient, crossbellToken.tokenAddr, transformedAmount);
     }
 
-    /**
-     * @notice Withdraw based on the validator signatures.
-     * @param chainId ChainId
-     * @param withdrawalId Withdrawal ID from crossbell chain
-     * @param recipient Address to receive withdrawal on mainchain chain
-     * @param token Address of token to withdraw
-     * @param amount Amount of token to withdraw
-     * @param signatures Validator signatures for withdrawal
-     */
+    /// @inheritdoc IMainchainGateway
     function withdraw(
         uint256 chainId,
         uint256 withdrawalId,
@@ -123,9 +105,7 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         emit Withdrew(withdrawalId, recipient, token, amount);
     }
 
-    /**
-     * @dev returns true if there is enough signatures from validators.
-     */
+    /// @inheritdoc IMainchainGateway
     function verifySignatures(
         bytes32 hash,
         bytes calldata signatures
@@ -133,44 +113,27 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         return _verifySignatures(hash, signatures);
     }
 
-    /**
-     * @notice Returns the address of the validator contract.
-     * @return The validator contract address
-     */
+    /// @inheritdoc IMainchainGateway
     function getValidatorContract() external view returns (address) {
         return _validator;
     }
 
-    /**
-     * @notice Returns the admin address of the gateway contract.
-     * @return The admin address
-     */
+    /// @inheritdoc IMainchainGateway
     function getAdmin() external view returns (address) {
         return _admin;
     }
 
-    /**
-     * @notice Returns the deposit count of the gateway contract.
-     * @return The deposit count
-     */
+    /// @inheritdoc IMainchainGateway
     function getDepositCount() external view returns (uint256) {
         return _depositCount;
     }
 
-    /**
-     * @notice Returns the withdrawal hash by withdrawal id.
-     * @param withdrawalId WithdrawalId to query
-     * @return The withdrawal hash
-     */
+    /// @inheritdoc IMainchainGateway
     function getWithdrawalHash(uint256 withdrawalId) external view returns (bytes32) {
         return _withdrawalHash[withdrawalId];
     }
 
-    /**
-     * @notice Gets mapped tokens from crossbell chain.
-     * @param mainchainToken Token address on mainchain
-     * @return token Mapped token from crossbell chain
-     */
+    /// @inheritdoc IMainchainGateway
     function getCrossbellToken(
         address mainchainToken
     ) external view returns (DataTypes.MappedToken memory token) {
@@ -199,8 +162,7 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         return IValidator(_validator).checkThreshold(validatorCount);
     }
 
-    // as there are different token decimals on different chains, so the amount need to be transformed
-    // this function should be overridden by subclasses
+    // @dev As there are different token decimals on different chains, so the amount need to be transformed.
     function _transformDepositAmount(
         address token,
         uint256 amount,
@@ -223,6 +185,9 @@ contract MainchainGateway is IMainchainGateway, Initializable, Pausable, Maincha
         token = _crossbellToken[mainchainToken];
     }
 
+    /**
+     * @dev Maps mainchain tokens to crossbell network.
+     */
     function _mapTokens(
         address[] calldata mainchainTokens,
         address[] calldata crossbellTokens,

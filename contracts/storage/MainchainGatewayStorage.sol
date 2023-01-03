@@ -8,26 +8,6 @@ import "../libraries/DataTypes.sol";
  * @dev Storage of deposit and withdraw information.
  */
 abstract contract MainchainGatewayStorage {
-    event TokenMapped(
-        address[] mainchainTokens,
-        address[] crossbellTokens,
-        uint8[] crossbellTokensDecimals
-    );
-
-    event RequestDeposit(
-        uint256 indexed depositId,
-        address indexed recipient,
-        address indexed token,
-        uint256 amount // ERC-20 amount
-    );
-
-    event Withdrew(
-        uint256 indexed withdrawId,
-        address indexed recipient,
-        address indexed token,
-        uint256 amount
-    );
-
     address internal _validator;
 
     uint256 internal _depositCount;

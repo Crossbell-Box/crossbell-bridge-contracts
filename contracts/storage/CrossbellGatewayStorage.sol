@@ -8,46 +8,6 @@ import "../libraries/DataTypes.sol";
  * @dev Storage of deposit and withdraw information.
  */
 abstract contract CrossbellGatewayStorage {
-    event TokenMapped(
-        address[] crossbellTokens,
-        uint256[] chainIds,
-        address[] mainchainTokens,
-        uint8[] crossbellTokensDecimals
-    );
-
-    event Deposited(
-        uint256 indexed chainId,
-        uint256 indexed depositId,
-        address indexed recipient,
-        address token,
-        uint256 amount // ERC-20 amount
-    );
-
-    event AckDeposit(
-        uint256 indexed chainId,
-        uint256 indexed depositId,
-        address indexed recipient,
-        address token,
-        uint256 tokenNumber // ERC-20 amount
-    );
-
-    event RequestWithdrawal(
-        uint256 indexed chainId,
-        uint256 indexed withdrawId,
-        address indexed recipient,
-        address token,
-        uint256 transformedAmount,
-        uint256 originalAmount
-    );
-
-    event RequestWithdrawalSigAgain(
-        uint256 indexed chainId,
-        uint256 indexed withdrawalId,
-        address indexed owner,
-        address token,
-        uint256 amount
-    );
-
     // Final deposit state, update only once when there is enough acknowledgement
     // chainId => depositId => DepositEntry
     mapping(uint256 => mapping(uint256 => DataTypes.DepositEntry)) internal _deposits;

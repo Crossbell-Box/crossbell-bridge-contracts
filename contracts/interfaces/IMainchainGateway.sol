@@ -4,6 +4,29 @@ pragma solidity 0.8.10;
 import "../libraries/DataTypes.sol";
 
 interface IMainchainGateway {
+    /// @dev Emitted when the tokens are mapped
+    event TokenMapped(
+        address[] mainchainTokens,
+        address[] crossbellTokens,
+        uint8[] crossbellTokensDecimals
+    );
+
+    /// @dev Emitted when the deposit is requested
+    event RequestDeposit(
+        uint256 indexed depositId,
+        address indexed recipient,
+        address indexed token,
+        uint256 amount // ERC-20 amount
+    );
+
+    /// @dev Emitted when the assets are withdrawn on mainchain
+    event Withdrew(
+        uint256 indexed withdrawId,
+        address indexed recipient,
+        address indexed token,
+        uint256 amount
+    );
+
     function TYPE_HASH() external view returns (bytes32);
 
     /**
@@ -48,7 +71,7 @@ interface IMainchainGateway {
     ) external;
 
     /**
-     * @dev returns true if there is enough signatures from validators.
+     * @notice Returns true if there is enough signatures from validators.
      */
     function verifySignatures(bytes32 hash, bytes calldata signatures) external view returns (bool);
 

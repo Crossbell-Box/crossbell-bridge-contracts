@@ -39,6 +39,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         require(IValidator(_validator).isValidator(_msgSender()), "NotValidator");
     }
 
+    /// @inheritdoc ICrossbellGateway
     function initialize(
         address validator,
         address admin,
@@ -56,20 +57,17 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         }
     }
 
-    /**
-     * @notice Pause interaction with the gateway contract
-     */
+    /// @inheritdoc ICrossbellGateway
     function pause() external whenNotPaused onlyAdmin {
         _pause();
     }
 
-    /**
-     * @notice Resume interaction with the gateway contract
-     */
+    /// @inheritdoc ICrossbellGateway
     function unpause() external whenPaused onlyAdmin {
         _unpause();
     }
 
+    /// @inheritdoc ICrossbellGateway
     function batchAckDeposit(
         uint256[] calldata chainIds,
         uint256[] calldata depositIds,
@@ -89,6 +87,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         }
     }
 
+    /// @inheritdoc ICrossbellGateway
     function batchSubmitWithdrawalSignatures(
         uint256[] calldata chainIds,
         uint256[] calldata withdrawalIds,
@@ -107,6 +106,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         }
     }
 
+    /// @inheritdoc ICrossbellGateway
     function ackDeposit(
         uint256 chainId,
         uint256 depositId,
@@ -117,32 +117,7 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         _ackDeposit(chainId, depositId, recipient, token, amount);
     }
 
-    function _ackDeposit(
-        uint256 chainId,
-        uint256 depositId,
-        address recipient,
-        address token,
-        uint256 amount
-    ) internal whenNotPaused onlyValidator {
-        bytes32 hash = keccak256(abi.encode(recipient, chainId, depositId, token, amount));
-
-        DataTypes.Status status = _acknowledge(chainId, depositId, hash, msg.sender);
-
-        if (status == DataTypes.Status.FirstApproved) {
-            _depositFor(recipient, token, amount);
-
-            _deposits[chainId][depositId] = DataTypes.DepositEntry(
-                chainId,
-                recipient,
-                token,
-                amount
-            );
-            emit Deposited(chainId, depositId, recipient, token, amount);
-        }
-
-        emit AckDeposit(chainId, depositId, recipient, token, amount);
-    }
-
+    /// @inheritdoc ICrossbellGateway
     function requestWithdrawal(
         uint256 chainId,
         address recipient,
@@ -174,6 +149,147 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         emit RequestWithdrawal(chainId, withdrawId, recipient, token, transformedAmount, amount);
     }
 
+    /// @inheritdoc ICrossbellGateway
+    function requestWithdrawalSignatures(
+        uint256 chainId,
+        uint256 withdrawalId
+    ) external whenNotPaused {
+        DataTypes.WithdrawalEntry memory entry = _withdrawals[chainId][withdrawalId];
+
+        require(entry.recipient == msg.sender, "NotEntryOwner");
+
+        emit RequestWithdrawalSignatures(
+            chainId,
+            withdrawalId,
+            entry.recipient,
+            entry.token,
+            entry.amount
+        );
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function submitWithdrawalSignatures(
+        uint256 chainId,
+        uint256 withdrawalId,
+        bool shouldReplace,
+        bytes calldata sig
+    ) external {
+        _submitWithdrawalSignatures(chainId, withdrawalId, shouldReplace, sig);
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getMainchainToken(
+        uint256 chainId,
+        address crossbellToken
+    ) external view returns (DataTypes.MappedToken memory token) {
+        return _getMainchainToken(chainId, crossbellToken);
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getValidatorAcknowledgementHash(
+        uint256 chainId,
+        uint256 id,
+        address validator
+    ) external view returns (bytes32) {
+        return _validatorAck[chainId][id][validator];
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getAcknowledgementStatus(
+        uint256 chainId,
+        uint256 id,
+        bytes32 hash
+    ) external view returns (DataTypes.Status) {
+        return _ackStatus[chainId][id][hash];
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getAcknowledgementCount(
+        uint256 chainId,
+        uint256 id,
+        bytes32 hash
+    ) external view returns (uint256) {
+        return _ackCount[chainId][id][hash];
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getWithdrawalSigners(
+        uint256 chainId,
+        uint256 withdrawalId
+    ) external view returns (address[] memory) {
+        return _getWithdrawalSigners(chainId, withdrawalId);
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getWithdrawalSignatures(
+        uint256 chainId,
+        uint256 withdrawalId
+    ) external view returns (address[] memory signers, bytes[] memory sigs) {
+        signers = _getWithdrawalSigners(chainId, withdrawalId);
+        sigs = new bytes[](signers.length);
+        for (uint256 i = 0; i < signers.length; i++) {
+            sigs[i] = _withdrawalSig[chainId][withdrawalId][signers[i]];
+        }
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getValidatorContract() external view returns (address) {
+        return _validator;
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getAdmin() external view returns (address) {
+        return _admin;
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getDepositEntry(
+        uint256 chainId,
+        uint256 depositId
+    ) external view returns (DataTypes.DepositEntry memory) {
+        return _deposits[chainId][depositId];
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getWithdrawalCount(uint256 chainId) external view returns (uint256) {
+        return _withdrawalCounts[chainId];
+    }
+
+    /// @inheritdoc ICrossbellGateway
+    function getWithdrawalEntry(
+        uint256 chainId,
+        uint256 withdrawalId
+    ) external view returns (DataTypes.WithdrawalEntry memory) {
+        return _withdrawals[chainId][withdrawalId];
+    }
+
+    function _ackDeposit(
+        uint256 chainId,
+        uint256 depositId,
+        address recipient,
+        address token,
+        uint256 amount
+    ) internal whenNotPaused onlyValidator {
+        bytes32 hash = keccak256(abi.encode(recipient, chainId, depositId, token, amount));
+
+        DataTypes.Status status = _acknowledge(chainId, depositId, hash, msg.sender);
+
+        if (status == DataTypes.Status.FirstApproved) {
+            _depositFor(recipient, token, amount);
+
+            _deposits[chainId][depositId] = DataTypes.DepositEntry(
+                chainId,
+                recipient,
+                token,
+                amount
+            );
+            emit Deposited(chainId, depositId, recipient, token, amount);
+        }
+
+        emit AckDeposit(chainId, depositId, recipient, token, amount);
+    }
+
+    // @dev As there are different token decimals on different chains, so the amount need to be transformed.
     function _transformWithdrawalAmount(
         address token,
         uint256 amount,
@@ -188,22 +304,6 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         } else {
             transformedAmount = amount / (10 ** (decimals - destinationDecimals));
         }
-    }
-
-    function getMainchainToken(
-        uint256 chainId,
-        address crossbellToken
-    ) external view returns (DataTypes.MappedToken memory token) {
-        return _getMainchainToken(chainId, crossbellToken);
-    }
-
-    function submitWithdrawalSignatures(
-        uint256 chainId,
-        uint256 withdrawalId,
-        bool shouldReplace,
-        bytes calldata sig
-    ) external {
-        _submitWithdrawalSignatures(chainId, withdrawalId, shouldReplace, sig);
     }
 
     function _submitWithdrawalSignatures(
@@ -224,24 +324,6 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         if (!alreadyHasSig) {
             _withdrawalSigners[chainId][withdrawalId].push(msg.sender);
         }
-    }
-
-    /**
-     * Request signature again, in case the withdrawer didn't submit to mainchain in time and the set of the validator
-     * has changed.
-     */
-    function requestSignatureAgain(uint256 chainId, uint256 withdrawalId) external whenNotPaused {
-        DataTypes.WithdrawalEntry memory entry = _withdrawals[chainId][withdrawalId];
-
-        require(entry.recipient == msg.sender, "NotEntryOwner");
-
-        emit RequestWithdrawalSigAgain(
-            chainId,
-            withdrawalId,
-            entry.recipient,
-            entry.token,
-            entry.amount
-        );
     }
 
     function _acknowledge(
@@ -269,82 +351,6 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         return _ackStatus[chainId][id][hash];
     }
 
-    function getValidatorAcknowledgementHash(
-        uint256 chainId,
-        uint256 id,
-        address validator
-    ) external view returns (bytes32) {
-        return _validatorAck[chainId][id][validator];
-    }
-
-    function getAcknowledgementStatus(
-        uint256 chainId,
-        uint256 id,
-        bytes32 hash
-    ) external view returns (DataTypes.Status) {
-        return _ackStatus[chainId][id][hash];
-    }
-
-    function getAcknowledgementCount(
-        uint256 chainId,
-        uint256 id,
-        bytes32 hash
-    ) external view returns (uint256) {
-        return _ackCount[chainId][id][hash];
-    }
-
-    function getWithdrawalSigners(
-        uint256 chainId,
-        uint256 withdrawalId
-    ) external view returns (address[] memory) {
-        return _getWithdrawalSigners(chainId, withdrawalId);
-    }
-
-    function getWithdrawalSignatures(
-        uint256 chainId,
-        uint256 withdrawalId
-    ) external view returns (address[] memory signers, bytes[] memory sigs) {
-        signers = _getWithdrawalSigners(chainId, withdrawalId);
-        sigs = new bytes[](signers.length);
-        for (uint256 i = 0; i < signers.length; i++) {
-            sigs[i] = _withdrawalSig[chainId][withdrawalId][signers[i]];
-        }
-    }
-
-    /**
-     * @notice Returns the address of the validator contract.
-     * @return The validator contract address
-     */
-    function getValidatorContract() external view returns (address) {
-        return _validator;
-    }
-
-    /**
-     * @notice Returns the admin address of the gateway contract.
-     * @return The admin address
-     */
-    function getAdmin() external view returns (address) {
-        return _admin;
-    }
-
-    function getDepositEntry(
-        uint256 chainId,
-        uint256 depositId
-    ) external view returns (DataTypes.DepositEntry memory) {
-        return _deposits[chainId][depositId];
-    }
-
-    function getWithdrawalCount(uint256 chainId) external view returns (uint256) {
-        return _withdrawalCounts[chainId];
-    }
-
-    function getWithdrawalEntry(
-        uint256 chainId,
-        uint256 withdrawalId
-    ) external view returns (DataTypes.WithdrawalEntry memory) {
-        return _withdrawals[chainId][withdrawalId];
-    }
-
     function _depositFor(address recipient, address token, uint256 amount) internal {
         uint256 gatewayBalance = IERC20(token).balanceOf(address(this));
         if (gatewayBalance < amount) {
@@ -368,6 +374,9 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         token = _mainchainToken[crossbellToken][chainId];
     }
 
+    /**
+     * @dev Maps crossbell tokens to mainchain networks.
+     */
     function _mapTokens(
         address[] calldata crossbellTokens,
         uint256[] calldata chainIds,

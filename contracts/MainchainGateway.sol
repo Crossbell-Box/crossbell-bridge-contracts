@@ -52,7 +52,7 @@ contract MainchainGateway is
         // set the amount thresholds to lock withdrawal
         _setLockedThresholds(mainchainTokens, lockedThresholds);
 
-        // grants `DEFAULT_ADMIN_ROLE`, `PAUSER_ROLE` and `WITHDRAWAL_UNLOCKER_ROLE`
+        // grants `DEFAULT_ADMIN_ROLE`, `ADMIN_ROLE` and `WITHDRAWAL_UNLOCKER_ROLE`
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
         _setupRole(ADMIN_ROLE, admin);
         _setupRole(WITHDRAWAL_UNLOCKER_ROLE, withdrawalAuditor);

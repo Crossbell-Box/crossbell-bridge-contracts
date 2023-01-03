@@ -12,27 +12,27 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
 /**
  * @title CrossbellGateway
  * @dev Logic to handle deposits and withdrawals on Sidechain.
  */
-contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, CrossbellGatewayStorage {
+contract CrossbellGateway is
+    ICrossbellGateway,
+    Initializable,
+    Pausable,
+    AccessControlEnumerable,
+    CrossbellGatewayStorage
+{
     using ECVerify for bytes32;
     using SafeERC20 for IERC20;
+
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     modifier onlyValidator() {
         _checkValidator();
         _;
-    }
-
-    modifier onlyAdmin() {
-        _checkAdmin();
-        _;
-    }
-
-    function _checkAdmin() internal view {
-        require(_msgSender() == _admin, "onlyAdmin");
     }
 
     function _checkValidator() internal view {
@@ -49,21 +49,24 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
         uint8[] calldata mainchainTokenDecimals
     ) external initializer {
         _validator = validator;
-        _admin = admin;
 
         // map mainchain tokens
         if (crossbellTokens.length > 0) {
             _mapTokens(crossbellTokens, chainIds, mainchainTokens, mainchainTokenDecimals);
         }
+
+        // grants `DEFAULT_ADMIN_ROLE`, `ADMIN_ROLE`
+        _setupRole(DEFAULT_ADMIN_ROLE, admin);
+        _setupRole(ADMIN_ROLE, admin);
     }
 
     /// @inheritdoc ICrossbellGateway
-    function pause() external whenNotPaused onlyAdmin {
+    function pause() external whenNotPaused onlyRole(ADMIN_ROLE) {
         _pause();
     }
 
     /// @inheritdoc ICrossbellGateway
-    function unpause() external whenPaused onlyAdmin {
+    function unpause() external whenNotPaused onlyRole(ADMIN_ROLE) {
         _unpause();
     }
 
@@ -235,11 +238,6 @@ contract CrossbellGateway is ICrossbellGateway, Initializable, Pausable, Crossbe
     /// @inheritdoc ICrossbellGateway
     function getValidatorContract() external view returns (address) {
         return _validator;
-    }
-
-    /// @inheritdoc ICrossbellGateway
-    function getAdmin() external view returns (address) {
-        return _admin;
     }
 
     /// @inheritdoc ICrossbellGateway

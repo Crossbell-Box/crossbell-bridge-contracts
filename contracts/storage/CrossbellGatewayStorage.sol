@@ -24,7 +24,6 @@ abstract contract CrossbellGatewayStorage {
     // Mapping from token address => chain id => mainchain token address
     mapping(address => mapping(uint256 => DataTypes.MappedToken)) internal _mainchainToken;
 
-    address internal _admin;
     address internal _validator;
 
     // Mapping from chainId => id => validator => data hash

@@ -4,22 +4,16 @@
 
 _Logic to handle deposits and withdrawals on Sidechain._
 
+### ADMIN_ROLE
+
+```solidity
+bytes32 ADMIN_ROLE
+```
+
 ### onlyValidator
 
 ```solidity
 modifier onlyValidator()
-```
-
-### onlyAdmin
-
-```solidity
-modifier onlyAdmin()
-```
-
-### _checkAdmin
-
-```solidity
-function _checkAdmin() internal view
 ```
 
 ### _checkValidator
@@ -238,20 +232,6 @@ Returns the address of the validator contract.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | address | The validator contract address |
-
-### getAdmin
-
-```solidity
-function getAdmin() external view returns (address)
-```
-
-Returns the admin address of the gateway contract.
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The admin address |
 
 ### getDepositEntry
 

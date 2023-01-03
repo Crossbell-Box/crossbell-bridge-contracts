@@ -209,12 +209,6 @@ interface ICrossbellGateway {
     function getValidatorContract() external view returns (address);
 
     /**
-     * @notice Returns the admin address of the gateway contract.
-     * @return The admin address
-     */
-    function getAdmin() external view returns (address);
-
-    /**
      * @notice Returns the deposit entry.
      * @param chainId ChainId of mainchain
      * @param depositId Deposit Id to query

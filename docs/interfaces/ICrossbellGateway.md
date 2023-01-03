@@ -253,20 +253,6 @@ Returns the address of the validator contract.
 | ---- | ---- | ----------- |
 | [0] | address | The validator contract address |
 
-### getAdmin
-
-```solidity
-function getAdmin() external view returns (address)
-```
-
-Returns the admin address of the gateway contract.
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address | The admin address |
-
 ### getDepositEntry
 
 ```solidity

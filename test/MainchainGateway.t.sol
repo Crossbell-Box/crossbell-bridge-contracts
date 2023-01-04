@@ -10,19 +10,6 @@ import "../contracts/mocks/MintableERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MainchainGatewayTest is Test, Utils {
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant WITHDRAWAL_UNLOCKER_ROLE = keccak256("WITHDRAWAL_UNLOCKER_ROLE");
-
-    address internal alice = address(0x111);
-    address internal bob = address(0x222);
-    address internal carol = address(0x333);
-    address internal dave = address(0x444);
-    address internal eve = address(0x555);
-    address internal frank = address(0x666);
-
-    address internal admin = address(0x777);
-    address internal withdrawalAuditor = address(0x888);
-
     // events
     event Paused(address account);
     event Unpaused(address account);
@@ -43,6 +30,19 @@ contract MainchainGatewayTest is Test, Utils {
     event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds);
     event WithdrawalLocked(uint256 indexed withdrawId);
     event WithdrawalUnlocked(uint256 indexed withdrawId);
+
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant WITHDRAWAL_UNLOCKER_ROLE = keccak256("WITHDRAWAL_UNLOCKER_ROLE");
+
+    address internal alice = address(0x111);
+    address internal bob = address(0x222);
+    address internal carol = address(0x333);
+    address internal dave = address(0x444);
+    address internal eve = address(0x555);
+    address internal frank = address(0x666);
+
+    address internal admin = address(0x777);
+    address internal withdrawalUnlocker = address(0x888);
 
     // validators
     uint256 internal validator1PrivateKey = 1;
@@ -87,7 +87,7 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.initialize(
             address(validator),
             admin,
-            withdrawalAuditor,
+            withdrawalUnlocker,
             array(address(mainchainToken)),
             INITIAL_THRESHOLDS,
             array(address(crossbellToken)),
@@ -102,6 +102,8 @@ contract MainchainGatewayTest is Test, Utils {
     function testSetupState() public {
         // check status after initialization
         assertEq(gateway.getValidatorContract(), address(validator));
+        assertEq(gateway.hasRole(ADMIN_ROLE, admin), true);
+        assertEq(gateway.hasRole(WITHDRAWAL_UNLOCKER_ROLE, withdrawalUnlocker), true);
         DataTypes.MappedToken memory token = gateway.getCrossbellToken(address(mainchainToken));
         assertEq(token.token, address(crossbellToken));
         assertEq(token.decimals, 18);
@@ -115,7 +117,7 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.initialize(
             address(validator),
             bob,
-            withdrawalAuditor,
+            withdrawalUnlocker,
             array(address(mainchainToken)),
             INITIAL_THRESHOLDS,
             array(address(crossbellToken)),
@@ -124,6 +126,8 @@ contract MainchainGatewayTest is Test, Utils {
 
         // check status
         assertEq(gateway.getValidatorContract(), address(validator));
+        assertEq(gateway.hasRole(ADMIN_ROLE, admin), true);
+        assertEq(gateway.hasRole(WITHDRAWAL_UNLOCKER_ROLE, withdrawalUnlocker), true);
         DataTypes.MappedToken memory token = gateway.getCrossbellToken(address(mainchainToken));
         assertEq(token.token, address(crossbellToken));
         assertEq(token.decimals, 18);
@@ -193,7 +197,7 @@ contract MainchainGatewayTest is Test, Utils {
         // check paused
         assertEq(gateway.paused(), false);
 
-        // case 1: caller is not admin
+        // case 2: caller is not admin
         vm.prank(admin);
         gateway.pause();
         // check paused

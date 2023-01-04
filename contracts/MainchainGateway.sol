@@ -243,7 +243,6 @@ contract MainchainGateway is
 
         uint256 validatorCount = 0;
         address lastSigner = address(0);
-
         for (uint256 i = 0; i < signatures.length; i++) {
             address signer = prefixedHash.recover(
                 signatures[i].v,

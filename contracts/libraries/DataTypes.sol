@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity 0.8.10;
 
+/**
+ * @title DataTypes
+ * @notice A standard library of data types.
+ */
 library DataTypes {
-    /**
-     * @notice A struct containing mapped token data.
-     * @param token The address of token.
-     * @param amount The decimals of token.
-     */
+    /// @custom:struct MappedToken struct
     struct MappedToken {
         address token;
         uint8 decimals;
@@ -49,9 +48,10 @@ library DataTypes {
         bytes32 s;
     }
 
-    // @notice Acknowledge status, once the acknowledgements reach the threshold the 1st
-    // time, it can take effect to the system. E.g. confirm a deposit.
-    // Acknowledgments after that should not have any effects.
+    /**
+     * @notice Acknowledge status, once the acknowledgements reach the threshold the 1st time, it can take effect to the system.
+     * Acknowledgments after that should not have any effects.
+     */
     enum Status {
         NotApproved,
         FirstApproved,

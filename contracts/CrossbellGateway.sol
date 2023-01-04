@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
 /**
  * @title CrossbellGateway
- * @dev Logic to handle deposits and withdrawals on Sidechain.
+ * @dev Logic to handle deposits and withdrawals on Crossbell.
  */
 contract CrossbellGateway is
     ICrossbellGateway,
@@ -64,7 +64,7 @@ contract CrossbellGateway is
     }
 
     /// @inheritdoc ICrossbellGateway
-    function unpause() external whenNotPaused onlyRole(ADMIN_ROLE) {
+    function unpause() external whenPaused onlyRole(ADMIN_ROLE) {
         _unpause();
     }
 

@@ -2,7 +2,7 @@
 
 ## CrossbellGateway
 
-_Logic to handle deposits and withdrawals on Sidechain._
+_Logic to handle deposits and withdrawals on Crossbell._
 
 ### ADMIN_ROLE
 

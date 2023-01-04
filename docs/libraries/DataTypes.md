@@ -2,6 +2,8 @@
 
 ## DataTypes
 
+A standard library of data types.
+
 ### MappedToken
 
 ```solidity

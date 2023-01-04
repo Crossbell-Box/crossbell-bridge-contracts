@@ -253,7 +253,7 @@ contract MainchainGateway is
                 validatorCount++;
             }
             // Prevent duplication of signatures
-            require(signer > lastSigner, "InvalidOrder");
+            require(signer > lastSigner, "InvalidSignerOrder");
             lastSigner = signer;
         }
 

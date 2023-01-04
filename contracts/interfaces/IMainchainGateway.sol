@@ -43,6 +43,9 @@ interface IMainchainGateway {
 
     /**
      * @notice Initializes the MainchainGateway.
+     * Note that the thresholds contains:
+     *  - thresholds[0]: lockedThresholds The amount thresholds to lock withdrawal.
+     *  - thresholds[1]: dailyWithdrawalLimits Daily withdrawal limits for mainchain tokens.
      * @param validator Address of validator contract.
      * @param admin Address of gateway admin.
      * @param withdrawalUnlocker Address of operator who can unlock the locked withdrawals.
@@ -50,9 +53,6 @@ interface IMainchainGateway {
      * @param thresholds The amount thresholds  for withdrawal.
      * @param crossbellTokens Addresses of crossbell tokens.
      * @param crossbellTokenDecimals Decimals of crossbell tokens.
-     * Note that the thresholds contains:
-     *  - thresholds[0]: lockedThresholds The amount thresholds to lock withdrawal.
-     *  - thresholds[1]: dailyWithdrawalLimits Daily withdrawal limits for mainchain tokens.
      */
     function initialize(
         address validator,
@@ -104,7 +104,7 @@ interface IMainchainGateway {
         address recipient,
         address token,
         uint256 amount,
-        bytes calldata signatures
+        DataTypes.Signature[] calldata signatures
     ) external returns (bool locked);
 
     /**
@@ -150,7 +150,10 @@ interface IMainchainGateway {
      * @param hash WithdrawHash
      * @param signatures Validator's withdrawal signatures synced from crossbell network
      */
-    function verifySignatures(bytes32 hash, bytes calldata signatures) external view returns (bool);
+    function verifySignatures(
+        bytes32 hash,
+        DataTypes.Signature[] calldata signatures
+    ) external view returns (bool);
 
     /**
      * @notice Returns the address of the validator contract.

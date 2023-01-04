@@ -43,6 +43,12 @@ library DataTypes {
         uint256 amount;
     }
 
+    struct Signature {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
+
     // @notice Acknowledge status, once the acknowledgements reach the threshold the 1st
     // time, it can take effect to the system. E.g. confirm a deposit.
     // Acknowledgments after that should not have any effects.

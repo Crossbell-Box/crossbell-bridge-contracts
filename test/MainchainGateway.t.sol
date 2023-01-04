@@ -321,7 +321,7 @@ contract MainchainGatewayTest is Test, Utils {
                 amount
             )
         );
-        bytes memory signatures = _getTwoSignatures(hash);
+        DataTypes.Signature[] memory signatures = _getTwoSignatures(hash);
 
         vm.prank(bob);
         vm.chainId(chainId); // set block.chainid
@@ -374,7 +374,7 @@ contract MainchainGatewayTest is Test, Utils {
         bytes32 hash = keccak256(abi.encodePacked("testVerifySignatures"));
 
         // one validator signature, not enough signatures
-        bytes memory signatures = _getOneSignature(hash);
+        DataTypes.Signature[] memory signatures = _getOneSignature(hash);
         assertFalse(gateway.verifySignatures(hash, signatures));
 
         // two validator signature, enough signatures
@@ -386,40 +386,42 @@ contract MainchainGatewayTest is Test, Utils {
         assertTrue(gateway.verifySignatures(hash, signatures));
     }
 
-    function _getOneSignature(bytes32 hash) internal view returns (bytes memory signatures) {
-        bytes memory sig1 = _getSignature(hash, validator1PrivateKey);
-
-        signatures = abi.encodePacked(sig1);
+    function _getOneSignature(
+        bytes32 hash
+    ) internal view returns (DataTypes.Signature[] memory signatures) {
+        signatures = new DataTypes.Signature[](1);
+        signatures[0] = _getSignature(hash, validator1PrivateKey);
     }
 
-    function _getTwoSignatures(bytes32 hash) internal view returns (bytes memory signatures) {
-        bytes memory sig1 = _getSignature(hash, validator1PrivateKey);
-        bytes memory sig2 = _getSignature(hash, validator2PrivateKey);
-
+    function _getTwoSignatures(
+        bytes32 hash
+    ) internal view returns (DataTypes.Signature[] memory signatures) {
         // note: for verifySignatures, signatures need to be arranged in ascending order of addresses
         // sorted address: validator1 > validator3 > validator2
-        signatures = abi.encodePacked(sig2, sig1);
+        signatures = new DataTypes.Signature[](2);
+        signatures[0] = _getSignature(hash, validator2PrivateKey);
+        signatures[1] = _getSignature(hash, validator1PrivateKey);
     }
 
-    function _getThreeSignatures(bytes32 hash) internal view returns (bytes memory signatures) {
-        bytes memory sig1 = _getSignature(hash, validator1PrivateKey);
-        bytes memory sig2 = _getSignature(hash, validator2PrivateKey);
-        bytes memory sig3 = _getSignature(hash, validator3PrivateKey);
-
+    function _getThreeSignatures(
+        bytes32 hash
+    ) internal view returns (DataTypes.Signature[] memory signatures) {
         // note: for verifySignatures, signatures need to be arranged in ascending order of addresses
         // sorted address: validator1 > validator3 > validator2
-        signatures = abi.encodePacked(sig2, sig3, sig1);
+        signatures = new DataTypes.Signature[](3);
+        signatures[0] = _getSignature(hash, validator2PrivateKey);
+        signatures[1] = _getSignature(hash, validator3PrivateKey);
+        signatures[2] = _getSignature(hash, validator1PrivateKey);
     }
 
     function _getSignature(
         bytes32 hash,
         uint256 privateKey
-    ) internal pure returns (bytes memory signature) {
+    ) internal pure returns (DataTypes.Signature memory signature) {
         bytes32 prefixedHash = keccak256(
             abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
         );
 
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, prefixedHash);
-        return abi.encodePacked(r, s, v);
+        (signature.v, signature.r, signature.s) = vm.sign(privateKey, prefixedHash);
     }
 }

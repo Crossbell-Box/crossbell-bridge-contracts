@@ -29,6 +29,9 @@ function initialize(address validator, address admin, address withdrawalUnlocker
 ```
 
 Initializes the MainchainGateway.
+Note that the thresholds contains:
+ - thresholds[0]: lockedThresholds The amount thresholds to lock withdrawal.
+ - thresholds[1]: dailyWithdrawalLimits Daily withdrawal limits for mainchain tokens.
 
 #### Parameters
 
@@ -40,7 +43,7 @@ Initializes the MainchainGateway.
 | mainchainTokens | address[] | Addresses of mainchain tokens. |
 | thresholds | uint256[][2] | The amount thresholds  for withdrawal. |
 | crossbellTokens | address[] | Addresses of crossbell tokens. |
-| crossbellTokenDecimals | uint8[] | Decimals of crossbell tokens. Note that the thresholds contains:  - thresholds[0]: lockedThresholds The amount thresholds to lock withdrawal.  - thresholds[1]: dailyWithdrawalLimits Daily withdrawal limits for mainchain tokens. |
+| crossbellTokenDecimals | uint8[] | Decimals of crossbell tokens. |
 
 ### pause
 
@@ -83,7 +86,7 @@ Request deposit to crossbell chain.
 ### withdraw
 
 ```solidity
-function withdraw(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, bytes signatures) external returns (bool locked)
+function withdraw(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, struct DataTypes.Signature[] signatures) external returns (bool locked)
 ```
 
 Withdraw based on the validator signatures.
@@ -97,7 +100,7 @@ Withdraw based on the validator signatures.
 | recipient | address | Address to receive withdrawal on mainchain chain |
 | token | address | Address of token to withdraw |
 | amount | uint256 | Amount of token to withdraw |
-| signatures | bytes | Validator signatures for withdrawal |
+| signatures | struct DataTypes.Signature[] | Validator signatures for withdrawal |
 
 ### _recordWithdrawal
 
@@ -159,7 +162,7 @@ Sets daily limit amounts for the withdrawals.
 ### verifySignatures
 
 ```solidity
-function verifySignatures(bytes32 hash, bytes signatures) external view returns (bool)
+function verifySignatures(bytes32 hash, struct DataTypes.Signature[] signatures) external view returns (bool)
 ```
 
 Returns true if there is enough signatures from validators.
@@ -169,7 +172,7 @@ Returns true if there is enough signatures from validators.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | hash | bytes32 | WithdrawHash |
-| signatures | bytes | Validator's withdrawal signatures synced from crossbell network |
+| signatures | struct DataTypes.Signature[] | Validator's withdrawal signatures synced from crossbell network |
 
 ### getValidatorContract
 
@@ -285,7 +288,7 @@ Get mapped tokens from crossbell chain
 ### _verifySignatures
 
 ```solidity
-function _verifySignatures(bytes32 hash, bytes signatures) internal view returns (bool)
+function _verifySignatures(bytes32 hash, struct DataTypes.Signature[] signatures) internal view returns (bool)
 ```
 
 ### _setLockedThresholds

@@ -3,7 +3,6 @@ pragma solidity 0.8.10;
 pragma experimental ABIEncoderV2;
 
 import "./interfaces/IERC20Mintable.sol";
-import "./libraries/ECVerify.sol";
 import "./interfaces/IValidator.sol";
 import "./interfaces/ICrossbellGateway.sol";
 import "./storage/CrossbellGatewayStorage.sol";
@@ -25,7 +24,6 @@ contract CrossbellGateway is
     AccessControlEnumerable,
     CrossbellGatewayStorage
 {
-    using ECVerify for bytes32;
     using SafeERC20 for IERC20;
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");

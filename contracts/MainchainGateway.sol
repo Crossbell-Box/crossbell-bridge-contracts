@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "./libraries/ECVerify.sol";
 import "./libraries/DataTypes.sol";
 import "./storage/MainchainGatewayStorage.sol";
 import "./interfaces/IValidator.sol";
@@ -12,6 +11,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /**
  * @title MainchainGateway
@@ -24,7 +24,7 @@ contract MainchainGateway is
     AccessControlEnumerable,
     MainchainGatewayStorage
 {
-    using ECVerify for bytes32;
+    using ECDSA for bytes32;
     using SafeERC20 for IERC20;
 
     // keccak256("withdraw(uint256 chainId,uint256 withdrawalId,address recipient,address token,uint256 amount,bytes signatures)")
@@ -102,7 +102,7 @@ contract MainchainGateway is
         address recipient,
         address token,
         uint256 amount,
-        bytes calldata signatures
+        DataTypes.Signature[] calldata signatures
     ) external whenNotPaused returns (bool locked) {
         require(chainId == block.chainid, "InvalidChainId");
         require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
@@ -190,7 +190,7 @@ contract MainchainGateway is
     /// @inheritdoc IMainchainGateway
     function verifySignatures(
         bytes32 hash,
-        bytes calldata signatures
+        DataTypes.Signature[] calldata signatures
     ) external view returns (bool) {
         return _verifySignatures(hash, signatures);
     }
@@ -237,15 +237,19 @@ contract MainchainGateway is
 
     function _verifySignatures(
         bytes32 hash,
-        bytes calldata signatures
+        DataTypes.Signature[] calldata signatures
     ) internal view returns (bool) {
-        uint256 signatureCount = signatures.length / 65;
+        bytes32 prefixedHash = hash.toEthSignedMessageHash();
 
         uint256 validatorCount = 0;
         address lastSigner = address(0);
 
-        for (uint256 i = 0; i < signatureCount; i++) {
-            address signer = hash.recover(signatures, i * 65);
+        for (uint256 i = 0; i < signatures.length; i++) {
+            address signer = prefixedHash.recover(
+                signatures[i].v,
+                signatures[i].r,
+                signatures[i].s
+            );
             if (IValidator(_validator).isValidator(signer)) {
                 validatorCount++;
             }

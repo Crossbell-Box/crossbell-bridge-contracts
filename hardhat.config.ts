@@ -54,7 +54,7 @@ module.exports = {
 
     abiExporter: {
         path: './build-info',
-        pretty: ,
+        pretty: false,
         except: ['@openzeppelin']
     }
 } as HardhatUserConfig;

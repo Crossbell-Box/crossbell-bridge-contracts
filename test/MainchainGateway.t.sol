@@ -21,6 +21,7 @@ contract MainchainGatewayTest is Test, Utils {
     address internal frank = address(0x666);
 
     address internal admin = address(0x777);
+    address internal withdrawalAuditor = address(0x888);
 
     // events
     event Paused(address account);
@@ -39,6 +40,9 @@ contract MainchainGatewayTest is Test, Utils {
         address indexed token,
         uint256 amount
     );
+    event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds);
+    event WithdrawalLocked(uint256 indexed withdrawId);
+    event WithdrawalUnlocked(uint256 indexed withdrawId);
 
     // validators
     uint256 internal validator1PrivateKey = 1;
@@ -54,8 +58,18 @@ contract MainchainGatewayTest is Test, Utils {
     MintableERC20 internal mainchainToken;
     MintableERC20 internal crossbellToken;
 
+    // initial balances: 100 tokens
     uint256 internal constant INITIAL_AMOUNT_MAINCHAIN = 200 * 10 ** 6;
     uint256 internal constant INITIAL_AMOUNT_CROSSBELL = 200 * 10 ** 18;
+    // withdrawal threshold: 10 tokens
+    uint256 internal constant WITHDRAWLAL_THRESHOLD = 10 * 10 ** 6;
+    // daily withdrawal limit: 100 tokens
+    uint256 internal constant DAILY_WITHDRAWLAL_LIMIT = 100 * 10 ** 6;
+
+    uint256[][2] internal INITIAL_THRESHOLDS = [
+        array(WITHDRAWLAL_THRESHOLD),
+        array(DAILY_WITHDRAWLAL_LIMIT)
+    ];
 
     function setUp() public {
         // setup ERC20 token
@@ -73,9 +87,9 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.initialize(
             address(validator),
             admin,
-            admin,
+            withdrawalAuditor,
             array(address(mainchainToken)),
-            array(INITIAL_AMOUNT_MAINCHAIN),
+            INITIAL_THRESHOLDS,
             array(address(crossbellToken)),
             decimals
         );
@@ -101,9 +115,9 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.initialize(
             address(validator),
             bob,
-            bob,
+            withdrawalAuditor,
             array(address(mainchainToken)),
-            array(INITIAL_AMOUNT_MAINCHAIN),
+            INITIAL_THRESHOLDS,
             array(address(crossbellToken)),
             decimals
         );
@@ -197,6 +211,48 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.paused(), true);
     }
 
+    function testSetLockedThresholds() public {
+        address token = address(0x00001);
+        uint256 threshold = 1000 ether;
+        // check state
+        assertEq(gateway.getWithdrawalLockedThreshold(token), 0);
+
+        // expect events
+        expectEmit(CheckAll);
+        emit LockedThresholdsUpdated(array(token), array(threshold));
+        vm.prank(admin);
+        gateway.setLockedThresholds(array(token), array(threshold));
+
+        // check state
+        assertEq(gateway.getWithdrawalLockedThreshold(token), threshold);
+    }
+
+    function testSetLockedThresholdsFail() public {
+        address token = address(0x00001);
+        uint256 threshold = 1000 ether;
+        // check state
+        assertEq(gateway.getWithdrawalLockedThreshold(token), 0);
+
+        // case 1: invalid array length
+        vm.expectRevert(abi.encodePacked("InvalidArrayLength"));
+        vm.prank(admin);
+        gateway.setLockedThresholds(array(token, address(0x1)), array(threshold));
+
+        // case 2: caller is not admin role
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(this)),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
+        gateway.setLockedThresholds(array(token), array(threshold));
+
+        // check state
+        assertEq(gateway.getWithdrawalLockedThreshold(token), 0);
+    }
+
     function testRequestDeposit() public {
         uint256 amount = 1 * 10 ** 6;
         uint256 crossbellAmount = amount * 10 ** 12; // transformed amount
@@ -244,6 +300,7 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getDepositCount(), 0);
     }
 
+    // test case for successful withdrawal
     function testWithdraw() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);

@@ -33,12 +33,15 @@ contract MainchainGateway is
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant WITHDRAWAL_UNLOCKER_ROLE = keccak256("WITHDRAWAL_UNLOCKER_ROLE");
 
+    /// @inheritdoc IMainchainGateway
     function initialize(
         address validator,
         address admin,
-        address withdrawalAuditor,
+        address withdrawalUnlocker,
         address[] calldata mainchainTokens,
-        uint256[] calldata lockedThresholds,
+        // thresholds[0]: lockedThresholds
+        // thresholds[1]: dailyWithdrawalLimits
+        uint256[][2] calldata thresholds,
         address[] calldata crossbellTokens,
         uint8[] calldata crossbellTokenDecimals
     ) external initializer {
@@ -50,12 +53,15 @@ contract MainchainGateway is
         }
 
         // set the amount thresholds to lock withdrawal
-        _setLockedThresholds(mainchainTokens, lockedThresholds);
+        _setLockedThresholds(mainchainTokens, thresholds[0]);
+
+        // set daily withdrawal limits
+        _setDailyWithdrawalLimits(mainchainTokens, thresholds[1]);
 
         // grants `DEFAULT_ADMIN_ROLE`, `ADMIN_ROLE` and `WITHDRAWAL_UNLOCKER_ROLE`
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
         _setupRole(ADMIN_ROLE, admin);
-        _setupRole(WITHDRAWAL_UNLOCKER_ROLE, withdrawalAuditor);
+        _setupRole(WITHDRAWAL_UNLOCKER_ROLE, withdrawalUnlocker);
     }
 
     /// @inheritdoc IMainchainGateway
@@ -100,6 +106,7 @@ contract MainchainGateway is
     ) external whenNotPaused returns (bool locked) {
         require(chainId == block.chainid, "InvalidChainId");
         require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
+        require(!_reachedDailyWithdrawalLimit(token, amount), "DailyWithdrawalLimit");
 
         bytes32 hash = keccak256(
             abi.encodePacked(TYPE_HASH, chainId, withdrawalId, recipient, token, amount)
@@ -116,10 +123,25 @@ contract MainchainGateway is
 
         // record withdrawal hash
         _withdrawalHash[withdrawalId] = hash;
+        // record withdrawal token
+        _recordWithdrawal(token, amount);
         // transfer
         IERC20(token).safeTransfer(recipient, amount);
 
         emit Withdrew(withdrawalId, recipient, token, amount);
+    }
+
+    /**
+     * @dev Record withdrawal token.
+     */
+    function _recordWithdrawal(address token, uint256 amount) internal {
+        uint256 currentDate = block.timestamp / 1 days;
+        if (currentDate > _lastDateSynced[token]) {
+            _lastDateSynced[token] = currentDate;
+            _lastSyncedWithdrawal[token] = amount;
+        } else {
+            _lastSyncedWithdrawal[token] += amount;
+        }
     }
 
     /// @inheritdoc IMainchainGateway
@@ -158,6 +180,14 @@ contract MainchainGateway is
     }
 
     /// @inheritdoc IMainchainGateway
+    function setDailyWithdrawalLimits(
+        address[] calldata tokens,
+        uint256[] calldata limits
+    ) external onlyRole(ADMIN_ROLE) {
+        _setDailyWithdrawalLimits(tokens, limits);
+    }
+
+    /// @inheritdoc IMainchainGateway
     function verifySignatures(
         bytes32 hash,
         bytes calldata signatures
@@ -178,6 +208,24 @@ contract MainchainGateway is
     /// @inheritdoc IMainchainGateway
     function getWithdrawalHash(uint256 withdrawalId) external view returns (bytes32) {
         return _withdrawalHash[withdrawalId];
+    }
+
+    /// @inheritdoc IMainchainGateway
+    function getWithdrawalLocked(uint256 withdrawalId) external view returns (bool) {
+        return _withdrawalLocked[withdrawalId];
+    }
+
+    /// @inheritdoc IMainchainGateway
+    function getWithdrawalLockedThreshold(address token) external view returns (uint256) {
+        return _lockedThresholds[token];
+    }
+
+    /// @inheritdoc IMainchainGateway
+    function reachedDailyWithdrawalLimit(
+        address token,
+        uint256 amount
+    ) external view returns (bool) {
+        return _reachedDailyWithdrawalLimit(token, amount);
     }
 
     /// @inheritdoc IMainchainGateway
@@ -220,16 +268,53 @@ contract MainchainGateway is
         require(tokens.length == thresholds.length, "InvalidArrayLength");
 
         for (uint256 i = 0; i < tokens.length; i++) {
-            _lockedThreshold[tokens[i]] = thresholds[i];
+            _lockedThresholds[tokens[i]] = thresholds[i];
         }
         emit LockedThresholdsUpdated(tokens, thresholds);
+    }
+
+    /**
+     * @dev Sets daily limit amounts for the withdrawals.
+     * Note that the array lengths must be equal.
+     * Emits the `DailyWithdrawalLimitsUpdated` event.
+     */
+    function _setDailyWithdrawalLimits(
+        address[] calldata tokens,
+        uint256[] calldata limits
+    ) internal {
+        require(tokens.length == limits.length, "InvalidArrayLength");
+
+        for (uint256 i = 0; i < tokens.length; i++) {
+            _dailyWithdrawalLimit[tokens[i]] = limits[i];
+        }
+        emit DailyWithdrawalLimitsUpdated(tokens, limits);
     }
 
     /**
      * @dev Returns whether the withdrawal request is locked or not.
      */
     function _lockedWithdrawalRequest(address token, uint256 amount) internal view returns (bool) {
-        return _lockedThreshold[token] <= amount;
+        return _lockedThresholds[token] <= amount;
+    }
+
+    /**
+     * @dev Checks whether the withdrawal reaches the daily limitation.
+     * Note that the daily withdrawal threshold should not apply for locked withdrawals.
+     */
+    function _reachedDailyWithdrawalLimit(
+        address token,
+        uint256 amount
+    ) internal view returns (bool) {
+        if (_lockedWithdrawalRequest(token, amount)) {
+            return false;
+        }
+
+        uint256 currentDate = block.timestamp / 1 days;
+        if (currentDate > _lastDateSynced[token]) {
+            return _dailyWithdrawalLimit[token] <= amount;
+        } else {
+            return _dailyWithdrawalLimit[token] <= _lastSyncedWithdrawal[token] + amount;
+        }
     }
 
     // @dev As there are different token decimals on different chains, so the amount need to be transformed.
@@ -260,7 +345,7 @@ contract MainchainGateway is
         address[] calldata mainchainTokens,
         address[] calldata crossbellTokens,
         uint8[] calldata crossbellTokenDecimals
-    ) internal virtual {
+    ) internal {
         require(
             mainchainTokens.length == crossbellTokens.length &&
                 mainchainTokens.length == crossbellTokenDecimals.length,

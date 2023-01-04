@@ -30,6 +30,9 @@ interface IMainchainGateway {
     /// @dev Emitted when the thresholds for locked withdrawals are updated
     event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds);
 
+    /// @dev Emitted when the daily limit thresholds are updated
+    event DailyWithdrawalLimitsUpdated(address[] tokens, uint256[] limits);
+
     /// @dev Emitted when the withdrawal is locked
     event WithdrawalLocked(uint256 indexed withdrawId);
 
@@ -37,6 +40,31 @@ interface IMainchainGateway {
     event WithdrawalUnlocked(uint256 indexed withdrawId);
 
     function TYPE_HASH() external view returns (bytes32);
+
+    /**
+     * @notice Initializes the MainchainGateway.
+     * @param validator Address of validator contract.
+     * @param admin Address of gateway admin.
+     * @param withdrawalUnlocker Address of operator who can unlock the locked withdrawals.
+     * @param mainchainTokens Addresses of mainchain tokens.
+     * @param thresholds The amount thresholds  for withdrawal.
+     * @param crossbellTokens Addresses of crossbell tokens.
+     * @param crossbellTokenDecimals Decimals of crossbell tokens.
+     * Note that the thresholds contains:
+     *  - thresholds[0]: lockedThresholds The amount thresholds to lock withdrawal.
+     *  - thresholds[1]: dailyWithdrawalLimits Daily withdrawal limits for mainchain tokens.
+     */
+    function initialize(
+        address validator,
+        address admin,
+        address withdrawalUnlocker,
+        address[] calldata mainchainTokens,
+        // thresholds[0]: lockedThresholds
+        // thresholds[1]: dailyWithdrawalLimits
+        uint256[][2] calldata thresholds,
+        address[] calldata crossbellTokens,
+        uint8[] calldata crossbellTokenDecimals
+    ) external;
 
     /**
      * @notice Pause interaction with the gateway contract
@@ -50,7 +78,6 @@ interface IMainchainGateway {
 
     /**
      * @notice Request deposit to crossbell chain.
-     *
      * @param recipient Address to receive deposit on crossbell chain
      * @param token Address of token to deposit
      * @param amount Amount of token to deposit
@@ -99,11 +126,29 @@ interface IMainchainGateway {
 
     /**
      * @notice Sets the amount thresholds to lock withdrawal.
+     * @param tokens Addresses of token to set
+     * @param thresholds Thresholds corresponding to the tokens to set
      */
     function setLockedThresholds(address[] calldata tokens, uint256[] calldata thresholds) external;
 
     /**
+     * @notice Sets daily limit amounts for the withdrawals.
+     * @param tokens Addresses of token to set
+     * @param limits Limits corresponding to the tokens to set
+     * Requirements:
+     * - The caller must have the admin role.
+     * - The arrays have the same length.
+     * Emits the `DailyWithdrawalLimitsUpdated` event.
+     */
+    function setDailyWithdrawalLimits(
+        address[] calldata tokens,
+        uint256[] calldata limits
+    ) external;
+
+    /**
      * @notice Returns true if there is enough signatures from validators.
+     * @param hash WithdrawHash
+     * @param signatures Validator's withdrawal signatures synced from crossbell network
      */
     function verifySignatures(bytes32 hash, bytes calldata signatures) external view returns (bool);
 
@@ -125,6 +170,28 @@ interface IMainchainGateway {
      * @return The withdrawal hash
      */
     function getWithdrawalHash(uint256 withdrawalId) external view returns (bytes32);
+
+    /**
+     * @notice Returns whether the withdrawal is locked or not.
+     * @param withdrawalId WithdrawalId to query
+     */
+    function getWithdrawalLocked(uint256 withdrawalId) external view returns (bool);
+
+    /**
+     * @notice Returns the amount thresholds to lock withdrawal.
+     * @param token Token address
+     */
+    function getWithdrawalLockedThreshold(address token) external view returns (uint256);
+
+    /**
+     * @notice Checks whether the withdrawal reaches the daily limitation.
+     * @param token Token address to withdraw
+     * @param amount Token amount to withdraw
+     */
+    function reachedDailyWithdrawalLimit(
+        address token,
+        uint256 amount
+    ) external view returns (bool);
 
     /**
      * @notice Get mapped tokens from crossbell chain

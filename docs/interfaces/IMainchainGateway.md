@@ -34,6 +34,14 @@ event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds)
 
 _Emitted when the thresholds for locked withdrawals are updated_
 
+### DailyWithdrawalLimitsUpdated
+
+```solidity
+event DailyWithdrawalLimitsUpdated(address[] tokens, uint256[] limits)
+```
+
+_Emitted when the daily limit thresholds are updated_
+
 ### WithdrawalLocked
 
 ```solidity
@@ -55,6 +63,26 @@ _Emitted when the withdrawal is unlocked_
 ```solidity
 function TYPE_HASH() external view returns (bytes32)
 ```
+
+### initialize
+
+```solidity
+function initialize(address validator, address admin, address withdrawalUnlocker, address[] mainchainTokens, uint256[][2] thresholds, address[] crossbellTokens, uint8[] crossbellTokenDecimals) external
+```
+
+Initializes the MainchainGateway.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| validator | address | Address of validator contract. |
+| admin | address | Address of gateway admin. |
+| withdrawalUnlocker | address | Address of operator who can unlock the locked withdrawals. |
+| mainchainTokens | address[] | Addresses of mainchain tokens. |
+| thresholds | uint256[][2] | The amount thresholds  for withdrawal. |
+| crossbellTokens | address[] | Addresses of crossbell tokens. |
+| crossbellTokenDecimals | uint8[] | Decimals of crossbell tokens. Note that the thresholds contains:  - thresholds[0]: lockedThresholds The amount thresholds to lock withdrawal.  - thresholds[1]: dailyWithdrawalLimits Daily withdrawal limits for mainchain tokens. |
 
 ### pause
 
@@ -140,6 +168,28 @@ function setLockedThresholds(address[] tokens, uint256[] thresholds) external
 
 Sets the amount thresholds to lock withdrawal.
 
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tokens | address[] | Addresses of token to set |
+| thresholds | uint256[] | Thresholds corresponding to the tokens to set |
+
+### setDailyWithdrawalLimits
+
+```solidity
+function setDailyWithdrawalLimits(address[] tokens, uint256[] limits) external
+```
+
+Sets daily limit amounts for the withdrawals.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tokens | address[] | Addresses of token to set |
+| limits | uint256[] | Limits corresponding to the tokens to set Requirements: - The caller must have the admin role. - The arrays have the same length. Emits the `DailyWithdrawalLimitsUpdated` event. |
+
 ### verifySignatures
 
 ```solidity
@@ -147,6 +197,13 @@ function verifySignatures(bytes32 hash, bytes signatures) external view returns 
 ```
 
 Returns true if there is enough signatures from validators.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| hash | bytes32 | WithdrawHash |
+| signatures | bytes | Validator's withdrawal signatures synced from crossbell network |
 
 ### getValidatorContract
 
@@ -195,6 +252,49 @@ Returns the withdrawal hash by withdrawal id.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | bytes32 | The withdrawal hash |
+
+### getWithdrawalLocked
+
+```solidity
+function getWithdrawalLocked(uint256 withdrawalId) external view returns (bool)
+```
+
+Returns whether the withdrawal is locked or not.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| withdrawalId | uint256 | WithdrawalId to query |
+
+### getWithdrawalLockedThreshold
+
+```solidity
+function getWithdrawalLockedThreshold(address token) external view returns (uint256)
+```
+
+Returns the amount thresholds to lock withdrawal.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| token | address | Token address |
+
+### reachedDailyWithdrawalLimit
+
+```solidity
+function reachedDailyWithdrawalLimit(address token, uint256 amount) external view returns (bool)
+```
+
+Checks whether the withdrawal reaches the daily limitation.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| token | address | Token address to withdraw |
+| amount | uint256 | Token amount to withdraw |
 
 ### getCrossbellToken
 

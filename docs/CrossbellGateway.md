@@ -57,6 +57,23 @@ function unpause() external
 
 Resume interaction with the gateway contract
 
+### mapTokens
+
+```solidity
+function mapTokens(address[] crossbellTokens, uint256[] chainIds, address[] mainchainTokens, uint8[] mainchainTokenDecimals) external
+```
+
+Maps mainchain tokens to Crossbell network.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| crossbellTokens | address[] | Addresses of crossbell tokens. |
+| chainIds | uint256[] | ChainIds of mainchain networks. |
+| mainchainTokens | address[] | Addresses of mainchain tokens. |
+| mainchainTokenDecimals | uint8[] | Decimals of mainchain tokens. |
+
 ### batchAckDeposit
 
 ```solidity

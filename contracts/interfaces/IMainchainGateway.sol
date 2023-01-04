@@ -77,6 +77,18 @@ interface IMainchainGateway {
     function unpause() external;
 
     /**
+     * @notice Maps Crossbell tokens to mainchain.
+     * @param mainchainTokens Addresses of mainchain tokens.
+     * @param crossbellTokens Addresses of crossbell tokens.
+     * @param crossbellTokenDecimals Decimals of crossbell tokens.
+     */
+    function mapTokens(
+        address[] calldata mainchainTokens,
+        address[] calldata crossbellTokens,
+        uint8[] calldata crossbellTokenDecimals
+    ) external;
+
+    /**
      * @notice Request deposit to crossbell chain.
      * @param recipient Address to receive deposit on crossbell chain
      * @param token Address of token to deposit

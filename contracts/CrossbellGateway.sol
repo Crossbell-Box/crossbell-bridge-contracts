@@ -69,6 +69,19 @@ contract CrossbellGateway is
     }
 
     /// @inheritdoc ICrossbellGateway
+    function mapTokens(
+        address[] calldata crossbellTokens,
+        uint256[] calldata chainIds,
+        address[] calldata mainchainTokens,
+        uint8[] calldata mainchainTokenDecimals
+    ) external whenPaused onlyRole(ADMIN_ROLE) {
+        // map mainchain tokens
+        if (crossbellTokens.length > 0) {
+            _mapTokens(crossbellTokens, chainIds, mainchainTokens, mainchainTokenDecimals);
+        }
+    }
+
+    /// @inheritdoc ICrossbellGateway
     function batchAckDeposit(
         uint256[] calldata chainIds,
         uint256[] calldata depositIds,

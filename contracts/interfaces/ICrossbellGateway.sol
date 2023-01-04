@@ -78,6 +78,20 @@ interface ICrossbellGateway {
     function unpause() external;
 
     /**
+     * @notice Maps mainchain tokens to Crossbell network.
+     * @param crossbellTokens Addresses of crossbell tokens.
+     * @param chainIds ChainIds of mainchain networks.
+     * @param mainchainTokens Addresses of mainchain tokens.
+     * @param mainchainTokenDecimals Decimals of mainchain tokens.
+     */
+    function mapTokens(
+        address[] calldata crossbellTokens,
+        uint256[] calldata chainIds,
+        address[] calldata mainchainTokens,
+        uint8[] calldata mainchainTokenDecimals
+    ) external;
+
+    /**
      * @notice Tries bulk deposit.
      */
     function batchAckDeposit(

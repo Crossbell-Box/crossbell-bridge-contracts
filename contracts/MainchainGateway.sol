@@ -75,6 +75,17 @@ contract MainchainGateway is
     }
 
     /// @inheritdoc IMainchainGateway
+    function mapTokens(
+        address[] calldata mainchainTokens,
+        address[] calldata crossbellTokens,
+        uint8[] calldata crossbellTokenDecimals
+    ) external whenPaused onlyRole(ADMIN_ROLE) {
+        if (mainchainTokens.length > 0) {
+            _mapTokens(mainchainTokens, crossbellTokens, crossbellTokenDecimals);
+        }
+    }
+
+    /// @inheritdoc IMainchainGateway
     function requestDeposit(
         address recipient,
         address token,
@@ -342,7 +353,7 @@ contract MainchainGateway is
     }
 
     /**
-     * @dev Maps mainchain tokens to crossbell network.
+     * @dev Maps Crossbell tokens to mainchain.
      */
     function _mapTokens(
         address[] calldata mainchainTokens,

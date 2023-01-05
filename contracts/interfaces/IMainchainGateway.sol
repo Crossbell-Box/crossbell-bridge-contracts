@@ -24,7 +24,8 @@ interface IMainchainGateway {
         uint256 indexed withdrawId,
         address indexed recipient,
         address indexed token,
-        uint256 amount
+        uint256 amount,
+        uint256 fee
     );
 
     /// @dev Emitted when the thresholds for locked withdrawals are updated
@@ -108,6 +109,7 @@ interface IMainchainGateway {
      * @param recipient Address to receive withdrawal on mainchain chain
      * @param token Address of token to withdraw
      * @param amount Amount of token to withdraw
+     * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`
      * @param signatures Validator signatures for withdrawal
      */
     function withdraw(
@@ -116,6 +118,7 @@ interface IMainchainGateway {
         address recipient,
         address token,
         uint256 amount,
+        uint256 fee,
         DataTypes.Signature[] calldata signatures
     ) external returns (bool locked);
 
@@ -127,13 +130,15 @@ interface IMainchainGateway {
      * @param recipient Address to receive withdrawal on mainchain chain
      * @param token Address of token to withdraw
      * @param amount Amount of token to withdraw
+     * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`
      */
     function unlockWithdrawal(
         uint256 chainId,
         uint256 withdrawalId,
         address recipient,
         address token,
-        uint256 amount
+        uint256 amount,
+        uint256 fee
     ) external;
 
     /**

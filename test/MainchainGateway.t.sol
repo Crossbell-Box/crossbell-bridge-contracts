@@ -25,7 +25,8 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 indexed withdrawId,
         address indexed recipient,
         address indexed token,
-        uint256 amount
+        uint256 amount,
+        uint256 fee
     );
     event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds);
     event WithdrawalLocked(uint256 indexed withdrawId);
@@ -313,30 +314,31 @@ contract MainchainGatewayTest is Test, Utils {
         address recipient = bob;
         address token = address(mainchainToken);
         uint256 amount = 1 * 10 ** 6;
+        uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                gateway.TYPE_HASH(),
-                chainId, // chainId
-                withdrawalId, // withdrawId
-                recipient,
-                token,
-                amount
-            )
+        bytes32 hash = _hash(
+            gateway.TYPE_HASH(),
+            chainId,
+            withdrawalId,
+            recipient,
+            token,
+            amount,
+            fee
         );
         DataTypes.Signature[] memory signatures = _getTwoSignatures(hash);
 
-        vm.prank(bob);
         vm.chainId(chainId); // set block.chainid
         // expect events
         expectEmit(CheckAll);
-        emit Withdrew(withdrawalId, recipient, token, amount);
-        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, signatures);
+        emit Withdrew(withdrawalId, recipient, token, amount, fee);
+        vm.prank(frank);
+        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), INITIAL_AMOUNT_MAINCHAIN - amount);
-        assertEq(mainchainToken.balanceOf(bob), amount);
+        assertEq(mainchainToken.balanceOf(bob), amount - fee);
+        assertEq(mainchainToken.balanceOf(frank), fee);
         // check withdrawal hash
         assertEq(gateway.getWithdrawalHash(withdrawalId), hash);
     }
@@ -350,17 +352,17 @@ contract MainchainGatewayTest is Test, Utils {
         address recipient = eve;
         address token = address(mainchainToken);
         uint256 amount = 1 * 10 ** 6;
+        uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                gateway.TYPE_HASH(),
-                chainId, // chainId
-                withdrawalId, // withdrawId
-                recipient,
-                token,
-                amount
-            )
+        bytes32 hash = _hash(
+            gateway.TYPE_HASH(),
+            chainId,
+            withdrawalId,
+            recipient,
+            token,
+            amount,
+            fee
         );
 
         // case 1: invalid chainId
@@ -372,6 +374,7 @@ contract MainchainGatewayTest is Test, Utils {
             eve,
             address(mainchainToken),
             amount,
+            fee,
             _getTwoSignatures(hash)
         );
 
@@ -391,26 +394,26 @@ contract MainchainGatewayTest is Test, Utils {
         address recipient = eve;
         address token = address(mainchainToken);
         uint256 amount = 1 * 10 ** 6;
+        uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                gateway.TYPE_HASH(),
-                chainId, // chainId
-                withdrawalId, // withdrawId
-                recipient,
-                token,
-                amount
-            )
+        bytes32 hash = _hash(
+            gateway.TYPE_HASH(),
+            chainId,
+            withdrawalId,
+            recipient,
+            token,
+            amount,
+            fee
         );
         DataTypes.Signature[] memory signatures = _getTwoSignatures(hash);
 
         vm.chainId(chainId); // set block.chainid
-        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, signatures);
+        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
         // case 2: already withdrawn
         vm.expectRevert(abi.encodePacked("NotNewWithdrawal"));
-        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, signatures);
+        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
     }
 
     // case 3: insufficient signatures number
@@ -422,24 +425,24 @@ contract MainchainGatewayTest is Test, Utils {
         address recipient = eve;
         address token = address(mainchainToken);
         uint256 amount = 1 * 10 ** 6;
+        uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                gateway.TYPE_HASH(),
-                chainId, // chainId
-                withdrawalId, // withdrawId
-                recipient,
-                token,
-                amount
-            )
+        bytes32 hash = _hash(
+            gateway.TYPE_HASH(),
+            chainId,
+            withdrawalId,
+            recipient,
+            token,
+            amount,
+            fee
         );
         DataTypes.Signature[] memory signatures = _getOneSignature(hash);
 
         vm.chainId(chainId); // set block.chainid
         // case 3: insufficient signatures number
         vm.expectRevert(abi.encodePacked("InsufficientSignaturesNumber"));
-        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, signatures);
+        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), INITIAL_AMOUNT_MAINCHAIN);
@@ -457,17 +460,17 @@ contract MainchainGatewayTest is Test, Utils {
         address recipient = eve;
         address token = address(mainchainToken);
         uint256 amount = 1 * 10 ** 6;
+        uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                gateway.TYPE_HASH(),
-                chainId, // chainId
-                withdrawalId, // withdrawId
-                recipient,
-                token,
-                amount
-            )
+        bytes32 hash = _hash(
+            gateway.TYPE_HASH(),
+            chainId,
+            withdrawalId,
+            recipient,
+            token,
+            amount,
+            fee
         );
 
         // generate validator signatures
@@ -479,7 +482,7 @@ contract MainchainGatewayTest is Test, Utils {
         vm.chainId(chainId); // set block.chainid
         // case 4: invalid signer order
         vm.expectRevert(abi.encodePacked("InvalidSignerOrder"));
-        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, signatures);
+        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), INITIAL_AMOUNT_MAINCHAIN);
@@ -497,17 +500,17 @@ contract MainchainGatewayTest is Test, Utils {
         address recipient = eve;
         address token = address(mainchainToken);
         uint256 amount = 1 * 10 ** 6;
+        uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                gateway.TYPE_HASH(),
-                chainId, // chainId
-                withdrawalId, // withdrawId
-                recipient,
-                token,
-                amount
-            )
+        bytes32 hash = _hash(
+            gateway.TYPE_HASH(),
+            chainId,
+            withdrawalId,
+            recipient,
+            token,
+            amount,
+            fee
         );
 
         // generate validator signatures
@@ -518,7 +521,7 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.pause();
         // case 5: paused
         vm.expectRevert(abi.encodePacked("Pausable: paused"));
-        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, signatures);
+        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), INITIAL_AMOUNT_MAINCHAIN);
@@ -533,17 +536,17 @@ contract MainchainGatewayTest is Test, Utils {
         address recipient = eve;
         address token = address(mainchainToken);
         uint256 amount = 1 * 10 ** 6;
+        uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                gateway.TYPE_HASH(),
-                chainId, // chainId
-                withdrawalId, // withdrawId
-                recipient,
-                token,
-                amount
-            )
+        bytes32 hash = _hash(
+            gateway.TYPE_HASH(),
+            chainId,
+            withdrawalId,
+            recipient,
+            token,
+            amount,
+            fee
         );
 
         // generate validator signatures
@@ -552,7 +555,7 @@ contract MainchainGatewayTest is Test, Utils {
         vm.chainId(chainId); // set block.chainid
         // case 6: gateway balance is insufficient
         vm.expectRevert(abi.encodePacked("ERC20: transfer amount exceeds balance"));
-        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, signatures);
+        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), 0);
@@ -570,17 +573,17 @@ contract MainchainGatewayTest is Test, Utils {
         address recipient = bob;
         address token = address(mainchainToken);
         uint256 amount = WITHDRAWLAL_THRESHOLD;
+        uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                gateway.TYPE_HASH(),
-                chainId, // chainId
-                withdrawalId, // withdrawId
-                recipient,
-                token,
-                amount
-            )
+        bytes32 hash = _hash(
+            gateway.TYPE_HASH(),
+            chainId,
+            withdrawalId,
+            recipient,
+            token,
+            amount,
+            fee
         );
         DataTypes.Signature[] memory signatures = _getTwoSignatures(hash);
 
@@ -589,7 +592,7 @@ contract MainchainGatewayTest is Test, Utils {
         // expect events
         expectEmit(CheckAll);
         emit WithdrawalLocked(withdrawalId);
-        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, signatures);
+        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
         // check locked state
         assertEq(gateway.getWithdrawalLocked(withdrawalId), true);
@@ -608,40 +611,41 @@ contract MainchainGatewayTest is Test, Utils {
         address recipient = bob;
         address token = address(mainchainToken);
         uint256 amount = WITHDRAWLAL_THRESHOLD;
+        uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                gateway.TYPE_HASH(),
-                chainId, // chainId
-                withdrawalId, // withdrawId
-                recipient,
-                token,
-                amount
-            )
+        bytes32 hash = _hash(
+            gateway.TYPE_HASH(),
+            chainId,
+            withdrawalId,
+            recipient,
+            token,
+            amount,
+            fee
         );
         DataTypes.Signature[] memory signatures = _getTwoSignatures(hash);
 
         vm.chainId(chainId); // set block.chainid
         // locked when withdraw
-        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, signatures);
+        gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
         // unlock withdrawal
         // expect events
         expectEmit(CheckAll);
         emit WithdrawalUnlocked(withdrawalId);
         expectEmit(CheckAll);
-        emit Withdrew(withdrawalId, recipient, token, amount);
+        emit Withdrew(withdrawalId, recipient, token, amount, fee);
         vm.prank(withdrawalUnlocker);
-        gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount);
+        gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
 
         // check locked state
         assertEq(gateway.getWithdrawalLocked(withdrawalId), false);
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), INITIAL_AMOUNT_MAINCHAIN - amount);
-        assertEq(mainchainToken.balanceOf(bob), amount);
+        assertEq(mainchainToken.balanceOf(bob), amount - fee, "amount");
+        assertEq(mainchainToken.balanceOf(withdrawalUnlocker), fee, "fee");
         // check withdrawal hash
-        assertEq(gateway.getWithdrawalHash(withdrawalId), hash);
+        assertEq(gateway.getWithdrawalHash(withdrawalId), hash, "withdrawalHash");
     }
 
     function testUnlockWithdrawalFail() public {
@@ -649,6 +653,7 @@ contract MainchainGatewayTest is Test, Utils {
         address recipient = bob;
         address token = address(mainchainToken);
         uint256 amount = WITHDRAWLAL_THRESHOLD;
+        uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
 
@@ -656,7 +661,7 @@ contract MainchainGatewayTest is Test, Utils {
         // case 1: invalid chainId
         vm.expectRevert(abi.encodePacked("InvalidChainId"));
         vm.prank(withdrawalUnlocker);
-        gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount);
+        gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
     }
 
     function testVerifySignatures() public {
@@ -708,12 +713,27 @@ contract MainchainGatewayTest is Test, Utils {
     function _getSignature(
         bytes32 hash,
         uint256 privateKey
-    ) internal view returns (DataTypes.Signature memory signature) {
+    ) internal pure returns (DataTypes.Signature memory signature) {
         bytes32 prefixedHash = keccak256(
             abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
         );
 
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, prefixedHash);
         return signature;
+    }
+
+    function _hash(
+        bytes32 typeHash,
+        uint256 chainId,
+        uint256 withdrawalId,
+        address recipient,
+        address token,
+        uint256 amount,
+        uint256 fee
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(typeHash, chainId, withdrawalId, recipient, token, amount, fee)
+            );
     }
 }

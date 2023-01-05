@@ -32,14 +32,14 @@ library DataTypes {
      * @param recipient The address of account to receive the withdrawal.
      * @param token The address of token to withdraw.
      * @param amount The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature
-     * @param originalAmount The original amount of token to withdraw from crossbell network.
+     * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
      */
     struct WithdrawalEntry {
         uint256 chainId;
         address recipient;
         address token;
         uint256 amount;
-        uint256 originalAmount;
+        uint256 fee;
     }
 
     /**

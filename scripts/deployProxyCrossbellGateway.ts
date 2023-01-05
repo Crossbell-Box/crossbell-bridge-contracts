@@ -18,6 +18,7 @@ async function main() {
     // deploy crossbellGateway
     const CrossbellGateway = await ethers.getContractFactory("CrossbellGateway");
     const crossbellGateway = await CrossbellGateway.deploy();
+    // always initialize the logic contract
     await crossbellGateway.initialize(
         validatorContract,
         gatewayAdmin,

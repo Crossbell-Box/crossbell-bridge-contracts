@@ -19,6 +19,7 @@ async function main() {
 
     // deploy mainchainGateway
     const MainchainGateway = await ethers.getContractFactory("MainchainGateway");
+    // always initialize the logic contract
     const mainchainGateway = await MainchainGateway.deploy();
     await mainchainGateway.initialize(
         validatorContract,

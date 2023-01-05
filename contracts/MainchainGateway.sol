@@ -91,6 +91,8 @@ contract MainchainGateway is
         address token,
         uint256 amount
     ) external whenNotPaused returns (uint256 depositId) {
+        require(amount > 0, "ZeroAmount");
+
         DataTypes.MappedToken memory crossbellToken = _getCrossbellToken(token);
         require(crossbellToken.token != address(0), "UnsupportedToken");
 
@@ -113,6 +115,7 @@ contract MainchainGateway is
         address recipient,
         address token,
         uint256 amount,
+        uint256 fee,
         DataTypes.Signature[] calldata signatures
     ) external whenNotPaused returns (bool locked) {
         require(chainId == block.chainid, "InvalidChainId");
@@ -120,7 +123,7 @@ contract MainchainGateway is
         require(!_reachedDailyWithdrawalLimit(token, amount), "DailyWithdrawalLimit");
 
         bytes32 hash = keccak256(
-            abi.encodePacked(TYPE_HASH, chainId, withdrawalId, recipient, token, amount)
+            abi.encodePacked(TYPE_HASH, chainId, withdrawalId, recipient, token, amount, fee)
         );
         require(_verifySignatures(hash, signatures), "InsufficientSignaturesNumber");
 
@@ -137,9 +140,10 @@ contract MainchainGateway is
         // record withdrawal token
         _recordWithdrawal(token, amount);
         // transfer
-        IERC20(token).safeTransfer(recipient, amount);
+        IERC20(token).safeTransfer(recipient, amount - fee);
+        IERC20(token).safeTransfer(msg.sender, fee);
 
-        emit Withdrew(withdrawalId, recipient, token, amount);
+        emit Withdrew(withdrawalId, recipient, token, amount, fee);
     }
 
     /**
@@ -161,7 +165,8 @@ contract MainchainGateway is
         uint256 withdrawalId,
         address recipient,
         address token,
-        uint256 amount
+        uint256 amount,
+        uint256 fee
     ) external whenNotPaused onlyRole(WITHDRAWAL_UNLOCKER_ROLE) {
         require(chainId == block.chainid, "InvalidChainId");
         require(_withdrawalLocked[withdrawalId], "ApprovedWithdrawal");
@@ -171,15 +176,16 @@ contract MainchainGateway is
         emit WithdrawalUnlocked(withdrawalId);
 
         bytes32 hash = keccak256(
-            abi.encodePacked(TYPE_HASH, chainId, withdrawalId, recipient, token, amount)
+            abi.encodePacked(TYPE_HASH, chainId, withdrawalId, recipient, token, amount, fee)
         );
 
         // record withdrawal hash
         _withdrawalHash[withdrawalId] = hash;
         // transfer
-        IERC20(token).safeTransfer(recipient, amount);
+        IERC20(token).safeTransfer(recipient, amount - fee);
+        IERC20(token).safeTransfer(msg.sender, fee);
 
-        emit Withdrew(withdrawalId, recipient, token, amount);
+        emit Withdrew(withdrawalId, recipient, token, amount, fee);
     }
 
     /// @inheritdoc IMainchainGateway

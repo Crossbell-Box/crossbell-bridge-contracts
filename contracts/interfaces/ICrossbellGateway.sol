@@ -135,13 +135,15 @@ interface ICrossbellGateway {
      * @param recipient Address to receive withdrawal on mainchain network
      * @param token Token address to withdraw from crossbell network
      * @param amount Token amount to withdraw from crossbell network
+     * @param fee Fee amount to pay on mainchain network. This is subtracted from the `amount`.
      * @return withdrawId The newly generated withdrawId
      */
     function requestWithdrawal(
         uint256 chainId,
         address recipient,
         address token,
-        uint256 amount
+        uint256 amount,
+        uint256 fee
     ) external returns (uint256 withdrawId);
 
     /**

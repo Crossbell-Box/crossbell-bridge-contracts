@@ -136,9 +136,16 @@ contract CrossbellGateway is
         uint256 chainId,
         address recipient,
         address token,
-        uint256 amount
+        uint256 amount,
+        uint256 fee
     ) external whenNotPaused returns (uint256 withdrawId) {
+        require(amount > 0, "ZeroAmount");
+        require(amount >= fee, "FeeExceedAmount");
+
         DataTypes.MappedToken memory mainchainToken = _getMainchainToken(chainId, token);
+        require(mainchainToken.token != address(0), "UnsupportedToken");
+
+        // lock token
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         // transform token amount by different chain
@@ -147,7 +154,9 @@ contract CrossbellGateway is
             amount,
             mainchainToken.decimals
         );
+        uint256 feeAmount = _transformWithdrawalAmount(token, fee, mainchainToken.decimals);
 
+        // save withdrawal
         withdrawId = _withdrawalCounts[chainId];
         unchecked {
             _withdrawalCounts[chainId]++;
@@ -157,10 +166,10 @@ contract CrossbellGateway is
             recipient,
             token,
             transformedAmount,
-            amount
+            feeAmount
         );
 
-        emit RequestWithdrawal(chainId, withdrawId, recipient, token, transformedAmount, amount);
+        emit RequestWithdrawal(chainId, withdrawId, recipient, token, transformedAmount, feeAmount);
     }
 
     /// @inheritdoc ICrossbellGateway

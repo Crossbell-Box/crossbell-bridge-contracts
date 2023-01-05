@@ -392,12 +392,27 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 amount = 1 ether;
         address fakeToken = address(0x0001);
 
-        // case 1: unmapped token
+        // case 1: ZeroAmount
+        vm.expectRevert(abi.encodePacked("ZeroAmount"));
+        vm.prank(alice);
+        gateway.requestDeposit(alice, fakeToken, 0);
+
+        // case 2: unmapped token
         vm.expectRevert(abi.encodePacked("UnsupportedToken"));
         vm.prank(alice);
         gateway.requestDeposit(alice, fakeToken, amount);
 
-        // case 2: paused
+        // case 3: insufficient balance
+        vm.startPrank(alice);
+        // approve token
+        mainchainToken.approve(address(gateway), type(uint256).max);
+        uint256 depositAmount = mainchainToken.balanceOf(alice) + 1;
+        vm.expectRevert(abi.encodePacked("ERC20: transfer amount exceeds balance"));
+        // deposit
+        gateway.requestDeposit(alice, address(mainchainToken), depositAmount);
+        vm.stopPrank();
+
+        // case 4: paused
         // pause gateway
         vm.prank(admin);
         gateway.pause();

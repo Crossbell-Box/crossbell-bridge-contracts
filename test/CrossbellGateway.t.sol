@@ -7,6 +7,7 @@ import "./helpers/utils.sol";
 import "../contracts/CrossbellGateway.sol";
 import "../contracts/Validator.sol";
 import "../contracts/mocks/MintableERC20.sol";
+import "../contracts/upgradeability/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract CrossbellGatewayTest is Test, Utils {
@@ -26,6 +27,7 @@ contract CrossbellGatewayTest is Test, Utils {
     address internal frank = address(0x666);
 
     address internal admin = address(0x777);
+    address internal proxyAdmin = address(0x888);
 
     // validators
     uint256 internal validator1PrivateKey = 1;
@@ -60,6 +62,12 @@ contract CrossbellGatewayTest is Test, Utils {
 
         // setup MainchainGateway
         gateway = new CrossbellGateway();
+        TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
+            address(gateway),
+            proxyAdmin,
+            ""
+        );
+        gateway = CrossbellGateway(address(proxy));
         gateway.initialize(
             address(validator),
             admin,

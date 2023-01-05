@@ -204,6 +204,12 @@ interface IMainchainGateway {
     function getWithdrawalLockedThreshold(address token) external view returns (uint256);
 
     /**
+     * @notice Returns the daily withdrawal limit.
+     * @param token Token address
+     */
+    function getDailyWithdrawalLimit(address token) external view returns (uint256);
+
+    /**
      * @notice Checks whether the withdrawal reaches the daily limitation.
      * @param token Token address to withdraw
      * @param amount Token amount to withdraw

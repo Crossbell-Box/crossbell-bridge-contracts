@@ -268,6 +268,20 @@ Returns the amount thresholds to lock withdrawal.
 | ---- | ---- | ----------- |
 | token | address | Token address |
 
+### getDailyWithdrawalLimit
+
+```solidity
+function getDailyWithdrawalLimit(address token) external view returns (uint256)
+```
+
+Returns the daily withdrawal limit.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| token | address | Token address |
+
 ### reachedDailyWithdrawalLimit
 
 ```solidity

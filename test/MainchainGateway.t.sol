@@ -7,6 +7,7 @@ import "./helpers/utils.sol";
 import "../contracts/MainchainGateway.sol";
 import "../contracts/Validator.sol";
 import "../contracts/mocks/MintableERC20.sol";
+import "../contracts/upgradeability/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MainchainGatewayTest is Test, Utils {
@@ -29,6 +30,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 fee
     );
     event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds);
+    event DailyWithdrawalLimitsUpdated(address[] tokens, uint256[] limits);
     event WithdrawalLocked(uint256 indexed withdrawId);
     event WithdrawalUnlocked(uint256 indexed withdrawId);
 
@@ -43,7 +45,8 @@ contract MainchainGatewayTest is Test, Utils {
     address internal frank = address(0x666);
 
     address internal admin = address(0x777);
-    address internal withdrawalUnlocker = address(0x888);
+    address internal proxyAdmin = address(0x888);
+    address internal withdrawalUnlocker = address(0x999);
 
     // validators
     uint256 internal validator1PrivateKey = 1;
@@ -85,6 +88,12 @@ contract MainchainGatewayTest is Test, Utils {
 
         // setup MainchainGateway
         gateway = new MainchainGateway();
+        TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
+            address(gateway),
+            proxyAdmin,
+            ""
+        );
+        gateway = MainchainGateway(address(proxy));
         gateway.initialize(
             address(validator),
             admin,
@@ -258,6 +267,52 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalLockedThreshold(token), 0);
     }
 
+    function testSetDailyWithdrawalLimits() public {
+        address[] memory tokens = array(address(0x0001), address(0x0002));
+        uint256[] memory limits = array(111, 222);
+
+        // expect events
+        expectEmit(CheckAll);
+        emit DailyWithdrawalLimitsUpdated(tokens, limits);
+        vm.prank(admin);
+        gateway.setDailyWithdrawalLimits(tokens, limits);
+        // check states
+        for (uint256 i = 0; i < tokens.length; i++) {
+            assertEq(gateway.getDailyWithdrawalLimit(tokens[i]), limits[i]);
+        }
+
+        // set new limits
+        uint256[] memory newLimits = array(333, 444);
+        vm.prank(admin);
+        gateway.setDailyWithdrawalLimits(tokens, newLimits);
+        // check states
+        for (uint256 i = 0; i < tokens.length; i++) {
+            assertEq(gateway.getDailyWithdrawalLimit(tokens[i]), newLimits[i]);
+        }
+    }
+
+    function testSetDailyWithdrawalLimitsFail() public {
+        address[] memory tokens = array(address(0x0001), address(0x0002));
+        uint256[] memory limits = array(111, 222);
+
+        // eve has no permission to set the daily withdrawal limit
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(eve)),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
+        vm.prank(eve);
+        gateway.setDailyWithdrawalLimits(tokens, limits);
+
+        // check states
+        for (uint256 i = 0; i < tokens.length; i++) {
+            assertEq(gateway.getDailyWithdrawalLimit(tokens[i]), 0);
+        }
+    }
+
     function testRequestDeposit() public {
         uint256 amount = 1 * 10 ** 6;
         uint256 crossbellAmount = amount * 10 ** 12; // transformed amount
@@ -416,8 +471,54 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
     }
 
-    // case 3: insufficient signatures number
+    // case 3: reached daily withdrawal limit
     function testWithdrawFailCase3() public {
+        // mint tokens to mainchain gateway contract
+        mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
+
+        // withdrawal info
+        address recipient = eve;
+        address token = address(mainchainToken);
+        uint256 amount = 5 * 10 ** 6;
+        uint256 fee = 1 * 10 ** 5;
+        uint256 chainId = 1337;
+        uint256 withdrawalId = 1;
+
+        vm.chainId(chainId); // set block.chainid
+
+        for (uint256 i = 0; i < 20; i++) {
+            withdrawalId = i;
+
+            bytes32 hash = _hash(
+                gateway.TYPE_HASH(),
+                chainId,
+                withdrawalId,
+                recipient,
+                token,
+                amount,
+                fee
+            );
+            DataTypes.Signature[] memory signatures = _getThreeSignatures(hash);
+
+            if (i == 19) {
+                // case 3: reached daily withdrawal limit
+                vm.expectRevert(abi.encodePacked("DailyWithdrawalLimit"));
+                gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
+                // check withdrawal hash
+                assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0));
+            } else {
+                // expect events
+                expectEmit(CheckAll);
+                emit Withdrew(withdrawalId, recipient, token, amount, fee);
+                gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
+                // check withdrawal hash
+                assertEq(gateway.getWithdrawalHash(withdrawalId), hash);
+            }
+        }
+    }
+
+    // case 4: insufficient signatures number
+    function testWithdrawFailCase4() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
@@ -440,7 +541,7 @@ contract MainchainGatewayTest is Test, Utils {
         DataTypes.Signature[] memory signatures = _getOneSignature(hash);
 
         vm.chainId(chainId); // set block.chainid
-        // case 3: insufficient signatures number
+        // case 4: insufficient signatures number
         vm.expectRevert(abi.encodePacked("InsufficientSignaturesNumber"));
         gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
@@ -451,8 +552,8 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0));
     }
 
-    // case 4: invalid signer order
-    function testWithdrawFailCase4() public {
+    // case 5: invalid signer order
+    function testWithdrawFailCase5() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
@@ -480,7 +581,7 @@ contract MainchainGatewayTest is Test, Utils {
         signatures[2] = _getSignature(hash, validator3PrivateKey);
 
         vm.chainId(chainId); // set block.chainid
-        // case 4: invalid signer order
+        // case 5: invalid signer order
         vm.expectRevert(abi.encodePacked("InvalidSignerOrder"));
         gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
@@ -491,8 +592,8 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0));
     }
 
-    // case 5: paused
-    function testWithdrawFailCase5() public {
+    // case 6: paused
+    function testWithdrawFailCase6() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
@@ -519,7 +620,7 @@ contract MainchainGatewayTest is Test, Utils {
         vm.chainId(chainId); // set block.chainid
         vm.prank(admin);
         gateway.pause();
-        // case 5: paused
+        // case 6: paused
         vm.expectRevert(abi.encodePacked("Pausable: paused"));
         gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
@@ -530,8 +631,8 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0));
     }
 
-    // case 6: gateway balance is insufficient
-    function testWithdrawFailCase6() public {
+    // case 7: gateway balance is insufficient
+    function testWithdrawFailCase7() public {
         // withdrawal info
         address recipient = eve;
         address token = address(mainchainToken);
@@ -553,7 +654,7 @@ contract MainchainGatewayTest is Test, Utils {
         DataTypes.Signature[] memory signatures = _getThreeSignatures(hash);
 
         vm.chainId(chainId); // set block.chainid
-        // case 6: gateway balance is insufficient
+        // case 7: gateway balance is insufficient
         vm.expectRevert(abi.encodePacked("ERC20: transfer amount exceeds balance"));
         gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
@@ -603,6 +704,8 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0));
     }
 
+    function testReachedDailyWithdrawalLimit() public {}
+
     function testUnlockWithdrawal() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
@@ -648,7 +751,8 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(withdrawalId), hash, "withdrawalHash");
     }
 
-    function testUnlockWithdrawalFail() public {
+    // case 1: invalid chainId
+    function testUnlockWithdrawalFailCase1() public {
         // withdrawal info
         address recipient = bob;
         address token = address(mainchainToken);
@@ -662,6 +766,103 @@ contract MainchainGatewayTest is Test, Utils {
         vm.expectRevert(abi.encodePacked("InvalidChainId"));
         vm.prank(withdrawalUnlocker);
         gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
+
+        // check locked state
+        assertEq(gateway.getWithdrawalLocked(withdrawalId), false);
+        // check balances
+        assertEq(mainchainToken.balanceOf(address(gateway)), 0);
+        assertEq(mainchainToken.balanceOf(recipient), 0, "amount");
+        assertEq(mainchainToken.balanceOf(withdrawalUnlocker), 0, "fee");
+        // check withdrawal hash
+        assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0), "withdrawalHash");
+    }
+
+    // case 2: withdrawal not locked
+    function testUnlockWithdrawalFailCase2() public {
+        // withdrawal info
+        address recipient = bob;
+        address token = address(mainchainToken);
+        uint256 amount = WITHDRAWLAL_THRESHOLD;
+        uint256 fee = 1 * 10 ** 5;
+        uint256 chainId = 1337;
+        uint256 withdrawalId = 1;
+
+        // unlock withdrawal
+        vm.chainId(chainId);
+        // case 2:  withdrawal not locked
+        vm.expectRevert(abi.encodePacked("WithdrawalNotLocked"));
+        vm.prank(withdrawalUnlocker);
+        gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
+
+        // check locked state
+        assertEq(gateway.getWithdrawalLocked(withdrawalId), false);
+        // check balances
+        assertEq(mainchainToken.balanceOf(address(gateway)), 0);
+        assertEq(mainchainToken.balanceOf(recipient), 0, "amount");
+        assertEq(mainchainToken.balanceOf(withdrawalUnlocker), 0, "fee");
+        // check withdrawal hash
+        assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0), "withdrawalHash");
+    }
+
+    // case 3: paused
+    function testUnlockWithdrawalFailCase3() public {
+        // withdrawal info
+        address recipient = bob;
+        address token = address(mainchainToken);
+        uint256 amount = WITHDRAWLAL_THRESHOLD;
+        uint256 fee = 1 * 10 ** 5;
+        uint256 chainId = 1337;
+        uint256 withdrawalId = 1;
+
+        // unlock withdrawal
+        vm.prank(admin);
+        gateway.pause();
+        // case 3: paused
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        vm.prank(withdrawalUnlocker);
+        gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
+
+        // check locked state
+        assertEq(gateway.getWithdrawalLocked(withdrawalId), false);
+        // check balances
+        assertEq(mainchainToken.balanceOf(address(gateway)), 0);
+        assertEq(mainchainToken.balanceOf(recipient), 0, "amount");
+        assertEq(mainchainToken.balanceOf(withdrawalUnlocker), 0, "fee");
+        // check withdrawal hash
+        assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0), "withdrawalHash");
+    }
+
+    // case 4: caller has no permission to unlock withdrawal
+    function testUnlockWithdrawalFailCase4() public {
+        // withdrawal info
+        address recipient = bob;
+        address token = address(mainchainToken);
+        uint256 amount = WITHDRAWLAL_THRESHOLD;
+        uint256 fee = 1 * 10 ** 5;
+        uint256 chainId = 1337;
+        uint256 withdrawalId = 1;
+
+        // unlock withdrawal
+        // case 4: caller has no permission to unlock withdrawal
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(eve)),
+                " is missing role ",
+                Strings.toHexString(uint256(WITHDRAWAL_UNLOCKER_ROLE), 32)
+            )
+        );
+        vm.prank(eve);
+        gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
+
+        // check locked state
+        assertEq(gateway.getWithdrawalLocked(withdrawalId), false);
+        // check balances
+        assertEq(mainchainToken.balanceOf(address(gateway)), 0);
+        assertEq(mainchainToken.balanceOf(recipient), 0, "amount");
+        assertEq(mainchainToken.balanceOf(withdrawalUnlocker), 0, "fee");
+        // check withdrawal hash
+        assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0), "withdrawalHash");
     }
 
     function testVerifySignatures() public {

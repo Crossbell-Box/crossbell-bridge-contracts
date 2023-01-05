@@ -288,13 +288,14 @@ contract CrossbellGateway is
         address token,
         uint256 amount
     ) internal whenNotPaused onlyValidator {
-        bytes32 hash = keccak256(abi.encode(recipient, chainId, depositId, token, amount));
+        bytes32 hash = keccak256(abi.encodePacked(recipient, chainId, depositId, token, amount));
 
         DataTypes.Status status = _acknowledge(chainId, depositId, hash, msg.sender);
-
         if (status == DataTypes.Status.FirstApproved) {
-            _depositFor(recipient, token, amount);
+            // transfer token
+            _handleTransfer(recipient, token, amount);
 
+            // record deposit
             _deposits[chainId][depositId] = DataTypes.DepositEntry(
                 chainId,
                 recipient,
@@ -367,7 +368,7 @@ contract CrossbellGateway is
         return _ackStatus[chainId][id][hash];
     }
 
-    function _depositFor(address recipient, address token, uint256 amount) internal {
+    function _handleTransfer(address recipient, address token, uint256 amount) internal {
         uint256 gatewayBalance = IERC20(token).balanceOf(address(this));
         if (gatewayBalance < amount) {
             IERC20Mintable(token).mint(address(this), amount - gatewayBalance);

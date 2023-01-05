@@ -169,7 +169,8 @@ contract MainchainGateway is
         uint256 fee
     ) external whenNotPaused onlyRole(WITHDRAWAL_UNLOCKER_ROLE) {
         require(chainId == block.chainid, "InvalidChainId");
-        require(_withdrawalLocked[withdrawalId], "ApprovedWithdrawal");
+        require(_withdrawalLocked[withdrawalId], "WithdrawalNotLocked");
+        // check withdrawalHash, although this does not seem necessary
         require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
 
         delete _withdrawalLocked[withdrawalId];
@@ -235,6 +236,11 @@ contract MainchainGateway is
     /// @inheritdoc IMainchainGateway
     function getWithdrawalLockedThreshold(address token) external view returns (uint256) {
         return _lockedThresholds[token];
+    }
+
+    /// @inheritdoc IMainchainGateway
+    function getDailyWithdrawalLimit(address token) external view returns (uint256) {
+        return _dailyWithdrawalLimit[token];
     }
 
     /// @inheritdoc IMainchainGateway

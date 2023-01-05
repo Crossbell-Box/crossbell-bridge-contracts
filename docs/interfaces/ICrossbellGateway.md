@@ -133,7 +133,7 @@ Note that the caller must be a validator.
 ### requestWithdrawal
 
 ```solidity
-function requestWithdrawal(uint256 chainId, address recipient, address token, uint256 amount) external returns (uint256 withdrawId)
+function requestWithdrawal(uint256 chainId, address recipient, address token, uint256 amount, uint256 fee) external returns (uint256 withdrawId)
 ```
 
 Locks the assets and request withdrawal.
@@ -146,6 +146,7 @@ Locks the assets and request withdrawal.
 | recipient | address | Address to receive withdrawal on mainchain network |
 | token | address | Token address to withdraw from crossbell network |
 | amount | uint256 | Token amount to withdraw from crossbell network |
+| fee | uint256 | Fee amount to pay on mainchain network. This is subtracted from the `amount`. |
 
 #### Return Values
 

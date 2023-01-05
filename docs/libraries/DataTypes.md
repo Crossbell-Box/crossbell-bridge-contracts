@@ -32,7 +32,7 @@ struct WithdrawalEntry {
   address recipient;
   address token;
   uint256 amount;
-  uint256 originalAmount;
+  uint256 fee;
 }
 ```
 

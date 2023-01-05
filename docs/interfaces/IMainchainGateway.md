@@ -21,7 +21,7 @@ _Emitted when the deposit is requested_
 ### Withdrew
 
 ```solidity
-event Withdrew(uint256 withdrawId, address recipient, address token, uint256 amount)
+event Withdrew(uint256 withdrawId, address recipient, address token, uint256 amount, uint256 fee)
 ```
 
 _Emitted when the assets are withdrawn on mainchain_
@@ -144,7 +144,7 @@ Request deposit to crossbell chain.
 ### withdraw
 
 ```solidity
-function withdraw(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, struct DataTypes.Signature[] signatures) external returns (bool locked)
+function withdraw(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee, struct DataTypes.Signature[] signatures) external returns (bool locked)
 ```
 
 Withdraw based on the validator signatures.
@@ -158,12 +158,13 @@ Withdraw based on the validator signatures.
 | recipient | address | Address to receive withdrawal on mainchain chain |
 | token | address | Address of token to withdraw |
 | amount | uint256 | Amount of token to withdraw |
+| fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
 | signatures | struct DataTypes.Signature[] | Validator signatures for withdrawal |
 
 ### unlockWithdrawal
 
 ```solidity
-function unlockWithdrawal(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount) external
+function unlockWithdrawal(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee) external
 ```
 
 Approves a specific withdrawal..
@@ -178,6 +179,7 @@ Note that the caller must have WITHDRAWAL_UNLOCKER_ROLE.
 | recipient | address | Address to receive withdrawal on mainchain chain |
 | token | address | Address of token to withdraw |
 | amount | uint256 | Amount of token to withdraw |
+| fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
 
 ### setLockedThresholds
 

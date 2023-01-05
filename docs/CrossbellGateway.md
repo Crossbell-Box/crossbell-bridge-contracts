@@ -319,10 +319,10 @@ function _submitWithdrawalSignatures(uint256 chainId, uint256 withdrawalId, bool
 function _acknowledge(uint256 chainId, uint256 id, bytes32 hash, address validator) internal returns (enum DataTypes.Status)
 ```
 
-### _depositFor
+### _handleTransfer
 
 ```solidity
-function _depositFor(address recipient, address token, uint256 amount) internal
+function _handleTransfer(address recipient, address token, uint256 amount) internal
 ```
 
 ### _getWithdrawalSigners

@@ -665,6 +665,61 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0));
     }
 
+    function testWithdrawWithDailyLimit() public {
+        // mint tokens to mainchain gateway contract
+        mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
+
+        // withdrawal info
+        address recipient = eve;
+        address token = address(mainchainToken);
+        uint256 amount = DAILY_WITHDRAWLAL_LIMIT / 20;
+        uint256 fee = amount / 100;
+        uint256 chainId = 1337;
+        uint256 withdrawalId = 1;
+
+        vm.chainId(chainId); // set block.chainid
+
+        vm.startPrank(frank);
+        for (uint256 i = 0; i < 20; i++) {
+            withdrawalId = i;
+
+            bytes32 hash = _hash(
+                gateway.TYPE_HASH(),
+                chainId,
+                withdrawalId,
+                recipient,
+                token,
+                amount,
+                fee
+            );
+            DataTypes.Signature[] memory signatures = _getThreeSignatures(hash);
+
+            if (i == 19) {
+                // the last withdrawal will reach the daily withdrawal limit
+                vm.expectRevert(abi.encodePacked("DailyWithdrawalLimit"));
+                gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
+
+                // 1 days later, the limit will restore
+                skip(1 days);
+            }
+            // expect events
+            expectEmit(CheckAll);
+            emit Withdrew(withdrawalId, recipient, token, amount, fee);
+            gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
+            // check withdrawal hash
+            assertEq(gateway.getWithdrawalHash(withdrawalId), hash);
+        }
+        vm.stopPrank();
+
+        // check balances
+        assertEq(mainchainToken.balanceOf(frank), fee * 20);
+        assertEq(mainchainToken.balanceOf(recipient), (amount - fee) * 20);
+        assertEq(
+            mainchainToken.balanceOf(address(gateway)),
+            INITIAL_AMOUNT_MAINCHAIN - amount * 20
+        );
+    }
+
     // test case for locked withdrawal
     function testWithdrawLocked() public {
         // mint tokens to mainchain gateway contract

@@ -12,6 +12,11 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MainchainGatewayTest is Test, Utils {
     // events
+    event TokenMapped(
+        address[] mainchainTokens,
+        address[] crossbellTokens,
+        uint8[] crossbellTokensDecimals
+    );
     event Paused(address account);
     event Unpaused(address account);
     event Approval(address indexed owner, address indexed spender, uint256 value);
@@ -223,6 +228,53 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.unpause();
         // check paused
         assertEq(gateway.paused(), true);
+    }
+
+    function testMapTokens() public {
+        address[] memory mainchainTokens = array(address(0x0001), address(0x0002));
+        address[] memory crossbellTokens = array(address(0x0003), address(0x0004));
+        uint8[] memory decimals = new uint8[](2);
+        decimals[0] = 6;
+        decimals[1] = 18;
+
+        // expect events
+        expectEmit(CheckAll);
+        emit TokenMapped(mainchainTokens, crossbellTokens, decimals);
+        vm.prank(admin);
+        gateway.mapTokens(mainchainTokens, crossbellTokens, decimals);
+
+        // check
+        for (uint256 i = 0; i < mainchainTokens.length; i++) {
+            DataTypes.MappedToken memory token = gateway.getCrossbellToken(mainchainTokens[i]);
+            assertEq(token.token, crossbellTokens[i]);
+            assertEq(token.decimals, decimals[i]);
+        }
+    }
+
+    function testMapTokensFail() public {
+        address[] memory mainchainTokens = array(address(0x0001), address(0x0002));
+        address[] memory crossbellTokens = array(address(0x0003), address(0x0004));
+        uint8[] memory decimals = new uint8[](2);
+        decimals[0] = 6;
+        decimals[1] = 18;
+
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(eve),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
+        vm.prank(eve);
+        gateway.mapTokens(mainchainTokens, crossbellTokens, decimals);
+
+        // check
+        for (uint256 i = 0; i < mainchainTokens.length; i++) {
+            DataTypes.MappedToken memory token = gateway.getCrossbellToken(mainchainTokens[i]);
+            assertEq(token.token, address(0));
+            assertEq(token.decimals, 0);
+        }
     }
 
     function testSetLockedThresholds() public {

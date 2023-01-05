@@ -79,7 +79,7 @@ contract MainchainGateway is
         address[] calldata mainchainTokens,
         address[] calldata crossbellTokens,
         uint8[] calldata crossbellTokenDecimals
-    ) external whenPaused onlyRole(ADMIN_ROLE) {
+    ) external onlyRole(ADMIN_ROLE) {
         if (mainchainTokens.length > 0) {
             _mapTokens(mainchainTokens, crossbellTokens, crossbellTokenDecimals);
         }

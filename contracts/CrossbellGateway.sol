@@ -74,7 +74,7 @@ contract CrossbellGateway is
         uint256[] calldata chainIds,
         address[] calldata mainchainTokens,
         uint8[] calldata mainchainTokenDecimals
-    ) external whenPaused onlyRole(ADMIN_ROLE) {
+    ) external onlyRole(ADMIN_ROLE) {
         // map mainchain tokens
         if (crossbellTokens.length > 0) {
             _mapTokens(crossbellTokens, chainIds, mainchainTokens, mainchainTokenDecimals);

@@ -12,6 +12,12 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract CrossbellGatewayTest is Test, Utils {
     // events
+    event TokenMapped(
+        address[] crossbellTokens,
+        uint256[] chainIds,
+        address[] mainchainTokens,
+        uint8[] crossbellTokensDecimals
+    );
     event Paused(address account);
     event Unpaused(address account);
     event Approval(address indexed owner, address indexed spender, uint256 value);
@@ -200,5 +206,60 @@ contract CrossbellGatewayTest is Test, Utils {
         gateway.unpause();
         // check paused
         assertEq(gateway.paused(), true);
+    }
+
+    function testMapTokens() public {
+        address[] memory crossbellTokens = array(address(0x0001), address(0x0002));
+        uint256[] memory chainIds = array(1, 1337);
+        address[] memory mainchainTokens = array(address(0x0003), address(0x0004));
+        uint8[] memory decimals = new uint8[](2);
+        decimals[0] = 18;
+        decimals[1] = 6;
+
+        // expect events
+        expectEmit(CheckAll);
+        emit TokenMapped(crossbellTokens, chainIds, mainchainTokens, decimals);
+        vm.prank(admin);
+        gateway.mapTokens(crossbellTokens, chainIds, mainchainTokens, decimals);
+
+        // check
+        for (uint256 i = 0; i < crossbellTokens.length; i++) {
+            DataTypes.MappedToken memory token = gateway.getMainchainToken(
+                chainIds[i],
+                crossbellTokens[i]
+            );
+            assertEq(token.token, mainchainTokens[i], "token");
+            assertEq(token.decimals, decimals[i], "decimals");
+        }
+    }
+
+    function testMapTokensFail() public {
+        address[] memory crossbellTokens = array(address(0x0001), address(0x0002));
+        uint256[] memory chainIds = array(1, 1337);
+        address[] memory mainchainTokens = array(address(0x0003), address(0x0004));
+        uint8[] memory decimals = new uint8[](2);
+        decimals[0] = 18;
+        decimals[1] = 6;
+
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(eve),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
+        vm.prank(eve);
+        gateway.mapTokens(crossbellTokens, chainIds, mainchainTokens, decimals);
+
+        // check
+        for (uint256 i = 0; i < crossbellTokens.length; i++) {
+            DataTypes.MappedToken memory token = gateway.getMainchainToken(
+                chainIds[i],
+                mainchainTokens[i]
+            );
+            assertEq(token.token, address(0));
+            assertEq(token.decimals, 0);
+        }
     }
 }

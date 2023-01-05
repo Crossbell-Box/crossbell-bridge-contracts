@@ -127,7 +127,7 @@ contract CrossbellGateway is
         address recipient,
         address token,
         uint256 amount
-    ) external {
+    ) external whenNotPaused onlyValidator {
         _ackDeposit(chainId, depositId, recipient, token, amount);
     }
 
@@ -196,7 +196,7 @@ contract CrossbellGateway is
         uint256 withdrawalId,
         bool shouldReplace,
         bytes calldata sig
-    ) external {
+    ) external whenNotPaused onlyValidator {
         _submitWithdrawalSignatures(chainId, withdrawalId, shouldReplace, sig);
     }
 
@@ -287,7 +287,7 @@ contract CrossbellGateway is
         address recipient,
         address token,
         uint256 amount
-    ) internal whenNotPaused onlyValidator {
+    ) internal {
         bytes32 hash = keccak256(abi.encodePacked(recipient, chainId, depositId, token, amount));
 
         DataTypes.Status status = _acknowledge(chainId, depositId, hash, msg.sender);
@@ -328,7 +328,7 @@ contract CrossbellGateway is
         uint256 withdrawalId,
         bool shouldReplace,
         bytes calldata sig
-    ) internal whenNotPaused onlyValidator {
+    ) internal {
         bytes memory currentSig = _withdrawalSig[chainId][withdrawalId][msg.sender];
 
         bool alreadyHasSig = currentSig.length != 0;

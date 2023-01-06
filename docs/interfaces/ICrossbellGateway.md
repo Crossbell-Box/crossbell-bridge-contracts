@@ -266,17 +266,65 @@ Returns mapped token on mainchain.
 function getValidatorAcknowledgementHash(uint256 chainId, uint256 id, address validator) external view returns (bytes32)
 ```
 
+Returns the acknowledge withdrawalHash of withdrawal by validator.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| chainId | uint256 | ChainId of mainchain |
+| id | uint256 | WithdrawalId |
+| validator | address | Validator address |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bytes32 | bytes32 WithdrawalHash if validator has acknowledged, otherwise 0 |
+
 ### getAcknowledgementStatus
 
 ```solidity
 function getAcknowledgementStatus(uint256 chainId, uint256 id, bytes32 hash) external view returns (enum DataTypes.Status)
 ```
 
+Returns the acknowledge status of withdrawal by validators.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| chainId | uint256 | ChainId of mainchain |
+| id | uint256 | WithdrawalId |
+| hash | bytes32 | WithdrawalHash |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | enum DataTypes.Status | DataTypes.Status Acknowledgement status |
+
 ### getAcknowledgementCount
 
 ```solidity
 function getAcknowledgementCount(uint256 chainId, uint256 id, bytes32 hash) external view returns (uint256)
 ```
+
+Returns the acknowledge count of withdrawal by validators.
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| chainId | uint256 | ChainId of mainchain |
+| id | uint256 | WithdrawalId |
+| hash | bytes32 | WithdrawalHash |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | uint256 | uint256 Acknowledgement count |
 
 ### getWithdrawalSigners
 
@@ -292,6 +340,12 @@ Returns withdrawal signers.
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain |
 | withdrawalId | uint256 | Withdrawal Id to query |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | address[] | address[] Signer addresses |
 
 ### getWithdrawalSignatures
 
@@ -337,6 +391,12 @@ Returns the deposit entry.
 | chainId | uint256 | ChainId of mainchain |
 | depositId | uint256 | Deposit Id to query |
 
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | struct DataTypes.DepositEntry | DataTypes.DepositEntry Deposit entry |
+
 ### getWithdrawalCount
 
 ```solidity
@@ -350,6 +410,12 @@ Returns the withdrawal count of different mainchain networks.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | uint256 | uint256 Withdrawal count |
 
 ### getWithdrawalEntry
 
@@ -365,4 +431,10 @@ Returns the withdrawal entry.
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain |
 | withdrawalId | uint256 | Withdrawal Id to query |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | struct DataTypes.WithdrawalEntry | DataTypes.WithdrawalEntry Withdrawal entry |
 

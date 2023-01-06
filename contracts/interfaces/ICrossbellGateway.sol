@@ -49,7 +49,7 @@ interface ICrossbellGateway {
         uint256 amount
     );
     /**
-     * @dev  Emitted when the withdrawal is requested
+     * @dev Emitted when the withdrawal is requested
      * @param chainId The ChainId of mainchain network.
      * @param withdrawId Withdrawal identifier id.
      * @param recipient The address of account to receive the withdrawal.
@@ -215,18 +215,39 @@ interface ICrossbellGateway {
         address crossbellToken
     ) external view returns (DataTypes.MappedToken memory token);
 
+    /**
+     * @notice Returns the acknowledge withdrawalHash of withdrawal by validator.
+     * @param chainId ChainId of mainchain
+     * @param id WithdrawalId
+     * @param validator Validator address
+     * @return bytes32 WithdrawalHash if validator has acknowledged, otherwise 0
+     */
     function getValidatorAcknowledgementHash(
         uint256 chainId,
         uint256 id,
         address validator
     ) external view returns (bytes32);
 
+    /**
+     * @notice Returns the acknowledge status of withdrawal by validators.
+     * @param chainId ChainId of mainchain
+     * @param id WithdrawalId
+     * @param hash WithdrawalHash
+     * @return DataTypes.Status Acknowledgement status
+     */
     function getAcknowledgementStatus(
         uint256 chainId,
         uint256 id,
         bytes32 hash
     ) external view returns (DataTypes.Status);
 
+    /**
+     * @notice Returns the acknowledge count of withdrawal by validators.
+     * @param chainId ChainId of mainchain
+     * @param id WithdrawalId
+     * @param hash WithdrawalHash
+     * @return uint256 Acknowledgement count
+     */
     function getAcknowledgementCount(
         uint256 chainId,
         uint256 id,
@@ -237,6 +258,7 @@ interface ICrossbellGateway {
      * @notice Returns withdrawal signers.
      * @param chainId ChainId of mainchain
      * @param withdrawalId Withdrawal Id to query
+     * @return address[] Signer addresses
      */
     function getWithdrawalSigners(
         uint256 chainId,
@@ -263,6 +285,7 @@ interface ICrossbellGateway {
      * @notice Returns the deposit entry.
      * @param chainId ChainId of mainchain
      * @param depositId Deposit Id to query
+     * @return DataTypes.DepositEntry Deposit entry
      */
     function getDepositEntry(
         uint256 chainId,
@@ -272,6 +295,7 @@ interface ICrossbellGateway {
     /**
      * @notice Returns the withdrawal count of different mainchain networks.
      * @param chainId ChainId of mainchain
+     * @return uint256 Withdrawal count
      */
     function getWithdrawalCount(uint256 chainId) external view returns (uint256);
 
@@ -279,6 +303,7 @@ interface ICrossbellGateway {
      * @notice Returns the withdrawal entry.
      * @param chainId ChainId of mainchain
      * @param withdrawalId Withdrawal Id to query
+     * @return DataTypes.WithdrawalEntry Withdrawal entry
      */
     function getWithdrawalEntry(
         uint256 chainId,

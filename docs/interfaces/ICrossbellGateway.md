@@ -5,10 +5,19 @@
 ### TokenMapped
 
 ```solidity
-event TokenMapped(address[] crossbellTokens, uint256[] chainIds, address[] mainchainTokens, uint8[] crossbellTokensDecimals)
+event TokenMapped(address[] crossbellTokens, uint256[] chainIds, address[] mainchainTokens, uint8[] mainchainTokenDecimals)
 ```
 
 _Emitted when the tokens are mapped_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| crossbellTokens | address[] | Addresses of crossbell tokens. |
+| chainIds | uint256[] | ChainIds of mainchain networks. |
+| mainchainTokens | address[] | Addresses of mainchain tokens. |
+| mainchainTokenDecimals | uint8[] | Decimals of mainchain tokens. |
 
 ### Deposited
 
@@ -18,6 +27,16 @@ event Deposited(uint256 chainId, uint256 depositId, address recipient, address t
 
 _Emitted when the assets are deposited_
 
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| chainId | uint256 | ChainId of mainchain network. |
+| depositId | uint256 |  |
+| recipient | address | The address of account to receive the deposit. |
+| token | address | The address of token to deposit. |
+| amount | uint256 | The amount of token to deposit. |
+
 ### AckDeposit
 
 ```solidity
@@ -26,21 +45,53 @@ event AckDeposit(uint256 chainId, uint256 depositId, address recipient, address 
 
 _Emitted when the deposit is acknowledged by a validator_
 
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| chainId | uint256 | The ChainId of mainchain network. |
+| depositId | uint256 | Deposit identifier id. |
+| recipient | address | The address of account to receive the deposit. |
+| token | address | The address of token to deposit. |
+| amount | uint256 | The amount of token to deposit. |
+
 ### RequestWithdrawal
 
 ```solidity
-event RequestWithdrawal(uint256 chainId, uint256 withdrawId, address recipient, address token, uint256 transformedAmount, uint256 originalAmount)
+event RequestWithdrawal(uint256 chainId, uint256 withdrawId, address recipient, address token, uint256 amount, uint256 fee)
 ```
 
 _Emitted when the withdrawal is requested_
 
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| chainId | uint256 | The ChainId of mainchain network. |
+| withdrawId | uint256 | Withdrawal identifier id. |
+| recipient | address | The address of account to receive the withdrawal. |
+| token | address | The address of token to withdraw. |
+| amount | uint256 | The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature |
+| fee | uint256 | The fee amount to pay for the withdrawal tx sender on mainchain network. |
+
 ### RequestWithdrawalSignatures
 
 ```solidity
-event RequestWithdrawalSignatures(uint256 chainId, uint256 withdrawalId, address owner, address token, uint256 amount)
+event RequestWithdrawalSignatures(uint256 chainId, uint256 withdrawId, address recipient, address token, uint256 amount, uint256 fee)
 ```
 
-_Emitted when the withdrawal signatures is requested_
+_Emitted when the withdrawal signatures is requested._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| chainId | uint256 | The ChainId of mainchain network. |
+| withdrawId | uint256 | Withdrawal identifier id. |
+| recipient | address | The address of account to receive the withdrawal. |
+| token | address | The address of token to withdraw. |
+| amount | uint256 | The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature |
+| fee | uint256 | The fee amount to pay for the withdrawal tx sender on mainchain network. |
 
 ### initialize
 

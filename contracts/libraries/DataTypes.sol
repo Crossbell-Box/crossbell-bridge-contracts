@@ -14,7 +14,7 @@ library DataTypes {
 
     /**
      * @notice A struct containing deposit data.
-     * @param chainId The ChainId of specific network.
+     * @param chainId The ChainId of mainchain network.
      * @param recipient The address of account to receive the deposit.
      * @param token The address of token to deposit.
      * @param amount The amount of token to deposit.
@@ -28,7 +28,7 @@ library DataTypes {
 
     /**
      * @notice A struct containing withdrawal data.
-     * @param chainId The ChainId of specific network.
+     * @param chainId The ChainId of mainchain network.
      * @param recipient The address of account to receive the withdrawal.
      * @param token The address of token to withdraw.
      * @param amount The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature

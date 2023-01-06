@@ -5,10 +5,18 @@
 ### TokenMapped
 
 ```solidity
-event TokenMapped(address[] mainchainTokens, address[] crossbellTokens, uint8[] crossbellTokensDecimals)
+event TokenMapped(address[] mainchainTokens, address[] crossbellTokens, uint8[] crossbellTokenDecimals)
 ```
 
 _Emitted when the tokens are mapped_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| mainchainTokens | address[] | Addresses of mainchain tokens. |
+| crossbellTokens | address[] | Addresses of crossbell tokens. |
+| crossbellTokenDecimals | uint8[] | Decimals of crossbell tokens. |
 
 ### RequestDeposit
 
@@ -18,13 +26,32 @@ event RequestDeposit(uint256 depositId, address recipient, address token, uint25
 
 _Emitted when the deposit is requested_
 
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| depositId | uint256 | Deposit id |
+| recipient | address | Address to receive deposit on crossbell chain |
+| token | address | Address of token to deposit |
+| amount | uint256 | Amount of token to deposit |
+
 ### Withdrew
 
 ```solidity
-event Withdrew(uint256 withdrawId, address recipient, address token, uint256 amount, uint256 fee)
+event Withdrew(uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee)
 ```
 
 _Emitted when the assets are withdrawn on mainchain_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| withdrawalId | uint256 | Withdrawal ID from crossbell chain |
+| recipient | address | Address to receive withdrawal on mainchain chain |
+| token | address | Address of token to withdraw |
+| amount | uint256 | Amount of token to withdraw |
+| fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
 
 ### LockedThresholdsUpdated
 

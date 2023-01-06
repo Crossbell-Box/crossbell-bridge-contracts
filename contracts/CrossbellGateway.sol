@@ -186,7 +186,8 @@ contract CrossbellGateway is
             withdrawalId,
             entry.recipient,
             entry.token,
-            entry.amount
+            entry.amount,
+            entry.fee
         );
     }
 

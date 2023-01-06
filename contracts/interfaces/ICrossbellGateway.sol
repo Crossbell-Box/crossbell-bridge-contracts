@@ -4,49 +4,84 @@ pragma solidity 0.8.10;
 import "../libraries/DataTypes.sol";
 
 interface ICrossbellGateway {
-    /// @dev Emitted when the tokens are mapped
+    /**
+     * @dev Emitted when the tokens are mapped
+     * @param crossbellTokens Addresses of crossbell tokens.
+     * @param chainIds ChainIds of mainchain networks.
+     * @param mainchainTokens Addresses of mainchain tokens.
+     * @param mainchainTokenDecimals Decimals of mainchain tokens.
+     */
     event TokenMapped(
         address[] crossbellTokens,
         uint256[] chainIds,
         address[] mainchainTokens,
-        uint8[] crossbellTokensDecimals
+        uint8[] mainchainTokenDecimals
     );
 
-    /// @dev Emitted when the assets are deposited
+    /**
+     * @dev Emitted when the assets are deposited
+     * @param chainId ChainId of mainchain network.
+     * @param recipient The address of account to receive the deposit.
+     * @param token The address of token to deposit.
+     * @param amount The amount of token to deposit.
+     */
     event Deposited(
         uint256 indexed chainId,
         uint256 indexed depositId,
         address indexed recipient,
         address token,
-        uint256 amount // ERC-20 amount
+        uint256 amount
     );
 
-    /// @dev Emitted when the deposit is acknowledged by a validator
+    /**
+     * @dev Emitted when the deposit is acknowledged by a validator
+     * @param chainId The ChainId of mainchain network.
+     * @param depositId Deposit identifier id.
+     * @param recipient The address of account to receive the deposit.
+     * @param token The address of token to deposit.
+     * @param amount The amount of token to deposit.
+     */
     event AckDeposit(
         uint256 indexed chainId,
         uint256 indexed depositId,
         address indexed recipient,
         address token,
-        uint256 amount // ERC-20 amount
+        uint256 amount
     );
-
-    /// @dev Emitted when the withdrawal is requested
+    /**
+     * @dev  Emitted when the withdrawal is requested
+     * @param chainId The ChainId of mainchain network.
+     * @param withdrawId Withdrawal identifier id.
+     * @param recipient The address of account to receive the withdrawal.
+     * @param token The address of token to withdraw.
+     * @param amount The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature
+     * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
+     */
     event RequestWithdrawal(
         uint256 indexed chainId,
         uint256 indexed withdrawId,
         address indexed recipient,
         address token,
-        uint256 transformedAmount,
-        uint256 originalAmount
+        uint256 amount,
+        uint256 fee
     );
 
-    /// @dev Emitted when the withdrawal signatures is requested
+    /**
+     * @dev Emitted when the withdrawal signatures is requested.
+     * @param chainId The ChainId of mainchain network.
+     * @param withdrawId Withdrawal identifier id.
+     * @param recipient The address of account to receive the withdrawal.
+     * @param token The address of token to withdraw.
+     * @param amount The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature
+     * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
+     */
     event RequestWithdrawalSignatures(
         uint256 indexed chainId,
-        uint256 indexed withdrawalId,
-        address indexed owner,
+        uint256 indexed withdrawId,
+        address indexed recipient,
         address token,
-        uint256 amount
+        uint256 amount,
+        uint256 fee
     );
 
     /**

@@ -4,24 +4,42 @@ pragma solidity 0.8.10;
 import "../libraries/DataTypes.sol";
 
 interface IMainchainGateway {
-    /// @dev Emitted when the tokens are mapped
+    /**
+     * @dev Emitted when the tokens are mapped
+     * @param mainchainTokens Addresses of mainchain tokens.
+     * @param crossbellTokens Addresses of crossbell tokens.
+     * @param crossbellTokenDecimals Decimals of crossbell tokens.
+     */
     event TokenMapped(
         address[] mainchainTokens,
         address[] crossbellTokens,
-        uint8[] crossbellTokensDecimals
+        uint8[] crossbellTokenDecimals
     );
 
-    /// @dev Emitted when the deposit is requested
+    /**
+     * @dev Emitted when the deposit is requested
+     * @param depositId Deposit id
+     * @param recipient Address to receive deposit on crossbell chain
+     * @param token Address of token to deposit
+     * @param amount Amount of token to deposit
+     */
     event RequestDeposit(
         uint256 indexed depositId,
         address indexed recipient,
         address indexed token,
-        uint256 amount // ERC-20 amount
+        uint256 amount
     );
 
-    /// @dev Emitted when the assets are withdrawn on mainchain
+    /**
+     * @dev Emitted when the assets are withdrawn on mainchain
+     * @param withdrawalId Withdrawal ID from crossbell chain
+     * @param recipient Address to receive withdrawal on mainchain chain
+     * @param token Address of token to withdraw
+     * @param amount Amount of token to withdraw
+     * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`
+     */
     event Withdrew(
-        uint256 indexed withdrawId,
+        uint256 indexed withdrawalId,
         address indexed recipient,
         address indexed token,
         uint256 amount,

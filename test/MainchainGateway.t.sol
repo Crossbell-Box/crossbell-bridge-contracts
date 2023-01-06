@@ -111,7 +111,7 @@ contract MainchainGatewayTest is Test, Utils {
 
         // mint tokens
         mainchainToken.mint(alice, INITIAL_AMOUNT_MAINCHAIN);
-        crossbellToken.mint(alice, INITIAL_AMOUNT_MAINCHAIN);
+        crossbellToken.mint(alice, INITIAL_AMOUNT_CROSSBELL);
     }
 
     function testSetupState() public {
@@ -737,7 +737,7 @@ contract MainchainGatewayTest is Test, Utils {
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
         // withdrawal info
-        address recipient = eve;
+        address recipient = bob;
         address token = address(mainchainToken);
         uint256 amount = DAILY_WITHDRAWLAL_LIMIT / 20;
         uint256 fee = amount / 100;

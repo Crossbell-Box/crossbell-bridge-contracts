@@ -4,6 +4,7 @@ pragma solidity 0.8.10;
 import "forge-std/Test.sol";
 import "forge-std/console2.sol";
 import "./helpers/utils.sol";
+import "../contracts/libraries/DataTypes.sol";
 import "../contracts/CrossbellGateway.sol";
 import "../contracts/Validator.sol";
 import "../contracts/mocks/MintableERC20.sol";
@@ -16,14 +17,45 @@ contract CrossbellGatewayTest is Test, Utils {
         address[] crossbellTokens,
         uint256[] chainIds,
         address[] mainchainTokens,
-        uint8[] crossbellTokensDecimals
+        uint8[] mainchainTokenDecimals
     );
     event Paused(address account);
     event Unpaused(address account);
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event Transfer(address indexed from, address indexed to, uint256 value);
+    event Deposited(
+        uint256 indexed chainId,
+        uint256 indexed depositId,
+        address indexed recipient,
+        address token,
+        uint256 amount
+    );
+    event AckDeposit(
+        uint256 indexed chainId,
+        uint256 indexed depositId,
+        address indexed recipient,
+        address token,
+        uint256 amount
+    );
+    event RequestWithdrawal(
+        uint256 indexed chainId,
+        uint256 indexed withdrawId,
+        address indexed recipient,
+        address token,
+        uint256 amount,
+        uint256 fee
+    );
+    event RequestWithdrawalSignatures(
+        uint256 indexed chainId,
+        uint256 indexed withdrawId,
+        address indexed recipient,
+        address token,
+        uint256 amount,
+        uint256 fee
+    );
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     address internal alice = address(0x111);
     address internal bob = address(0x222);
@@ -85,7 +117,7 @@ contract CrossbellGatewayTest is Test, Utils {
 
         // mint tokens
         mainchainToken.mint(alice, INITIAL_AMOUNT_MAINCHAIN);
-        crossbellToken.mint(alice, INITIAL_AMOUNT_MAINCHAIN);
+        crossbellToken.mint(alice, INITIAL_AMOUNT_CROSSBELL);
     }
 
     function testSetupState() public {
@@ -261,5 +293,277 @@ contract CrossbellGatewayTest is Test, Utils {
             assertEq(token.token, address(0));
             assertEq(token.decimals, 0);
         }
+    }
+
+    function testAckDeposit() public {
+        // mint tokens to gateway contract
+        crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
+
+        uint256 chainId = 1337;
+        uint256 depositId = 1;
+        address recipient = bob;
+        address token = address(crossbellToken);
+        uint256 amount = 1 * 10 ** 18;
+        bytes32 hash = keccak256(abi.encodePacked(chainId, depositId, recipient, token, amount));
+
+        // validator1 acknowledges deposit (validator acknowledgement threshold 2/3)
+        // expect events
+        expectEmit(CheckAll);
+        emit AckDeposit(chainId, depositId, recipient, token, amount);
+        vm.prank(validator1);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        // check state
+        _checkAcknowledgementStatus(
+            chainId,
+            depositId,
+            [validator1, validator2, validator3],
+            [hash, bytes32(0), bytes32(0)],
+            DataTypes.Status.NotApproved,
+            1
+        );
+        // check balances
+        // deposit not approved, so bob's balance is 0
+        assertEq(crossbellToken.balanceOf(address(gateway)), INITIAL_AMOUNT_CROSSBELL);
+        assertEq(crossbellToken.balanceOf(address(recipient)), 0);
+
+        // validator2 acknowledges deposit
+        // expect events
+        expectEmit(CheckAll);
+        emit Transfer(address(gateway), recipient, amount);
+        expectEmit(CheckAll);
+        emit Deposited(chainId, depositId, recipient, token, amount);
+        expectEmit(CheckAll);
+        emit AckDeposit(chainId, depositId, recipient, token, amount);
+        vm.prank(validator2);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        // check state
+        _checkAcknowledgementStatus(
+            chainId,
+            depositId,
+            [validator1, validator2, validator3],
+            [hash, hash, bytes32(0)],
+            DataTypes.Status.FirstApproved,
+            2
+        );
+        // check balances
+        // deposit is approved, so bob's balance is `amount`
+        assertEq(crossbellToken.balanceOf(address(gateway)), INITIAL_AMOUNT_CROSSBELL - amount);
+        assertEq(crossbellToken.balanceOf(address(recipient)), amount);
+
+        // validator3 acknowledges deposit
+        // expect events
+        expectEmit(CheckAll);
+        emit AckDeposit(chainId, depositId, recipient, token, amount);
+        vm.prank(validator3);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        // check state
+        _checkAcknowledgementStatus(
+            chainId,
+            depositId,
+            [validator1, validator2, validator3],
+            [hash, hash, hash],
+            DataTypes.Status.AlreadyApproved,
+            3
+        );
+        // check deposit entry
+        DataTypes.DepositEntry memory entry = gateway.getDepositEntry(chainId, depositId);
+        assertEq(entry.chainId, chainId);
+        assertEq(entry.recipient, recipient);
+        assertEq(entry.token, token);
+        assertEq(entry.amount, amount);
+        // check balances
+        // deposit is AlreadyApproved, so bob's balance will not change
+        assertEq(crossbellToken.balanceOf(address(gateway)), INITIAL_AMOUNT_CROSSBELL - amount);
+        assertEq(crossbellToken.balanceOf(address(recipient)), amount);
+    }
+
+    function testAckDepositWithMint() public {
+        // grant MINTER_ROLE to gateway
+        crossbellToken.grantRole(MINTER_ROLE, address(gateway));
+
+        uint256 chainId = 1337;
+        uint256 depositId = 1;
+        address recipient = bob;
+        address token = address(crossbellToken);
+        uint256 amount = 1 * 10 ** 18;
+        bytes32 hash = keccak256(abi.encodePacked(chainId, depositId, recipient, token, amount));
+
+        // validator1 acknowledges deposit (validator acknowledgement threshold 2/3)
+        vm.prank(validator1);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        // check state
+        _checkAcknowledgementStatus(
+            chainId,
+            depositId,
+            [validator1, validator2, validator3],
+            [hash, bytes32(0), bytes32(0)],
+            DataTypes.Status.NotApproved,
+            1
+        );
+        // check balances
+        // deposit not approved, so bob's balance is 0
+        assertEq(crossbellToken.balanceOf(address(gateway)), 0);
+        assertEq(crossbellToken.balanceOf(address(recipient)), 0);
+
+        // validator2 acknowledges deposit
+        // expect events
+        expectEmit(CheckAll);
+        emit Transfer(address(0), address(gateway), amount); // mint tokens to gateway
+        expectEmit(CheckAll);
+        emit Transfer(address(gateway), recipient, amount); // transfer tokens from gateway to recipient
+        expectEmit(CheckAll);
+        emit Deposited(chainId, depositId, recipient, token, amount);
+        expectEmit(CheckAll);
+        emit AckDeposit(chainId, depositId, recipient, token, amount);
+        vm.prank(validator2);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        // check state
+        _checkAcknowledgementStatus(
+            chainId,
+            depositId,
+            [validator1, validator2, validator3],
+            [hash, hash, bytes32(0)],
+            DataTypes.Status.FirstApproved,
+            2
+        );
+        // check balances
+        // deposit is approved, so bob's balance is `amount`
+        assertEq(crossbellToken.balanceOf(address(gateway)), 0);
+        assertEq(crossbellToken.balanceOf(address(recipient)), amount);
+    }
+
+    function testAckDepositFail() public {
+        // mint tokens to gateway contract
+        crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
+
+        uint256 chainId = 1337;
+        uint256 depositId = 1;
+        address recipient = bob;
+        address token = address(crossbellToken);
+        uint256 amount = 1 * 10 ** 18;
+
+        // case 1: call is not validator
+        vm.expectRevert(abi.encodePacked("NotValidator"));
+        vm.prank(eve);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+
+        // case 2: paused
+        vm.prank(admin);
+        gateway.pause();
+        // validator ackDeposit
+        for (uint256 i = 0; i < 3; i++) {
+            vm.expectRevert(abi.encodePacked("Pausable: paused"));
+            vm.prank([validator1, validator2, validator3][i]);
+            gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        }
+
+        // check state
+        _checkAcknowledgementStatus(
+            chainId,
+            depositId,
+            [validator1, validator2, validator3],
+            [bytes32(0), bytes32(0), bytes32(0)],
+            DataTypes.Status.NotApproved,
+            0
+        );
+        // check balances
+        // deposit not approved, so bob's balance is 0
+        assertEq(crossbellToken.balanceOf(address(gateway)), INITIAL_AMOUNT_CROSSBELL);
+        assertEq(crossbellToken.balanceOf(address(recipient)), 0);
+    }
+
+    // case 3: validator already acknowledged
+    function testAckDepositFail2() public {
+        // mint tokens to gateway contract
+        crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
+
+        uint256 chainId = 1337;
+        uint256 depositId = 1;
+        address recipient = bob;
+        address token = address(crossbellToken);
+        uint256 amount = 1 * 10 ** 18;
+        bytes32 hash = keccak256(abi.encodePacked(chainId, depositId, recipient, token, amount));
+
+        // case 3: validator already acknowledged
+        vm.prank(validator1);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        vm.expectRevert(abi.encodePacked("AlreadyAcknowledged"));
+        vm.prank(validator1);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+
+        // check state
+        _checkAcknowledgementStatus(
+            chainId,
+            depositId,
+            [validator1, validator2, validator3],
+            [hash, bytes32(0), bytes32(0)],
+            DataTypes.Status.NotApproved,
+            1
+        );
+        // check balances
+        // deposit not approved, so bob's balance is 0
+        assertEq(
+            crossbellToken.balanceOf(address(gateway)),
+            INITIAL_AMOUNT_CROSSBELL,
+            "gateway balance"
+        );
+        assertEq(crossbellToken.balanceOf(address(recipient)), 0, "recipient balance ");
+    }
+
+    function testBatchAckDeposit() public {}
+
+    function testBatchAckDepositFail() public {}
+
+    function testRequestWithdrawal() public {}
+
+    function testRequestWithdrawalFail() public {}
+
+    function testRequestWithdrawalSignatures() public {}
+
+    function testRequestWithdrawalSignaturesFail() public {}
+
+    function testSubmitWithdrawalSignatures() public {}
+
+    function testSubmitWithdrawalSignaturesFail() public {}
+
+    function testBatchSubmitWithdrawalSignatures() public {}
+
+    function testBatchSubmitWithdrawalSignaturesFail() public {}
+
+    function _checkAcknowledgementStatus(
+        uint256 chainId,
+        uint256 depositId,
+        address[3] memory validators,
+        bytes32[3] memory acknowledgementHashes,
+        DataTypes.Status status,
+        uint256 ackCount
+    ) internal {
+        // check acknowledgementHash
+        assertEq(
+            gateway.getValidatorAcknowledgementHash(chainId, depositId, validators[0]),
+            acknowledgementHashes[0]
+        );
+        assertEq(
+            gateway.getValidatorAcknowledgementHash(chainId, depositId, validators[1]),
+            acknowledgementHashes[1]
+        );
+        assertEq(
+            gateway.getValidatorAcknowledgementHash(chainId, depositId, validators[2]),
+            acknowledgementHashes[2]
+        );
+
+        // check acknowledgementStatus
+        assertEq(
+            uint256(gateway.getAcknowledgementStatus(chainId, depositId, acknowledgementHashes[0])),
+            uint256(status),
+            "ackStatus"
+        );
+
+        // check acknowledgementCount
+        assertEq(
+            gateway.getAcknowledgementCount(chainId, depositId, acknowledgementHashes[0]),
+            ackCount,
+            "ackCount"
+        );
     }
 }

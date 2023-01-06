@@ -21,6 +21,7 @@ interface ICrossbellGateway {
     /**
      * @dev Emitted when the assets are deposited
      * @param chainId ChainId of mainchain network.
+     * @param depositId Deposit identifier id.
      * @param recipient The address of account to receive the deposit.
      * @param token The address of token to deposit.
      * @param amount The amount of token to deposit.
@@ -152,6 +153,7 @@ interface ICrossbellGateway {
      * @notice Acknowledges a deposit.
      * Note that the caller must be a validator.
      * @param chainId ChainId of mainchain network
+     * @param depositId Deposit identifier id.
      * @param recipient Address to receive deposit on crossbell network
      * @param token Token address to deposit on crossbell network
      * @param amount Token amount to deposit on crossbell network
@@ -216,11 +218,11 @@ interface ICrossbellGateway {
     ) external view returns (DataTypes.MappedToken memory token);
 
     /**
-     * @notice Returns the acknowledge withdrawalHash of withdrawal by validator.
+     * @notice Returns the acknowledge depositHash by validator.
      * @param chainId ChainId of mainchain
-     * @param id WithdrawalId
+     * @param id DepositId
      * @param validator Validator address
-     * @return bytes32 WithdrawalHash if validator has acknowledged, otherwise 0
+     * @return bytes32 depositHash if validator has acknowledged, otherwise 0
      */
     function getValidatorAcknowledgementHash(
         uint256 chainId,
@@ -229,10 +231,10 @@ interface ICrossbellGateway {
     ) external view returns (bytes32);
 
     /**
-     * @notice Returns the acknowledge status of withdrawal by validators.
+     * @notice Returns the acknowledge status of deposit by validators.
      * @param chainId ChainId of mainchain
-     * @param id WithdrawalId
-     * @param hash WithdrawalHash
+     * @param id DepositId
+     * @param hash depositHash
      * @return DataTypes.Status Acknowledgement status
      */
     function getAcknowledgementStatus(
@@ -242,10 +244,10 @@ interface ICrossbellGateway {
     ) external view returns (DataTypes.Status);
 
     /**
-     * @notice Returns the acknowledge count of withdrawal by validators.
+     * @notice Returns the acknowledge count of deposit by validators.
      * @param chainId ChainId of mainchain
-     * @param id WithdrawalId
-     * @param hash WithdrawalHash
+     * @param id DepositId
+     * @param hash depositHash
      * @return uint256 Acknowledgement count
      */
     function getAcknowledgementCount(

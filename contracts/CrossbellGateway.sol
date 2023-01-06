@@ -289,7 +289,7 @@ contract CrossbellGateway is
         address token,
         uint256 amount
     ) internal {
-        bytes32 hash = keccak256(abi.encodePacked(recipient, chainId, depositId, token, amount));
+        bytes32 hash = keccak256(abi.encodePacked(chainId, depositId, recipient, token, amount));
 
         DataTypes.Status status = _acknowledge(chainId, depositId, hash, msg.sender);
         if (status == DataTypes.Status.FirstApproved) {

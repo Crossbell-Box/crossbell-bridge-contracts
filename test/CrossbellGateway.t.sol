@@ -866,13 +866,104 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(address(gateway)), 0);
     }
 
-    function testRequestWithdrawalSignatures() public {}
+    function testRequestWithdrawalSignatures() public {
+        uint256 chainId = 1;
+        uint256 withdrawalId = 0;
+        address recipient = alice;
+        address token = address(crossbellToken);
+        uint256 amount = INITIAL_AMOUNT_CROSSBELL / 100; // amount > balanceOf(alice)
+        uint256 fee = amount / 100;
 
-    function testRequestWithdrawalSignaturesFail() public {}
+        // transformed amount
+        uint256 transformedAmount = amount / (10 ** 12);
+        uint256 feeAmount = fee / (10 ** 12);
+        DataTypes.MappedToken memory mapppedToken = gateway.getMainchainToken(chainId, token);
 
-    function testSubmitWithdrawalSignatures() public {}
+        // approve token
+        vm.startPrank(recipient);
+        crossbellToken.approve(address(gateway), amount);
+        // request withdrawal
+        gateway.requestWithdrawal(chainId, recipient, token, amount, fee);
+        // request withdrawal signatures
+        // expect events
+        expectEmit(CheckAll);
+        emit RequestWithdrawalSignatures(
+            chainId,
+            withdrawalId,
+            recipient,
+            mapppedToken.token,
+            transformedAmount,
+            feeAmount
+        );
+        gateway.requestWithdrawalSignatures(chainId, withdrawalId);
+        vm.stopPrank();
+    }
 
-    function testSubmitWithdrawalSignaturesFail() public {}
+    function testRequestWithdrawalSignaturesFail() public {
+        uint256 chainId = 1;
+        uint256 withdrawalId = 1;
+
+        // case 1: NotEntryOwner
+        vm.expectRevert(abi.encodePacked("NotEntryOwner"));
+        vm.prank(alice);
+        gateway.requestWithdrawalSignatures(chainId, withdrawalId);
+
+        // case 2: gateway has been paused
+        vm.prank(admin);
+        gateway.pause();
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        vm.prank(alice);
+        gateway.requestWithdrawalSignatures(chainId, withdrawalId);
+    }
+
+    function testSubmitWithdrawalSignatures() public {
+        uint256 chainId = 1;
+        uint256 withdrawalId = 1;
+
+        // submit withdrawal signatures
+        vm.prank(validator1);
+        gateway.submitWithdrawalSignatures(chainId, withdrawalId, false, bytes("signature1"));
+        vm.prank(validator2);
+        gateway.submitWithdrawalSignatures(chainId, withdrawalId, false, bytes("signature2"));
+        vm.prank(validator3);
+        gateway.submitWithdrawalSignatures(chainId, withdrawalId, false, bytes("signature3"));
+
+        // check state
+        (address[] memory signers, bytes[] memory sigs) = gateway.getWithdrawalSignatures(
+            chainId,
+            withdrawalId
+        );
+        assertEq(signers, array(validator1, validator2, validator3));
+        assertEq(sigs[0], bytes("signature1"));
+        assertEq(sigs[1], bytes("signature2"));
+        assertEq(sigs[2], bytes("signature3"));
+
+        // validator3 replaces signature
+        vm.prank(validator3);
+        gateway.submitWithdrawalSignatures(chainId, withdrawalId, true, bytes("signature333"));
+        (signers, sigs) = gateway.getWithdrawalSignatures(chainId, withdrawalId);
+        assertEq(signers, array(validator1, validator2, validator3));
+        assertEq(sigs[0], bytes("signature1"));
+        assertEq(sigs[1], bytes("signature2"));
+        assertEq(sigs[2], bytes("signature333"));
+    }
+
+    function testSubmitWithdrawalSignaturesFail() public {
+        uint256 chainId = 1;
+        uint256 withdrawalId = 1;
+
+        // case 1: caller is not validator
+        vm.expectRevert(abi.encodePacked("NotValidator"));
+        vm.prank(eve);
+        gateway.submitWithdrawalSignatures(chainId, withdrawalId, false, bytes("signature1"));
+
+        // case 2: paused
+        vm.prank(admin);
+        gateway.pause();
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        vm.prank(validator1);
+        gateway.submitWithdrawalSignatures(chainId, withdrawalId, false, bytes("signature1"));
+    }
 
     function testBatchSubmitWithdrawalSignatures() public {}
 

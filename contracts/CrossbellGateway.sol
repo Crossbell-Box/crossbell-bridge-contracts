@@ -186,7 +186,6 @@ contract CrossbellGateway is
         uint256 withdrawalId
     ) external whenNotPaused {
         DataTypes.WithdrawalEntry memory entry = _withdrawals[chainId][withdrawalId];
-
         require(entry.recipient == msg.sender, "NotEntryOwner");
 
         emit RequestWithdrawalSignatures(

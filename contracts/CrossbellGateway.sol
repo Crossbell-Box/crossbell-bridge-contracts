@@ -92,6 +92,7 @@ contract CrossbellGateway is
         require(
             depositIds.length == chainIds.length &&
                 depositIds.length == recipients.length &&
+                depositIds.length == tokens.length &&
                 depositIds.length == amounts.length,
             "InvalidArrayLength"
         );
@@ -164,12 +165,19 @@ contract CrossbellGateway is
         _withdrawals[chainId][withdrawId] = DataTypes.WithdrawalEntry(
             chainId,
             recipient,
-            token,
+            mainchainToken.token,
             transformedAmount,
             feeAmount
         );
 
-        emit RequestWithdrawal(chainId, withdrawId, recipient, token, transformedAmount, feeAmount);
+        emit RequestWithdrawal(
+            chainId,
+            withdrawId,
+            recipient,
+            mainchainToken.token,
+            transformedAmount,
+            feeAmount
+        );
     }
 
     /// @inheritdoc ICrossbellGateway

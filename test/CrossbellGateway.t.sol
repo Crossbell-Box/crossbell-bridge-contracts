@@ -432,10 +432,7 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(address(recipient)), amount);
     }
 
-    function testAckDepositFail() public {
-        // mint tokens to gateway contract
-        crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
-
+    function testAckDepositFailCase1() public {
         uint256 chainId = 1337;
         uint256 depositId = 1;
         address recipient = bob;
@@ -446,6 +443,28 @@ contract CrossbellGatewayTest is Test, Utils {
         vm.expectRevert(abi.encodePacked("NotValidator"));
         vm.prank(eve);
         gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+
+        // check state
+        _checkAcknowledgementStatus(
+            chainId,
+            depositId,
+            [validator1, validator2, validator3],
+            [bytes32(0), bytes32(0), bytes32(0)],
+            DataTypes.Status.NotApproved,
+            0
+        );
+        // check balances
+        // deposit not approved, so bob's balance is 0
+        assertEq(crossbellToken.balanceOf(address(gateway)), 0);
+        assertEq(crossbellToken.balanceOf(address(recipient)), 0);
+    }
+
+    function testAckDepositFailCase2() public {
+        uint256 chainId = 1337;
+        uint256 depositId = 1;
+        address recipient = bob;
+        address token = address(crossbellToken);
+        uint256 amount = 1 * 10 ** 18;
 
         // case 2: paused
         vm.prank(admin);
@@ -468,12 +487,12 @@ contract CrossbellGatewayTest is Test, Utils {
         );
         // check balances
         // deposit not approved, so bob's balance is 0
-        assertEq(crossbellToken.balanceOf(address(gateway)), INITIAL_AMOUNT_CROSSBELL);
+        assertEq(crossbellToken.balanceOf(address(gateway)), 0);
         assertEq(crossbellToken.balanceOf(address(recipient)), 0);
     }
 
     // case 3: validator already acknowledged
-    function testAckDepositFail2() public {
+    function testAckDepositFailCase3() public {
         // mint tokens to gateway contract
         crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
 
@@ -510,13 +529,342 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(address(recipient)), 0, "recipient balance ");
     }
 
-    function testBatchAckDeposit() public {}
+    function testBatchAckDepositx() public {
+        // mint tokens to gateway contract
+        crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
 
-    function testBatchAckDepositFail() public {}
+        address token = address(crossbellToken);
+        uint256 amount = 1 * 10 ** 18;
+        bytes32 hashBob = keccak256(abi.encodePacked(uint256(1), uint256(1), bob, token, amount));
+        bytes32 hashCarol = keccak256(
+            abi.encodePacked(uint256(1337), uint256(2), carol, token, amount)
+        );
 
-    function testRequestWithdrawal() public {}
+        // validator1 acknowledges deposit (validator acknowledgement threshold 2/3)
+        // expect events
+        expectEmit(CheckAll);
+        emit AckDeposit(1, 1, bob, token, amount);
+        expectEmit(CheckAll);
+        emit AckDeposit(1337, 2, carol, token, amount);
+        vm.prank(validator1);
+        gateway.batchAckDeposit(
+            array(1, 1337),
+            array(1, 2),
+            array(bob, carol),
+            array(token, token),
+            array(amount, amount)
+        );
+        // check state
+        _checkAcknowledgementStatus(
+            1,
+            1,
+            [validator1, validator2, validator3],
+            [hashBob, bytes32(0), bytes32(0)],
+            DataTypes.Status.NotApproved,
+            1
+        );
+        _checkAcknowledgementStatus(
+            1337,
+            2,
+            [validator1, validator2, validator3],
+            [hashCarol, bytes32(0), bytes32(0)],
+            DataTypes.Status.NotApproved,
+            1
+        );
+        // check balances
+        // deposit not approved
+        assertEq(crossbellToken.balanceOf(address(gateway)), INITIAL_AMOUNT_CROSSBELL);
+        assertEq(crossbellToken.balanceOf(address(bob)), 0);
+        assertEq(crossbellToken.balanceOf(address(carol)), 0);
 
-    function testRequestWithdrawalFail() public {}
+        // validator2 acknowledges deposit
+        vm.prank(validator2);
+        gateway.batchAckDeposit(
+            array(1, 1337),
+            array(1, 2),
+            array(bob, carol),
+            array(token, token),
+            array(amount, amount)
+        );
+        // check state
+        _checkAcknowledgementStatus(
+            1,
+            1,
+            [validator1, validator2, validator3],
+            [hashBob, hashBob, bytes32(0)],
+            DataTypes.Status.FirstApproved,
+            2
+        );
+        _checkAcknowledgementStatus(
+            1337,
+            2,
+            [validator1, validator2, validator3],
+            [hashCarol, hashCarol, bytes32(0)],
+            DataTypes.Status.FirstApproved,
+            2
+        );
+        // check balances
+        // deposit is approved
+        assertEq(
+            crossbellToken.balanceOf(address(gateway)),
+            INITIAL_AMOUNT_CROSSBELL - amount - amount
+        );
+        assertEq(crossbellToken.balanceOf(address(bob)), amount);
+        assertEq(crossbellToken.balanceOf(address(carol)), amount);
+
+        // validator3 acknowledges deposit
+        // expect events
+        expectEmit(CheckAll);
+        emit AckDeposit(1, 1, bob, token, amount);
+        expectEmit(CheckAll);
+        emit AckDeposit(1337, 2, carol, token, amount);
+        vm.prank(validator3);
+        gateway.batchAckDeposit(
+            array(1, 1337),
+            array(1, 2),
+            array(bob, carol),
+            array(token, token),
+            array(amount, amount)
+        );
+        // check state
+        _checkAcknowledgementStatus(
+            1,
+            1,
+            [validator1, validator2, validator3],
+            [hashBob, hashBob, hashBob],
+            DataTypes.Status.AlreadyApproved,
+            3
+        );
+        _checkAcknowledgementStatus(
+            1337,
+            2,
+            [validator1, validator2, validator3],
+            [hashCarol, hashCarol, hashCarol],
+            DataTypes.Status.AlreadyApproved,
+            3
+        );
+        // check balances
+        // deposit is already approved
+        assertEq(
+            crossbellToken.balanceOf(address(gateway)),
+            INITIAL_AMOUNT_CROSSBELL - amount - amount
+        );
+        assertEq(crossbellToken.balanceOf(address(bob)), amount);
+        assertEq(crossbellToken.balanceOf(address(carol)), amount);
+
+        // check deposit entry
+        // check deposit entry for bob
+        DataTypes.DepositEntry memory entry = gateway.getDepositEntry(1, 1);
+        assertEq(entry.chainId, 1);
+        assertEq(entry.recipient, bob);
+        assertEq(entry.token, token);
+        assertEq(entry.amount, amount);
+        // check deposit entry for carol
+        entry = gateway.getDepositEntry(1337, 2);
+        assertEq(entry.chainId, 1337);
+        assertEq(entry.recipient, carol);
+        assertEq(entry.token, token);
+        assertEq(entry.amount, amount);
+    }
+
+    function testBatchAckDepositFail() public {
+        address token = address(crossbellToken);
+        uint256 amount = 1 * 10 ** 18;
+
+        // case 1: InvalidArrayLength
+        vm.expectRevert(abi.encodePacked("InvalidArrayLength"));
+        vm.prank(validator1);
+        gateway.batchAckDeposit(
+            array(1, 1337),
+            array(1, 2),
+            array(bob, carol),
+            array(token),
+            array(amount, amount)
+        );
+
+        // case 2: call is not validator
+        vm.expectRevert(abi.encodePacked("NotValidator"));
+        vm.prank(eve);
+        gateway.batchAckDeposit(
+            array(1, 1337),
+            array(1, 2),
+            array(bob, carol),
+            array(token),
+            array(amount, amount)
+        );
+
+        // case 3: paused
+        vm.prank(admin);
+        gateway.pause();
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        vm.prank(eve);
+        gateway.batchAckDeposit(
+            array(1, 1337),
+            array(1, 2),
+            array(bob, carol),
+            array(token),
+            array(amount, amount)
+        );
+
+        // check balances
+        assertEq(crossbellToken.balanceOf(eve), 0);
+    }
+
+    function testRequestWithdrawal() public {
+        uint256 chainId = 1;
+        uint256 withdrawalId = 0;
+        address recipient = alice;
+        address token = address(crossbellToken);
+        uint256 amount = INITIAL_AMOUNT_CROSSBELL / 100;
+        uint256 fee = amount / 100;
+
+        // transformed amount
+        uint256 transformedAmount = amount / (10 ** 12);
+        uint256 feeAmount = fee / (10 ** 12);
+        DataTypes.MappedToken memory mapppedToken = gateway.getMainchainToken(chainId, token);
+
+        // approve token
+        vm.startPrank(recipient);
+        crossbellToken.approve(address(gateway), amount);
+        // request withdrawal
+        // expect event
+        expectEmit(CheckAll);
+        emit Transfer(recipient, address(gateway), amount);
+        expectEmit(CheckAll);
+        emit RequestWithdrawal(
+            chainId,
+            withdrawalId,
+            recipient,
+            mapppedToken.token,
+            transformedAmount,
+            feeAmount
+        );
+        gateway.requestWithdrawal(chainId, recipient, token, amount, fee);
+        vm.stopPrank();
+
+        // check state
+        assertEq(gateway.getWithdrawalCount(chainId), 1);
+        // check withdrawal entry
+        DataTypes.WithdrawalEntry memory entry = gateway.getWithdrawalEntry(chainId, withdrawalId);
+        assertEq(entry.chainId, chainId);
+        assertEq(entry.recipient, recipient);
+        assertEq(entry.token, mapppedToken.token);
+        assertEq(entry.amount, transformedAmount);
+        assertEq(entry.fee, feeAmount);
+        // check balances
+        assertEq(crossbellToken.balanceOf(alice), INITIAL_AMOUNT_CROSSBELL - amount);
+        assertEq(crossbellToken.balanceOf(address(gateway)), amount);
+    }
+
+    // case 1: paused
+    function testRequestWithdrawalFailCase1() public {
+        uint256 chainId = 1;
+        address recipient = alice;
+        address token = address(crossbellToken);
+        uint256 amount = INITIAL_AMOUNT_CROSSBELL / 100;
+        uint256 fee = amount / 100;
+
+        // case 1: paused
+        vm.prank(admin);
+        gateway.pause();
+        // request withdrawal
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        gateway.requestWithdrawal(chainId, recipient, token, amount, fee);
+        vm.stopPrank();
+
+        // check state
+        assertEq(gateway.getWithdrawalCount(chainId), 0);
+        // check balances
+        assertEq(crossbellToken.balanceOf(alice), INITIAL_AMOUNT_CROSSBELL);
+        assertEq(crossbellToken.balanceOf(address(gateway)), 0);
+    }
+
+    // case 2: ZeroAmount
+    function testRequestWithdrawalFailCase2() public {
+        uint256 chainId = 1;
+        address recipient = alice;
+        address token = address(crossbellToken);
+        uint256 amount = 0;
+        uint256 fee = amount / 100;
+
+        // case 2: ZeroAmount
+        // request withdrawal
+        vm.expectRevert(abi.encodePacked("ZeroAmount"));
+        gateway.requestWithdrawal(chainId, recipient, token, amount, fee);
+        vm.stopPrank();
+
+        // check state
+        assertEq(gateway.getWithdrawalCount(chainId), 0);
+        // check balances
+        assertEq(crossbellToken.balanceOf(alice), INITIAL_AMOUNT_CROSSBELL);
+        assertEq(crossbellToken.balanceOf(address(gateway)), 0);
+    }
+
+    // case 3: FeeExceedAmount
+    function testRequestWithdrawalFailCase3() public {
+        uint256 chainId = 1;
+        address recipient = alice;
+        address token = address(crossbellToken);
+        uint256 amount = INITIAL_AMOUNT_CROSSBELL / 100;
+        uint256 fee = amount + 1;
+
+        // case 2: FeeExceedAmount
+        // request withdrawal
+        vm.expectRevert(abi.encodePacked("FeeExceedAmount"));
+        gateway.requestWithdrawal(chainId, recipient, token, amount, fee);
+        vm.stopPrank();
+
+        // check state
+        assertEq(gateway.getWithdrawalCount(chainId), 0);
+        // check balances
+        assertEq(crossbellToken.balanceOf(alice), INITIAL_AMOUNT_CROSSBELL);
+        assertEq(crossbellToken.balanceOf(address(gateway)), 0);
+    }
+
+    // case 4: UnsupportedToken
+    function testRequestWithdrawalFailCase4() public {
+        uint256 chainId = 1;
+        address recipient = alice;
+        address token = address(0x000001);
+        uint256 amount = INITIAL_AMOUNT_CROSSBELL / 100;
+        uint256 fee = amount / 100;
+
+        // case 4: UnsupportedToken
+        // request withdrawal
+        vm.expectRevert(abi.encodePacked("UnsupportedToken"));
+        gateway.requestWithdrawal(chainId, recipient, token, amount, fee);
+        vm.stopPrank();
+
+        // check state
+        assertEq(gateway.getWithdrawalCount(chainId), 0);
+        // check balances
+        assertEq(crossbellToken.balanceOf(alice), INITIAL_AMOUNT_CROSSBELL);
+        assertEq(crossbellToken.balanceOf(address(gateway)), 0);
+    }
+
+    // case 5: balance insufficient
+    function testRequestWithdrawalFailCase5() public {
+        uint256 chainId = 1;
+        address recipient = alice;
+        address token = address(crossbellToken);
+        uint256 amount = INITIAL_AMOUNT_CROSSBELL + 1; // amount > balanceOf(alice)
+        uint256 fee = amount / 100;
+
+        // case 5: balance insufficient
+        // approve token
+        vm.startPrank(recipient);
+        crossbellToken.approve(address(gateway), amount);
+        // request withdrawal
+        vm.expectRevert(abi.encodePacked("ERC20: transfer amount exceeds balance"));
+        gateway.requestWithdrawal(chainId, recipient, token, amount, fee);
+        vm.stopPrank();
+
+        // check state
+        assertEq(gateway.getWithdrawalCount(chainId), 0);
+        // check balances
+        assertEq(crossbellToken.balanceOf(alice), INITIAL_AMOUNT_CROSSBELL);
+        assertEq(crossbellToken.balanceOf(address(gateway)), 0);
+    }
 
     function testRequestWithdrawalSignatures() public {}
 
@@ -541,15 +889,18 @@ contract CrossbellGatewayTest is Test, Utils {
         // check acknowledgementHash
         assertEq(
             gateway.getValidatorAcknowledgementHash(chainId, depositId, validators[0]),
-            acknowledgementHashes[0]
+            acknowledgementHashes[0],
+            "validator1Hash"
         );
         assertEq(
             gateway.getValidatorAcknowledgementHash(chainId, depositId, validators[1]),
-            acknowledgementHashes[1]
+            acknowledgementHashes[1],
+            "validator2Hash"
         );
         assertEq(
             gateway.getValidatorAcknowledgementHash(chainId, depositId, validators[2]),
-            acknowledgementHashes[2]
+            acknowledgementHashes[2],
+            "validator3Hash"
         );
 
         // check acknowledgementStatus

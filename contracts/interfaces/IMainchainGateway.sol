@@ -87,11 +87,15 @@ interface IMainchainGateway {
 
     /**
      * @notice Pause interaction with the gateway contract
+     * Requirements:
+     * - The caller must have the ADMIN_ROLE.
      */
     function pause() external;
 
     /**
      * @notice Resume interaction with the gateway contract
+     * Requirements:
+     * - The caller must have the ADMIN_ROLE.
      */
     function unpause() external;
 
@@ -100,6 +104,8 @@ interface IMainchainGateway {
      * @param mainchainTokens Addresses of mainchain tokens.
      * @param crossbellTokens Addresses of crossbell tokens.
      * @param crossbellTokenDecimals Decimals of crossbell tokens.
+     * Requirements:
+     * - The caller must have the ADMIN_ROLE.
      */
     function mapTokens(
         address[] calldata mainchainTokens,
@@ -142,13 +148,14 @@ interface IMainchainGateway {
 
     /**
      * @notice Approves a specific withdrawal..
-     * Note that the caller must have WITHDRAWAL_UNLOCKER_ROLE.
      * @param chainId ChainId
      * @param withdrawalId Withdrawal ID from crossbell chain
      * @param recipient Address to receive withdrawal on mainchain chain
      * @param token Address of token to withdraw
      * @param amount Amount of token to withdraw
      * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`
+     * Requirements:
+     * - The caller must have the WITHDRAWAL_UNLOCKER_ROLE.
      */
     function unlockWithdrawal(
         uint256 chainId,
@@ -163,6 +170,9 @@ interface IMainchainGateway {
      * @notice Sets the amount thresholds to lock withdrawal.
      * @param tokens Addresses of token to set
      * @param thresholds Thresholds corresponding to the tokens to set
+     * Requirements:
+     * - The caller must have the ADMIN_ROLE.
+     * - The arrays have the same length.
      */
     function setLockedThresholds(address[] calldata tokens, uint256[] calldata thresholds) external;
 
@@ -171,7 +181,7 @@ interface IMainchainGateway {
      * @param tokens Addresses of token to set
      * @param limits Limits corresponding to the tokens to set
      * Requirements:
-     * - The caller must have the admin role.
+     * - The caller must have the ADMIN_ROLE.
      * - The arrays have the same length.
      * Emits the `DailyWithdrawalLimitsUpdated` event.
      */

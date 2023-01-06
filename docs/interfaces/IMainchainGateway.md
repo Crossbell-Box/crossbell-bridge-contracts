@@ -120,7 +120,7 @@ Note that the thresholds contains:
 function pause() external
 ```
 
-Pause interaction with the gateway contract
+Pause interaction with the gateway contract.
 Requirements:
 - The caller must have the ADMIN_ROLE.
 
@@ -130,7 +130,7 @@ Requirements:
 function unpause() external
 ```
 
-Resume interaction with the gateway contract
+Resume interaction with the gateway contract.
 Requirements:
 - The caller must have the ADMIN_ROLE.
 
@@ -141,6 +141,8 @@ function mapTokens(address[] mainchainTokens, address[] crossbellTokens, uint8[]
 ```
 
 Maps Crossbell tokens to mainchain.
+Requirements:
+- The caller must have the ADMIN_ROLE.
 
 #### Parameters
 
@@ -148,7 +150,7 @@ Maps Crossbell tokens to mainchain.
 | ---- | ---- | ----------- |
 | mainchainTokens | address[] | Addresses of mainchain tokens. |
 | crossbellTokens | address[] | Addresses of crossbell tokens. |
-| crossbellTokenDecimals | uint8[] | Decimals of crossbell tokens. Requirements: - The caller must have the ADMIN_ROLE. |
+| crossbellTokenDecimals | uint8[] | Decimals of crossbell tokens. |
 
 ### requestDeposit
 
@@ -179,6 +181,8 @@ function withdraw(uint256 chainId, uint256 withdrawalId, address recipient, addr
 ```
 
 Withdraw based on the validator signatures.
+Requirements:
+- The order of the signatures should be arranged in ascending order of the signer address.
 
 #### Parameters
 
@@ -198,7 +202,9 @@ Withdraw based on the validator signatures.
 function unlockWithdrawal(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee) external
 ```
 
-Approves a specific withdrawal..
+Approves a specific withdrawal.
+Requirements:
+- The caller must have the WITHDRAWAL_UNLOCKER_ROLE.
 
 #### Parameters
 
@@ -209,7 +215,7 @@ Approves a specific withdrawal..
 | recipient | address | Address to receive withdrawal on mainchain chain |
 | token | address | Address of token to withdraw |
 | amount | uint256 | Amount of token to withdraw |
-| fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` Requirements: - The caller must have the WITHDRAWAL_UNLOCKER_ROLE. |
+| fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
 
 ### setLockedThresholds
 
@@ -218,13 +224,16 @@ function setLockedThresholds(address[] tokens, uint256[] thresholds) external
 ```
 
 Sets the amount thresholds to lock withdrawal.
+Requirements:
+- The caller must have the ADMIN_ROLE.
+- The arrays have the same length.
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tokens | address[] | Addresses of token to set |
-| thresholds | uint256[] | Thresholds corresponding to the tokens to set Requirements: - The caller must have the ADMIN_ROLE. - The arrays have the same length. |
+| thresholds | uint256[] | Thresholds corresponding to the tokens to set |
 
 ### setDailyWithdrawalLimits
 
@@ -233,13 +242,17 @@ function setDailyWithdrawalLimits(address[] tokens, uint256[] limits) external
 ```
 
 Sets daily limit amounts for the withdrawals.
+Requirements:
+- The caller must have the ADMIN_ROLE.
+- The arrays have the same length.
+Emits the `DailyWithdrawalLimitsUpdated` event.
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tokens | address[] | Addresses of token to set |
-| limits | uint256[] | Limits corresponding to the tokens to set Requirements: - The caller must have the ADMIN_ROLE. - The arrays have the same length. Emits the `DailyWithdrawalLimitsUpdated` event. |
+| limits | uint256[] | Limits corresponding to the tokens to set |
 
 ### verifySignatures
 

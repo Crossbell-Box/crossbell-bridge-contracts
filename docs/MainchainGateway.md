@@ -94,8 +94,8 @@ Request deposit to crossbell chain.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | recipient | address | Address to receive deposit on crossbell chain |
-| token | address | Address of token to deposit |
-| amount | uint256 | Amount of token to deposit |
+| token | address | Address of token to deposit from mainchain network |
+| amount | uint256 | Amount of token to deposit  from mainchain network |
 
 #### Return Values
 

@@ -31,9 +31,9 @@ _Emitted when the deposit is requested_
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | depositId | uint256 | Deposit id |
-| recipient | address | Address to receive deposit on crossbell chain |
-| token | address | Address of token to deposit |
-| amount | uint256 | Amount of token to deposit |
+| recipient | address | Address to receive deposit on crossbell network |
+| token | address | Address of token to deposit on crossbell network |
+| amount | uint256 | Amount of token to deposit on crossbell network |
 
 ### Withdrew
 
@@ -163,8 +163,8 @@ Request deposit to crossbell chain.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | recipient | address | Address to receive deposit on crossbell chain |
-| token | address | Address of token to deposit |
-| amount | uint256 | Amount of token to deposit |
+| token | address | Address of token to deposit from mainchain network |
+| amount | uint256 | Amount of token to deposit  from mainchain network |
 
 #### Return Values
 

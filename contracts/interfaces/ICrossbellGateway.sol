@@ -54,7 +54,7 @@ interface ICrossbellGateway {
      * @param chainId The ChainId of mainchain network.
      * @param withdrawId Withdrawal identifier id.
      * @param recipient The address of account to receive the withdrawal.
-     * @param token The address of token to withdraw.
+     * @param token The address of token to withdraw on mainchain network.
      * @param amount The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature
      * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
      */
@@ -72,7 +72,7 @@ interface ICrossbellGateway {
      * @param chainId The ChainId of mainchain network.
      * @param withdrawId Withdrawal identifier id.
      * @param recipient The address of account to receive the withdrawal.
-     * @param token The address of token to withdraw.
+     * @param token The address of token to withdraw on mainchain network.
      * @param amount The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature
      * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
      */
@@ -170,9 +170,9 @@ interface ICrossbellGateway {
      * @notice Locks the assets and request withdrawal.
      * @param chainId ChainId of mainchain network
      * @param recipient Address to receive withdrawal on mainchain network
-     * @param token Token address to withdraw from crossbell network
-     * @param amount Token amount to withdraw from crossbell network
-     * @param fee Fee amount to pay on mainchain network. This is subtracted from the `amount`.
+     * @param token Token address to lock from crossbell network
+     * @param amount Token amount to lock from crossbell network
+     * @param fee Fee amount to pay. This is subtracted from the `amount`.
      * @return withdrawId The newly generated withdrawId
      */
     function requestWithdrawal(

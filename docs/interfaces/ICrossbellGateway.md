@@ -70,7 +70,7 @@ _Emitted when the withdrawal is requested_
 | chainId | uint256 | The ChainId of mainchain network. |
 | withdrawId | uint256 | Withdrawal identifier id. |
 | recipient | address | The address of account to receive the withdrawal. |
-| token | address | The address of token to withdraw. |
+| token | address | The address of token to withdraw on mainchain network. |
 | amount | uint256 | The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature |
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender on mainchain network. |
 
@@ -89,7 +89,7 @@ _Emitted when the withdrawal signatures is requested._
 | chainId | uint256 | The ChainId of mainchain network. |
 | withdrawId | uint256 | Withdrawal identifier id. |
 | recipient | address | The address of account to receive the withdrawal. |
-| token | address | The address of token to withdraw. |
+| token | address | The address of token to withdraw on mainchain network. |
 | amount | uint256 | The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature |
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender on mainchain network. |
 
@@ -195,9 +195,9 @@ Locks the assets and request withdrawal.
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain network |
 | recipient | address | Address to receive withdrawal on mainchain network |
-| token | address | Token address to withdraw from crossbell network |
-| amount | uint256 | Token amount to withdraw from crossbell network |
-| fee | uint256 | Fee amount to pay on mainchain network. This is subtracted from the `amount`. |
+| token | address | Token address to lock from crossbell network |
+| amount | uint256 | Token amount to lock from crossbell network |
+| fee | uint256 | Fee amount to pay. This is subtracted from the `amount`. |
 
 #### Return Values
 

@@ -124,9 +124,9 @@ Locks the assets and request withdrawal.
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain network |
 | recipient | address | Address to receive withdrawal on mainchain network |
-| token | address | Token address to withdraw from crossbell network |
-| amount | uint256 | Token amount to withdraw from crossbell network |
-| fee | uint256 | Fee amount to pay on mainchain network. This is subtracted from the `amount`. |
+| token | address | Token address to lock from crossbell network |
+| amount | uint256 | Token amount to lock from crossbell network |
+| fee | uint256 | Fee amount to pay. This is subtracted from the `amount`. |
 
 #### Return Values
 

@@ -19,9 +19,9 @@ interface IMainchainGateway {
     /**
      * @dev Emitted when the deposit is requested
      * @param depositId Deposit id
-     * @param recipient Address to receive deposit on crossbell chain
-     * @param token Address of token to deposit
-     * @param amount Amount of token to deposit
+     * @param recipient Address to receive deposit on crossbell network
+     * @param token Address of token to deposit on crossbell network
+     * @param amount Amount of token to deposit on crossbell network
      */
     event RequestDeposit(
         uint256 indexed depositId,
@@ -116,8 +116,8 @@ interface IMainchainGateway {
     /**
      * @notice Request deposit to crossbell chain.
      * @param recipient Address to receive deposit on crossbell chain
-     * @param token Address of token to deposit
-     * @param amount Amount of token to deposit
+     * @param token Address of token to deposit from mainchain network
+     * @param amount Amount of token to deposit  from mainchain network
      * @return depositId Deposit id
      */
     function requestDeposit(

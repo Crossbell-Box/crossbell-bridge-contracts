@@ -105,7 +105,7 @@ Note that the caller must be a validator.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain network |
-| depositId | uint256 |  |
+| depositId | uint256 | Deposit identifier id. |
 | recipient | address | Address to receive deposit on crossbell network |
 | token | address | Token address to deposit on crossbell network |
 | amount | uint256 | Token amount to deposit on crossbell network |

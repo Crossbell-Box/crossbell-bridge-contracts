@@ -32,7 +32,7 @@ _Emitted when the assets are deposited_
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain network. |
-| depositId | uint256 |  |
+| depositId | uint256 | Deposit identifier id. |
 | recipient | address | The address of account to receive the deposit. |
 | token | address | The address of token to deposit. |
 | amount | uint256 | The amount of token to deposit. |
@@ -176,7 +176,7 @@ Note that the caller must be a validator.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain network |
-| depositId | uint256 |  |
+| depositId | uint256 | Deposit identifier id. |
 | recipient | address | Address to receive deposit on crossbell network |
 | token | address | Token address to deposit on crossbell network |
 | amount | uint256 | Token amount to deposit on crossbell network |

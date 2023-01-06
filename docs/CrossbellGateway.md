@@ -195,21 +195,21 @@ Returns mapped token on mainchain.
 function getValidatorAcknowledgementHash(uint256 chainId, uint256 id, address validator) external view returns (bytes32)
 ```
 
-Returns the acknowledge withdrawalHash of withdrawal by validator.
+Returns the acknowledge depositHash by validator.
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain |
-| id | uint256 | WithdrawalId |
+| id | uint256 | DepositId |
 | validator | address | Validator address |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | bytes32 | bytes32 WithdrawalHash if validator has acknowledged, otherwise 0 |
+| [0] | bytes32 | bytes32 depositHash if validator has acknowledged, otherwise 0 |
 
 ### getAcknowledgementStatus
 
@@ -217,15 +217,15 @@ Returns the acknowledge withdrawalHash of withdrawal by validator.
 function getAcknowledgementStatus(uint256 chainId, uint256 id, bytes32 hash) external view returns (enum DataTypes.Status)
 ```
 
-Returns the acknowledge status of withdrawal by validators.
+Returns the acknowledge status of deposit by validators.
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain |
-| id | uint256 | WithdrawalId |
-| hash | bytes32 | WithdrawalHash |
+| id | uint256 | DepositId |
+| hash | bytes32 | depositHash |
 
 #### Return Values
 
@@ -239,15 +239,15 @@ Returns the acknowledge status of withdrawal by validators.
 function getAcknowledgementCount(uint256 chainId, uint256 id, bytes32 hash) external view returns (uint256)
 ```
 
-Returns the acknowledge count of withdrawal by validators.
+Returns the acknowledge count of deposit by validators.
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | chainId | uint256 | ChainId of mainchain |
-| id | uint256 | WithdrawalId |
-| hash | bytes32 | WithdrawalHash |
+| id | uint256 | DepositId |
+| hash | bytes32 | depositHash |
 
 #### Return Values
 

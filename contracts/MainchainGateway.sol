@@ -143,7 +143,7 @@ contract MainchainGateway is
         IERC20(token).safeTransfer(recipient, amount - fee);
         IERC20(token).safeTransfer(msg.sender, fee);
 
-        emit Withdrew(withdrawalId, recipient, token, amount, fee);
+        emit Withdrew(chainId, withdrawalId, recipient, token, amount, fee);
     }
 
     /**
@@ -186,7 +186,7 @@ contract MainchainGateway is
         IERC20(token).safeTransfer(recipient, amount - fee);
         IERC20(token).safeTransfer(msg.sender, fee);
 
-        emit Withdrew(withdrawalId, recipient, token, amount, fee);
+        emit Withdrew(chainId, withdrawalId, recipient, token, amount, fee);
     }
 
     /// @inheritdoc IMainchainGateway

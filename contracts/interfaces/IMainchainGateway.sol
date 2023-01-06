@@ -39,9 +39,10 @@ interface IMainchainGateway {
      * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`
      */
     event Withdrew(
+        uint256 indexed chainId,
         uint256 indexed withdrawalId,
         address indexed recipient,
-        address indexed token,
+        address token,
         uint256 amount,
         uint256 fee
     );

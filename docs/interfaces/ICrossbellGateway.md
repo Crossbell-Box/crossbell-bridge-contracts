@@ -71,7 +71,7 @@ _Emitted when the withdrawal is requested_
 | withdrawId | uint256 | Withdrawal identifier id. |
 | recipient | address | The address of account to receive the withdrawal. |
 | token | address | The address of token to withdraw on mainchain network. |
-| amount | uint256 | The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature |
+| amount | uint256 | The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature |
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender on mainchain network. |
 
 ### RequestWithdrawalSignatures
@@ -90,7 +90,7 @@ _Emitted when the withdrawal signatures is requested._
 | withdrawId | uint256 | Withdrawal identifier id. |
 | recipient | address | The address of account to receive the withdrawal. |
 | token | address | The address of token to withdraw on mainchain network. |
-| amount | uint256 | The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature |
+| amount | uint256 | The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature |
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender on mainchain network. |
 
 ### initialize

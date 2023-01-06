@@ -55,7 +55,7 @@ interface ICrossbellGateway {
      * @param withdrawId Withdrawal identifier id.
      * @param recipient The address of account to receive the withdrawal.
      * @param token The address of token to withdraw on mainchain network.
-     * @param amount The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature
+     * @param amount The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature
      * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
      */
     event RequestWithdrawal(
@@ -73,7 +73,7 @@ interface ICrossbellGateway {
      * @param withdrawId Withdrawal identifier id.
      * @param recipient The address of account to receive the withdrawal.
      * @param token The address of token to withdraw on mainchain network.
-     * @param amount The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature
+     * @param amount The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature
      * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
      */
     event RequestWithdrawalSignatures(

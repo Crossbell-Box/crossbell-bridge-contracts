@@ -105,7 +105,7 @@ contract MainchainGateway is
         unchecked {
             _depositCount++;
         }
-        emit RequestDeposit(depositId, recipient, crossbellToken.token, transformedAmount);
+        emit RequestDeposit(block.chainid, depositId, recipient, crossbellToken.token, transformedAmount);
     }
 
     /// @inheritdoc IMainchainGateway

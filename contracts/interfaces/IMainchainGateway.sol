@@ -24,9 +24,10 @@ interface IMainchainGateway {
      * @param amount Amount of token to deposit on crossbell network
      */
     event RequestDeposit(
+        uint256 indexed chainId,
         uint256 indexed depositId,
         address indexed recipient,
-        address indexed token,
+        address token,
         uint256 amount
     );
 

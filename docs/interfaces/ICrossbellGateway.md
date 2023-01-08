@@ -58,7 +58,7 @@ _Emitted when the deposit is acknowledged by a validator_
 ### RequestWithdrawal
 
 ```solidity
-event RequestWithdrawal(uint256 chainId, uint256 withdrawId, address recipient, address token, uint256 amount, uint256 fee)
+event RequestWithdrawal(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee)
 ```
 
 _Emitted when the withdrawal is requested_
@@ -68,7 +68,7 @@ _Emitted when the withdrawal is requested_
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | chainId | uint256 | The ChainId of mainchain network. |
-| withdrawId | uint256 | Withdrawal identifier id. |
+| withdrawalId | uint256 | Withdrawal identifier id. |
 | recipient | address | The address of account to receive the withdrawal. |
 | token | address | The address of token to withdraw on mainchain network. |
 | amount | uint256 | The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature |
@@ -77,7 +77,7 @@ _Emitted when the withdrawal is requested_
 ### RequestWithdrawalSignatures
 
 ```solidity
-event RequestWithdrawalSignatures(uint256 chainId, uint256 withdrawId, address recipient, address token, uint256 amount, uint256 fee)
+event RequestWithdrawalSignatures(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee)
 ```
 
 _Emitted when the withdrawal signatures is requested._
@@ -87,7 +87,7 @@ _Emitted when the withdrawal signatures is requested._
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | chainId | uint256 | The ChainId of mainchain network. |
-| withdrawId | uint256 | Withdrawal identifier id. |
+| withdrawalId | uint256 | Withdrawal identifier id. |
 | recipient | address | The address of account to receive the withdrawal. |
 | token | address | The address of token to withdraw on mainchain network. |
 | amount | uint256 | The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature |
@@ -184,7 +184,7 @@ Note that the caller must be a validator.
 ### requestWithdrawal
 
 ```solidity
-function requestWithdrawal(uint256 chainId, address recipient, address token, uint256 amount, uint256 fee) external returns (uint256 withdrawId)
+function requestWithdrawal(uint256 chainId, address recipient, address token, uint256 amount, uint256 fee) external returns (uint256 withdrawalId)
 ```
 
 Locks the assets and request withdrawal.
@@ -203,7 +203,7 @@ Locks the assets and request withdrawal.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| withdrawId | uint256 | The newly generated withdrawId |
+| withdrawalId | uint256 | The newly generated withdrawalId |
 
 ### requestWithdrawalSignatures
 

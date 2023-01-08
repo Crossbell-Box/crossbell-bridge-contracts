@@ -52,7 +52,7 @@ interface ICrossbellGateway {
     /**
      * @dev Emitted when the withdrawal is requested
      * @param chainId The ChainId of mainchain network.
-     * @param withdrawId Withdrawal identifier id.
+     * @param withdrawalId Withdrawal identifier id.
      * @param recipient The address of account to receive the withdrawal.
      * @param token The address of token to withdraw on mainchain network.
      * @param amount The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature
@@ -60,7 +60,7 @@ interface ICrossbellGateway {
      */
     event RequestWithdrawal(
         uint256 indexed chainId,
-        uint256 indexed withdrawId,
+        uint256 indexed withdrawalId,
         address indexed recipient,
         address token,
         uint256 amount,
@@ -70,7 +70,7 @@ interface ICrossbellGateway {
     /**
      * @dev Emitted when the withdrawal signatures is requested.
      * @param chainId The ChainId of mainchain network.
-     * @param withdrawId Withdrawal identifier id.
+     * @param withdrawalId Withdrawal identifier id.
      * @param recipient The address of account to receive the withdrawal.
      * @param token The address of token to withdraw on mainchain network.
      * @param amount The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature
@@ -78,7 +78,7 @@ interface ICrossbellGateway {
      */
     event RequestWithdrawalSignatures(
         uint256 indexed chainId,
-        uint256 indexed withdrawId,
+        uint256 indexed withdrawalId,
         address indexed recipient,
         address token,
         uint256 amount,
@@ -173,7 +173,7 @@ interface ICrossbellGateway {
      * @param token Token address to lock from crossbell network
      * @param amount Token amount to lock from crossbell network
      * @param fee Fee amount to pay. This is subtracted from the `amount`.
-     * @return withdrawId The newly generated withdrawId
+     * @return withdrawalId The newly generated withdrawalId
      */
     function requestWithdrawal(
         uint256 chainId,
@@ -181,7 +181,7 @@ interface ICrossbellGateway {
         address token,
         uint256 amount,
         uint256 fee
-    ) external returns (uint256 withdrawId);
+    ) external returns (uint256 withdrawalId);
 
     /**
      * @notice Request withdrawal signatures, in case the withdrawer didn't submit to mainchain in time and the set of the validator

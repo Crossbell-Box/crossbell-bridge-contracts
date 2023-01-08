@@ -141,7 +141,7 @@ contract CrossbellGateway is
         address token,
         uint256 amount,
         uint256 fee
-    ) external nonReentrant whenNotPaused returns (uint256 withdrawId) {
+    ) external nonReentrant whenNotPaused returns (uint256 withdrawalId) {
         require(amount > 0, "ZeroAmount");
         require(amount >= fee, "FeeExceedAmount");
 
@@ -160,11 +160,11 @@ contract CrossbellGateway is
         uint256 feeAmount = _transformWithdrawalAmount(token, fee, mainchainToken.decimals);
 
         // save withdrawal
-        withdrawId = _withdrawalCounts[chainId];
+        withdrawalId = _withdrawalCounts[chainId];
         unchecked {
             _withdrawalCounts[chainId]++;
         }
-        _withdrawals[chainId][withdrawId] = DataTypes.WithdrawalEntry(
+        _withdrawals[chainId][withdrawalId] = DataTypes.WithdrawalEntry(
             chainId,
             recipient,
             mainchainToken.token,
@@ -174,7 +174,7 @@ contract CrossbellGateway is
 
         emit RequestWithdrawal(
             chainId,
-            withdrawId,
+            withdrawalId,
             recipient,
             mainchainToken.token,
             transformedAmount,

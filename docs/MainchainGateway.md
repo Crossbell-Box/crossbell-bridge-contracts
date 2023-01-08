@@ -127,14 +127,6 @@ Requirements:
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
 | signatures | struct DataTypes.Signature[] | The list of signatures sorted by signing addresses of validators in ascending order. |
 
-### _recordWithdrawal
-
-```solidity
-function _recordWithdrawal(address token, uint256 amount) internal
-```
-
-_Record withdrawal token._
-
 ### unlockWithdrawal
 
 ```solidity
@@ -155,6 +147,14 @@ Requirements:
 | token | address | Address of token to withdraw |
 | amount | uint256 | Amount of token to withdraw |
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
+
+### batchUnlockWithdrawal
+
+```solidity
+function batchUnlockWithdrawal(uint256[] chainIds, uint256[] withdrawalIds, address[] recipients, address[] tokens, uint256[] amounts, uint256[] fees) external
+```
+
+Tries bulk unlock withdrawals.
 
 ### setLockedThresholds
 
@@ -357,6 +357,22 @@ function _setDailyWithdrawalLimits(address[] tokens, uint256[] limits) internal
 _Sets daily limit amounts for the withdrawals.
 Note that the array lengths must be equal.
 Emits the `DailyWithdrawalLimitsUpdated` event._
+
+### _unlockWithdrawal
+
+```solidity
+function _unlockWithdrawal(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee) internal
+```
+
+_Approves a specific withdrawal._
+
+### _recordWithdrawal
+
+```solidity
+function _recordWithdrawal(address token, uint256 amount) internal
+```
+
+_Record withdrawal token._
 
 ### _lockedWithdrawalRequest
 

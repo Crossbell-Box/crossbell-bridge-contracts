@@ -38,8 +38,8 @@ contract MainchainGatewayTest is Test, Utils {
     );
     event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds);
     event DailyWithdrawalLimitsUpdated(address[] tokens, uint256[] limits);
-    event WithdrawalLocked(uint256 indexed withdrawId);
-    event WithdrawalUnlocked(uint256 indexed withdrawId);
+    event WithdrawalLocked(uint256 indexed withdrawalId);
+    event WithdrawalUnlocked(uint256 indexed withdrawalId);
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant WITHDRAWAL_UNLOCKER_ROLE = keccak256("WITHDRAWAL_UNLOCKER_ROLE");
@@ -988,6 +988,10 @@ contract MainchainGatewayTest is Test, Utils {
         // check withdrawal hash
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0), "withdrawalHash");
     }
+
+    function testBatchUnlockWithdrawal() public {}
+
+    function testBatchUnlockWithdrawalFail() public {}
 
     function testVerifySignatures() public {
         bytes32 hash = keccak256(abi.encodePacked("testVerifySignatures"));

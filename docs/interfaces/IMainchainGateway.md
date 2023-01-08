@@ -74,7 +74,7 @@ _Emitted when the daily limit thresholds are updated_
 ### WithdrawalLocked
 
 ```solidity
-event WithdrawalLocked(uint256 withdrawId)
+event WithdrawalLocked(uint256 withdrawalId)
 ```
 
 _Emitted when the withdrawal is locked_
@@ -82,7 +82,7 @@ _Emitted when the withdrawal is locked_
 ### WithdrawalUnlocked
 
 ```solidity
-event WithdrawalUnlocked(uint256 withdrawId)
+event WithdrawalUnlocked(uint256 withdrawalId)
 ```
 
 _Emitted when the withdrawal is unlocked_
@@ -218,6 +218,14 @@ Requirements:
 | token | address | Address of token to withdraw |
 | amount | uint256 | Amount of token to withdraw |
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
+
+### batchUnlockWithdrawal
+
+```solidity
+function batchUnlockWithdrawal(uint256[] chainIds, uint256[] withdrawalIds, address[] recipients, address[] tokens, uint256[] amounts, uint256[] fees) external
+```
+
+Tries bulk unlock withdrawals.
 
 ### setLockedThresholds
 

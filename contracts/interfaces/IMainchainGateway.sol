@@ -57,10 +57,10 @@ interface IMainchainGateway {
     event DailyWithdrawalLimitsUpdated(address[] tokens, uint256[] limits);
 
     /// @dev Emitted when the withdrawal is locked
-    event WithdrawalLocked(uint256 indexed withdrawId);
+    event WithdrawalLocked(uint256 indexed withdrawalId);
 
     /// @dev Emitted when the withdrawal is unlocked
-    event WithdrawalUnlocked(uint256 indexed withdrawId);
+    event WithdrawalUnlocked(uint256 indexed withdrawalId);
 
     function TYPE_HASH() external view returns (bytes32);
 
@@ -170,6 +170,18 @@ interface IMainchainGateway {
         address token,
         uint256 amount,
         uint256 fee
+    ) external;
+
+    /**
+     * @notice Tries bulk unlock withdrawals.
+     */
+    function batchUnlockWithdrawal(
+        uint256[] calldata chainIds,
+        uint256[] calldata withdrawalIds,
+        address[] calldata recipients,
+        address[] calldata tokens,
+        uint256[] calldata amounts,
+        uint256[] calldata fees
     ) external;
 
     /**

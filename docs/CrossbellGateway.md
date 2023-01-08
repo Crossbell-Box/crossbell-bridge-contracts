@@ -113,7 +113,7 @@ Note that the caller must be a validator.
 ### requestWithdrawal
 
 ```solidity
-function requestWithdrawal(uint256 chainId, address recipient, address token, uint256 amount, uint256 fee) external returns (uint256 withdrawId)
+function requestWithdrawal(uint256 chainId, address recipient, address token, uint256 amount, uint256 fee) external returns (uint256 withdrawalId)
 ```
 
 Locks the assets and request withdrawal.
@@ -132,7 +132,7 @@ Locks the assets and request withdrawal.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| withdrawId | uint256 | The newly generated withdrawId |
+| withdrawalId | uint256 | The newly generated withdrawalId |
 
 ### requestWithdrawalSignatures
 

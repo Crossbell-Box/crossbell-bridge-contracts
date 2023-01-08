@@ -7,16 +7,17 @@ import { ethers } from "hardhat";
 
 async function main() {
     // NOTE: update these addresses before deployment
-    const proxyAdmin = "0x0000000000000000000000000000000000000002";
-    const validatorContract = "0x0000000000000000000000000000000000000001";
-    const gatewayAdmin = "0x0000000000000000000000000000000000000003";
-    const crossbellTokens = ["0x0000000000000000000000000000000000000004"];
-    const chainIds = [1];
-    const mainchainTokens = ["0x0000000000000000000000000000000000000004"];
+    const [_, addr2] = await ethers.getSigners();
+    const proxyAdmin = "0x4fa9e39af9aA188c49a8AaF2984F2943107ca5b5"; // validator contract
+    const validatorContract = "0x4fa9e39af9aA188c49a8AaF2984F2943107ca5b5"; 
+    const gatewayAdmin = "0xEA21E4C0d7256a858122B6FA0121D3A8C7f94f4E"; // addr2
+    const crossbellTokens = ["0xaBea54cF50F1Cc269B664662AE33cF9B736dC953"];
+    const chainIds = [5];
+    const mainchainTokens = ["0xBa023BAE41171260821d5bADE769B8E242468B9e"];
     const mainchainTokenDecimals = [6];
 
     // deploy crossbellGateway
-    const CrossbellGateway = await ethers.getContractFactory("CrossbellGateway");
+    const CrossbellGateway = await (await ethers.getContractFactory("CrossbellGateway")).connect(addr2);
     const crossbellGateway = await CrossbellGateway.deploy();
     // always initialize the logic contract
     await crossbellGateway.initialize(
@@ -29,12 +30,12 @@ async function main() {
     );
 
     // deploy proxy
-    const Proxy = await ethers.getContractFactory("TransparentUpgradeableProxy");
-    const proxyCrossbellGateway = await Proxy.deploy(crossbellGateway.address, proxyAdmin, "0x");
+    const Proxy = await (await ethers.getContractFactory("TransparentUpgradeableProxy")).connect(addr2);
+    const proxyCrossbellGateway = await (await Proxy.deploy(crossbellGateway.address, proxyAdmin, "0x")).connect(addr2);
     await proxyCrossbellGateway.deployed();
 
     // initialize proxy
-    const proxyGateway = await CrossbellGateway.attach(proxyCrossbellGateway.address);
+    const proxyGateway = await CrossbellGateway.attach(proxyCrossbellGateway.address).connect(addr2);
     await proxyGateway.initialize(
         validatorContract,
         gatewayAdmin,

@@ -7,14 +7,14 @@ import { ethers } from "hardhat";
 
 async function main() {
     // NOTE: update these addresses before deployment
-    const proxyAdmin = "0x0000000000000000000000000000000000000001";
-    const withdrawalUnlocker = "0x0000000000000000000000000000000000000002";
+    const proxyAdmin = "0x96B4f7bAb340E5C9FdeeaA5c0c50c7537201f41f"; // validator contract
+    const withdrawalUnlocker = "0x2df7C8956Eb62BBE7B888aDf3C9c6969689F3084";
 
-    const validatorContract = "0x0000000000000000000000000000000000000001";
-    const gatewayAdmin = "0x0000000000000000000000000000000000000003";
-    const mainchainTokens = ["0x0000000000000000000000000000000000000004"];
+    const validatorContract = "0x96B4f7bAb340E5C9FdeeaA5c0c50c7537201f41f";
+    const gatewayAdmin = "0x2df7C8956Eb62BBE7B888aDf3C9c6969689F3084";
+    const mainchainTokens = ["0xBa023BAE41171260821d5bADE769B8E242468B9e"];
     const thresholds = [[1000000000], [1000000000000]];
-    const crossbellTokens = ["0x0000000000000000000000000000000000000004"];
+    const crossbellTokens = ["0xaBea54cF50F1Cc269B664662AE33cF9B736dC953"];
     const crossbellTokenDecimals = [18];
 
     // deploy mainchainGateway

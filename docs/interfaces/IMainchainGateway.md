@@ -21,7 +21,7 @@ _Emitted when the tokens are mapped_
 ### RequestDeposit
 
 ```solidity
-event RequestDeposit(uint256 depositId, address recipient, address token, uint256 amount)
+event RequestDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount)
 ```
 
 _Emitted when the deposit is requested_
@@ -30,6 +30,7 @@ _Emitted when the deposit is requested_
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| chainId | uint256 | The chain ID of mainchain network |
 | depositId | uint256 | Deposit id |
 | recipient | address | Address to receive deposit on crossbell network |
 | token | address | Address of token to deposit on crossbell network |
@@ -38,7 +39,7 @@ _Emitted when the deposit is requested_
 ### Withdrew
 
 ```solidity
-event Withdrew(uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee)
+event Withdrew(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee)
 ```
 
 _Emitted when the assets are withdrawn on mainchain_
@@ -47,6 +48,7 @@ _Emitted when the assets are withdrawn on mainchain_
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | Withdrawal ID from crossbell chain |
 | recipient | address | Address to receive withdrawal on mainchain chain |
 | token | address | Address of token to withdraw |

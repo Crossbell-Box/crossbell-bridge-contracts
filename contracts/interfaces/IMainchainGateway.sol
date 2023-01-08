@@ -18,20 +18,23 @@ interface IMainchainGateway {
 
     /**
      * @dev Emitted when the deposit is requested
+     * @param chainId The chain ID of mainchain network
      * @param depositId Deposit id
      * @param recipient Address to receive deposit on crossbell network
      * @param token Address of token to deposit on crossbell network
      * @param amount Amount of token to deposit on crossbell network
      */
     event RequestDeposit(
+        uint256 indexed chainId,
         uint256 indexed depositId,
         address indexed recipient,
-        address indexed token,
+        address token,
         uint256 amount
     );
 
     /**
      * @dev Emitted when the assets are withdrawn on mainchain
+     * @param chainId The chain ID of mainchain network
      * @param withdrawalId Withdrawal ID from crossbell chain
      * @param recipient Address to receive withdrawal on mainchain chain
      * @param token Address of token to withdraw
@@ -39,9 +42,10 @@ interface IMainchainGateway {
      * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`
      */
     event Withdrew(
+        uint256 indexed chainId,
         uint256 indexed withdrawalId,
         address indexed recipient,
-        address indexed token,
+        address token,
         uint256 amount,
         uint256 fee
     );

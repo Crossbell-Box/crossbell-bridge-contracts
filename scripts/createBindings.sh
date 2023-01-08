@@ -12,7 +12,7 @@ for contract in Validator CrossbellGateway MainchainGateway
 do
   # extract abi and bin files
   forge inspect ${contract} abi > ${ABI_DIR}/${contract}.abi
-  forge inspect ${contract} b > ${BIN_DIR}/${contract}.bin
+  forge inspect ${contract} bytecode > ${BIN_DIR}/${contract}.bin
 
   # generate go binding files
   pkg=$(echo ${contract:0:1} | tr '[A-Z]' '[a-z]')${contract:1}

@@ -125,7 +125,7 @@ contract MainchainGateway is
         uint256 amount,
         uint256 fee,
         DataTypes.Signature[] calldata signatures
-    ) external whenNotPaused returns (bool locked) {
+    ) external nonReentrant whenNotPaused returns (bool locked) {
         require(chainId == block.chainid, "InvalidChainId");
         require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
         require(!_reachedDailyWithdrawalLimit(token, amount), "DailyWithdrawalLimit");

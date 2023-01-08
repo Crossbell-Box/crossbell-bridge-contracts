@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title MainchainGateway
@@ -20,6 +21,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 contract MainchainGateway is
     IMainchainGateway,
     Initializable,
+    ReentrancyGuard,
     Pausable,
     AccessControlEnumerable,
     MainchainGatewayStorage
@@ -90,7 +92,7 @@ contract MainchainGateway is
         address recipient,
         address token,
         uint256 amount
-    ) external whenNotPaused returns (uint256 depositId) {
+    ) external nonReentrant whenNotPaused returns (uint256 depositId) {
         require(amount > 0, "ZeroAmount");
 
         DataTypes.MappedToken memory crossbellToken = _getCrossbellToken(token);

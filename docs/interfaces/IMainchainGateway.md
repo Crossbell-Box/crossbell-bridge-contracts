@@ -182,19 +182,19 @@ function withdraw(uint256 chainId, uint256 withdrawalId, address recipient, addr
 
 Withdraw based on the validator signatures.
 Requirements:
-- The order of the signatures should be arranged in ascending order of the signer address.
+- The signatures should be sorted by signing addresses of validators in ascending order.
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId |
+| chainId | uint256 | The chain ID of mainchain network. |
 | withdrawalId | uint256 | Withdrawal ID from crossbell chain |
 | recipient | address | Address to receive withdrawal on mainchain chain |
 | token | address | Address of token to withdraw |
 | amount | uint256 | Amount of token to withdraw |
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
-| signatures | struct DataTypes.Signature[] | Validator signatures for withdrawal |
+| signatures | struct DataTypes.Signature[] | The list of signatures sorted by signing addresses of validators in ascending order. |
 
 ### unlockWithdrawal
 
@@ -210,7 +210,7 @@ Requirements:
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId |
+| chainId | uint256 | The chain ID of mainchain network. |
 | withdrawalId | uint256 | Withdrawal ID from crossbell chain |
 | recipient | address | Address to receive withdrawal on mainchain chain |
 | token | address | Address of token to withdraw |

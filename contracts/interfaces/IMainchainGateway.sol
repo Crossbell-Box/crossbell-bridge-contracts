@@ -129,14 +129,14 @@ interface IMainchainGateway {
     /**
      * @notice Withdraw based on the validator signatures.
      * Requirements:
-     * - The order of the signatures should be arranged in ascending order of the signer address.
-     * @param chainId ChainId
+     * - The signatures should be sorted by signing addresses of validators in ascending order.
+     * @param chainId The chain ID of mainchain network.
      * @param withdrawalId Withdrawal ID from crossbell chain
      * @param recipient Address to receive withdrawal on mainchain chain
      * @param token Address of token to withdraw
      * @param amount Amount of token to withdraw
      * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`
-     * @param signatures Validator signatures for withdrawal
+     * @param signatures The list of signatures sorted by signing addresses of validators in ascending order.
      */
     function withdraw(
         uint256 chainId,
@@ -152,7 +152,7 @@ interface IMainchainGateway {
      * @notice Approves a specific withdrawal.
      * Requirements:
      * - The caller must have the WITHDRAWAL_UNLOCKER_ROLE.
-     * @param chainId ChainId
+     * @param chainId The chain ID of mainchain network.
      * @param withdrawalId Withdrawal ID from crossbell chain
      * @param recipient Address to receive withdrawal on mainchain chain
      * @param token Address of token to withdraw

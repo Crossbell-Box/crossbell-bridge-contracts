@@ -37,7 +37,7 @@ Initializes the CrossbellGateway.
 | validator | address | Address of validator contract. |
 | admin | address | Address of gateway admin. |
 | crossbellTokens | address[] | Addresses of crossbell tokens. |
-| chainIds | uint256[] | ChainIds of mainchain networks. |
+| chainIds | uint256[] | The chain IDs of mainchain networks. |
 | mainchainTokens | address[] | Addresses of mainchain tokens. |
 | mainchainTokenDecimals | uint8[] | Decimals of mainchain tokens. |
 
@@ -70,7 +70,7 @@ Maps mainchain tokens to Crossbell network.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | crossbellTokens | address[] | Addresses of crossbell tokens. |
-| chainIds | uint256[] | ChainIds of mainchain networks. |
+| chainIds | uint256[] | The chain IDs of mainchain networks. |
 | mainchainTokens | address[] | Addresses of mainchain tokens. |
 | mainchainTokenDecimals | uint8[] | Decimals of mainchain tokens. |
 
@@ -104,7 +104,7 @@ Note that the caller must be a validator.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain network |
+| chainId | uint256 | The chain ID of mainchain network |
 | depositId | uint256 | Deposit identifier id. |
 | recipient | address | Address to receive deposit on crossbell network |
 | token | address | Token address to deposit on crossbell network |
@@ -122,7 +122,7 @@ Locks the assets and request withdrawal.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain network |
+| chainId | uint256 | The chain ID of mainchain network |
 | recipient | address | Address to receive withdrawal on mainchain network |
 | token | address | Token address to lock from crossbell network |
 | amount | uint256 | Token amount to lock from crossbell network |
@@ -147,7 +147,7 @@ has changed.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId |
+| chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | WithdrawalId |
 
 ### submitWithdrawalSignatures
@@ -163,7 +163,7 @@ Note that the caller must be a validator.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain network |
+| chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | WithdrawalId |
 | shouldReplace | bool | Whether the old signature should be replaced |
 | sig | bytes | Validator signature for the withdrawal |
@@ -180,7 +180,7 @@ Returns mapped token on mainchain.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain |
+| chainId | uint256 | The chain ID of mainchain network |
 | crossbellToken | address | Token address on crossbell |
 
 #### Return Values
@@ -201,7 +201,7 @@ Returns the acknowledge depositHash by validator.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain |
+| chainId | uint256 | The chain ID of mainchain network |
 | id | uint256 | DepositId |
 | validator | address | Validator address |
 
@@ -223,7 +223,7 @@ Returns the acknowledge status of deposit by validators.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain |
+| chainId | uint256 | The chain ID of mainchain network |
 | id | uint256 | DepositId |
 | hash | bytes32 | depositHash |
 
@@ -245,7 +245,7 @@ Returns the acknowledge count of deposit by validators.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain |
+| chainId | uint256 | The chain ID of mainchain network |
 | id | uint256 | DepositId |
 | hash | bytes32 | depositHash |
 
@@ -267,7 +267,7 @@ Returns withdrawal signers.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain |
+| chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | Withdrawal Id to query |
 
 #### Return Values
@@ -288,7 +288,7 @@ Returns withdrawal signatures.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain |
+| chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | Withdrawal Id to query |
 
 ### getValidatorContract
@@ -317,7 +317,7 @@ Returns the deposit entry.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain |
+| chainId | uint256 | The chain ID of mainchain network |
 | depositId | uint256 | Deposit Id to query |
 
 #### Return Values
@@ -338,7 +338,7 @@ Returns the withdrawal count of different mainchain networks.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain |
+| chainId | uint256 | The chain ID of mainchain network |
 
 #### Return Values
 
@@ -358,7 +358,7 @@ Returns the withdrawal entry.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId of mainchain |
+| chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | Withdrawal Id to query |
 
 #### Return Values
@@ -391,10 +391,10 @@ function _submitWithdrawalSignatures(uint256 chainId, uint256 withdrawalId, bool
 function _acknowledge(uint256 chainId, uint256 id, bytes32 hash, address validator) internal returns (enum DataTypes.Status)
 ```
 
-### _handleTransfer
+### _sendToken
 
 ```solidity
-function _handleTransfer(address recipient, address token, uint256 amount) internal
+function _sendToken(address recipient, address token, uint256 amount) internal
 ```
 
 ### _getWithdrawalSigners

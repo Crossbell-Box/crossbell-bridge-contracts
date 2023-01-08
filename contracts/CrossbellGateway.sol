@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title CrossbellGateway
@@ -20,6 +21,7 @@ import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 contract CrossbellGateway is
     ICrossbellGateway,
     Initializable,
+    ReentrancyGuard,
     Pausable,
     AccessControlEnumerable,
     CrossbellGatewayStorage
@@ -139,7 +141,7 @@ contract CrossbellGateway is
         address token,
         uint256 amount,
         uint256 fee
-    ) external whenNotPaused returns (uint256 withdrawId) {
+    ) external nonReentrant whenNotPaused returns (uint256 withdrawId) {
         require(amount > 0, "ZeroAmount");
         require(amount >= fee, "FeeExceedAmount");
 
@@ -300,8 +302,8 @@ contract CrossbellGateway is
 
         DataTypes.Status status = _acknowledge(chainId, depositId, hash, msg.sender);
         if (status == DataTypes.Status.FirstApproved) {
-            // transfer token
-            _handleTransfer(recipient, token, amount);
+            // send token
+            _sendToken(recipient, token, amount);
 
             // record deposit
             _deposits[chainId][depositId] = DataTypes.DepositEntry(
@@ -376,7 +378,7 @@ contract CrossbellGateway is
         return _ackStatus[chainId][id][hash];
     }
 
-    function _handleTransfer(address recipient, address token, uint256 amount) internal {
+    function _sendToken(address recipient, address token, uint256 amount) internal {
         uint256 gatewayBalance = IERC20(token).balanceOf(address(this));
         if (gatewayBalance < amount) {
             IERC20Mintable(token).mint(address(this), amount - gatewayBalance);

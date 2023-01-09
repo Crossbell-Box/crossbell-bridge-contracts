@@ -49,6 +49,7 @@ interface ICrossbellGateway {
         address token,
         uint256 amount
     );
+
     /**
      * @dev Emitted when the withdrawal is requested
      * @param chainId The ChainId of mainchain network.
@@ -65,6 +66,20 @@ interface ICrossbellGateway {
         address token,
         uint256 amount,
         uint256 fee
+    );
+
+    /**
+     * @dev Emitted when a withdrawal signature is submitted by validator.
+     * @param chainId The ChainId of mainchain network.
+     * @param withdrawalId Withdrawal identifier id.
+     * @param validator The address of validator who submitted the signature.
+     * @param signature The submitted signature.
+     */
+    event SubmitWithdrawalSignature(
+        uint256 indexed chainId,
+        uint256 indexed withdrawalId,
+        address indexed validator,
+        bytes signature
     );
 
     /**
@@ -145,7 +160,6 @@ interface ICrossbellGateway {
     function batchSubmitWithdrawalSignatures(
         uint256[] calldata chainIds,
         uint256[] calldata withdrawalIds,
-        bool[] calldata shouldReplaces,
         bytes[] calldata sigs
     ) external;
 
@@ -196,13 +210,11 @@ interface ICrossbellGateway {
      * Note that the caller must be a validator.
      * @param chainId The chain ID of mainchain network
      * @param withdrawalId WithdrawalId
-     * @param shouldReplace Whether the old signature should be replaced
      * @param sig Validator signature for the withdrawal
      */
-    function submitWithdrawalSignatures(
+    function submitWithdrawalSignature(
         uint256 chainId,
         uint256 withdrawalId,
-        bool shouldReplace,
         bytes calldata sig
     ) external;
 

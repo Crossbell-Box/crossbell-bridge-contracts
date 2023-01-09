@@ -53,6 +53,12 @@ contract CrossbellGatewayTest is Test, Utils {
         uint256 amount,
         uint256 fee
     );
+    event SubmitWithdrawalSignature(
+        uint256 indexed chainId,
+        uint256 indexed withdrawalId,
+        address indexed validator,
+        bytes signature
+    );
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -920,13 +926,24 @@ contract CrossbellGatewayTest is Test, Utils {
         uint256 chainId = 1;
         uint256 withdrawalId = 1;
 
+        bytes memory sig1 = bytes("signature1");
+        bytes memory sig2 = bytes("signature2");
+        bytes memory sig3 = bytes("signature3");
+
         // submit withdrawal signatures
+        // expect events
+        expectEmit(CheckAll);
+        emit SubmitWithdrawalSignature(chainId, withdrawalId, validator1, sig1);
         vm.prank(validator1);
-        gateway.submitWithdrawalSignatures(chainId, withdrawalId, false, bytes("signature1"));
+        gateway.submitWithdrawalSignature(chainId, withdrawalId, sig1);
+        expectEmit(CheckAll);
+        emit SubmitWithdrawalSignature(chainId, withdrawalId, validator2, sig2);
         vm.prank(validator2);
-        gateway.submitWithdrawalSignatures(chainId, withdrawalId, false, bytes("signature2"));
+        gateway.submitWithdrawalSignature(chainId, withdrawalId, sig2);
+        expectEmit(CheckAll);
+        emit SubmitWithdrawalSignature(chainId, withdrawalId, validator3, sig3);
         vm.prank(validator3);
-        gateway.submitWithdrawalSignatures(chainId, withdrawalId, false, bytes("signature3"));
+        gateway.submitWithdrawalSignature(chainId, withdrawalId, sig3);
 
         // check state
         (address[] memory signers, bytes[] memory sigs) = gateway.getWithdrawalSignatures(
@@ -940,7 +957,7 @@ contract CrossbellGatewayTest is Test, Utils {
 
         // validator3 replaces signature
         vm.prank(validator3);
-        gateway.submitWithdrawalSignatures(chainId, withdrawalId, true, bytes("signature333"));
+        gateway.submitWithdrawalSignature(chainId, withdrawalId, bytes("signature333"));
         (signers, sigs) = gateway.getWithdrawalSignatures(chainId, withdrawalId);
         assertEq(signers, array(validator1, validator2, validator3));
         assertEq(sigs[0], bytes("signature1"));
@@ -955,14 +972,14 @@ contract CrossbellGatewayTest is Test, Utils {
         // case 1: caller is not validator
         vm.expectRevert(abi.encodePacked("NotValidator"));
         vm.prank(eve);
-        gateway.submitWithdrawalSignatures(chainId, withdrawalId, false, bytes("signature1"));
+        gateway.submitWithdrawalSignature(chainId, withdrawalId, bytes("signature1"));
 
         // case 2: paused
         vm.prank(admin);
         gateway.pause();
         vm.expectRevert(abi.encodePacked("Pausable: paused"));
         vm.prank(validator1);
-        gateway.submitWithdrawalSignatures(chainId, withdrawalId, false, bytes("signature1"));
+        gateway.submitWithdrawalSignature(chainId, withdrawalId, bytes("signature1"));
     }
 
     function testBatchSubmitWithdrawalSignatures() public {}

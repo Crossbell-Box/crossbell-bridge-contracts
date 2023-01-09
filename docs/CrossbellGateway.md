@@ -85,7 +85,7 @@ Tries bulk deposit.
 ### batchSubmitWithdrawalSignatures
 
 ```solidity
-function batchSubmitWithdrawalSignatures(uint256[] chainIds, uint256[] withdrawalIds, bool[] shouldReplaces, bytes[] sigs) external
+function batchSubmitWithdrawalSignatures(uint256[] chainIds, uint256[] withdrawalIds, bytes[] sigs) external
 ```
 
 Tries bulk submit withdrawal signatures.
@@ -150,10 +150,10 @@ has changed.
 | chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | WithdrawalId |
 
-### submitWithdrawalSignatures
+### submitWithdrawalSignature
 
 ```solidity
-function submitWithdrawalSignatures(uint256 chainId, uint256 withdrawalId, bool shouldReplace, bytes sig) external
+function submitWithdrawalSignature(uint256 chainId, uint256 withdrawalId, bytes sig) external
 ```
 
 Submits validator signature for withdrawal.
@@ -165,7 +165,6 @@ Note that the caller must be a validator.
 | ---- | ---- | ----------- |
 | chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | WithdrawalId |
-| shouldReplace | bool | Whether the old signature should be replaced |
 | sig | bytes | Validator signature for the withdrawal |
 
 ### getMainchainToken
@@ -379,10 +378,10 @@ function _ackDeposit(uint256 chainId, uint256 depositId, address recipient, addr
 function _transformWithdrawalAmount(address token, uint256 amount, uint8 destinationDecimals) internal view returns (uint256 transformedAmount)
 ```
 
-### _submitWithdrawalSignatures
+### _submitWithdrawalSignature
 
 ```solidity
-function _submitWithdrawalSignatures(uint256 chainId, uint256 withdrawalId, bool shouldReplace, bytes sig) internal
+function _submitWithdrawalSignature(uint256 chainId, uint256 withdrawalId, bytes sig) internal
 ```
 
 ### _acknowledge

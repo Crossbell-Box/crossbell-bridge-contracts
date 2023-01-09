@@ -74,6 +74,23 @@ _Emitted when the withdrawal is requested_
 | amount | uint256 | The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature |
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender on mainchain network. |
 
+### SubmitWithdrawalSignature
+
+```solidity
+event SubmitWithdrawalSignature(uint256 chainId, uint256 withdrawalId, address validator, bytes signature)
+```
+
+_Emitted when a withdrawal signature is submitted by validator._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| chainId | uint256 | The ChainId of mainchain network. |
+| withdrawalId | uint256 | Withdrawal identifier id. |
+| validator | address | The address of validator who submitted the signature. |
+| signature | bytes | The submitted signature. |
+
 ### RequestWithdrawalSignatures
 
 ```solidity
@@ -156,7 +173,7 @@ Tries bulk deposit.
 ### batchSubmitWithdrawalSignatures
 
 ```solidity
-function batchSubmitWithdrawalSignatures(uint256[] chainIds, uint256[] withdrawalIds, bool[] shouldReplaces, bytes[] sigs) external
+function batchSubmitWithdrawalSignatures(uint256[] chainIds, uint256[] withdrawalIds, bytes[] sigs) external
 ```
 
 Tries bulk submit withdrawal signatures.
@@ -221,10 +238,10 @@ has changed.
 | chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | WithdrawalId |
 
-### submitWithdrawalSignatures
+### submitWithdrawalSignature
 
 ```solidity
-function submitWithdrawalSignatures(uint256 chainId, uint256 withdrawalId, bool shouldReplace, bytes sig) external
+function submitWithdrawalSignature(uint256 chainId, uint256 withdrawalId, bytes sig) external
 ```
 
 Submits validator signature for withdrawal.
@@ -236,7 +253,6 @@ Note that the caller must be a validator.
 | ---- | ---- | ----------- |
 | chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | WithdrawalId |
-| shouldReplace | bool | Whether the old signature should be replaced |
 | sig | bytes | Validator signature for the withdrawal |
 
 ### getMainchainToken

@@ -342,27 +342,6 @@ Returns the acknowledge count of deposit by validators.
 | ---- | ---- | ----------- |
 | [0] | uint256 | uint256 Acknowledgement count |
 
-### getWithdrawalSigners
-
-```solidity
-function getWithdrawalSigners(uint256 chainId, uint256 withdrawalId) external view returns (address[])
-```
-
-Returns withdrawal signers.
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| withdrawalId | uint256 | Withdrawal Id to query |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | address[] | address[] Signer addresses |
-
 ### getWithdrawalSignatures
 
 ```solidity
@@ -377,6 +356,13 @@ Returns withdrawal signatures.
 | ---- | ---- | ----------- |
 | chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | Withdrawal Id to query |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| signers | address[] | Signer addresses |
+| sigs | bytes[] | Signer signatures |
 
 ### getValidatorContract
 
@@ -431,7 +417,7 @@ Returns the withdrawal count of different mainchain networks.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | uint256 | uint256 Withdrawal count |
+| [0] | uint256 | Withdrawal count |
 
 ### getWithdrawalEntry
 

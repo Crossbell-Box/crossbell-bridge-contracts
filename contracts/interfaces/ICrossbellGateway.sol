@@ -269,20 +269,11 @@ interface ICrossbellGateway {
     ) external view returns (uint256);
 
     /**
-     * @notice Returns withdrawal signers.
-     * @param chainId The chain ID of mainchain network
-     * @param withdrawalId Withdrawal Id to query
-     * @return address[] Signer addresses
-     */
-    function getWithdrawalSigners(
-        uint256 chainId,
-        uint256 withdrawalId
-    ) external view returns (address[] memory);
-
-    /**
      * @notice Returns withdrawal signatures.
      * @param chainId The chain ID of mainchain network
      * @param withdrawalId Withdrawal Id to query
+     * @return signers Signer addresses
+     * @return sigs Signer signatures
      */
     function getWithdrawalSignatures(
         uint256 chainId,
@@ -309,7 +300,7 @@ interface ICrossbellGateway {
     /**
      * @notice Returns the withdrawal count of different mainchain networks.
      * @param chainId The chain ID of mainchain network
-     * @return uint256 Withdrawal count
+     * @return Withdrawal count
      */
     function getWithdrawalCount(uint256 chainId) external view returns (uint256);
 

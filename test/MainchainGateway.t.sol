@@ -1056,7 +1056,7 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     function _hash(
-        bytes32 typeHash,
+        bytes32 domain,
         uint256 chainId,
         uint256 withdrawalId,
         address recipient,
@@ -1066,7 +1066,7 @@ contract MainchainGatewayTest is Test, Utils {
     ) internal pure returns (bytes32) {
         return
             keccak256(
-                abi.encodePacked(typeHash, chainId, withdrawalId, recipient, token, amount, fee)
+                abi.encodePacked(domain, chainId, withdrawalId, recipient, token, amount, fee)
             );
     }
 }

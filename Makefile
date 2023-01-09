@@ -41,9 +41,6 @@ lint :; prettier --write "{contracts,test,scripts}/**/*.{sol,ts}"
 # Generate Gas Snapshots
 snapshot :; forge clean && forge snapshot
 
-# Rename all instances of femplate with the new repo name
-rename :; chmod +x ./scripts/* && ./scripts/rename.sh
-
 # export abi
 abi :; yarn run hardhat export-abi
 

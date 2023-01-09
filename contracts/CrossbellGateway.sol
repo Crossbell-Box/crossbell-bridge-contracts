@@ -242,14 +242,6 @@ contract CrossbellGateway is
     }
 
     /// @inheritdoc ICrossbellGateway
-    function getWithdrawalSigners(
-        uint256 chainId,
-        uint256 withdrawalId
-    ) external view returns (address[] memory) {
-        return _getWithdrawalSigners(chainId, withdrawalId);
-    }
-
-    /// @inheritdoc ICrossbellGateway
     function getWithdrawalSignatures(
         uint256 chainId,
         uint256 withdrawalId

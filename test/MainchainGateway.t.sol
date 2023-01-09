@@ -22,22 +22,24 @@ contract MainchainGatewayTest is Test, Utils {
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event Transfer(address indexed from, address indexed to, uint256 value);
     event RequestDeposit(
+        uint256 indexed chainId,
         uint256 indexed depositId,
         address indexed recipient,
-        address indexed token,
-        uint256 amount // ERC-20 amount
+        address token,
+        uint256 amount
     );
     event Withdrew(
-        uint256 indexed withdrawId,
+        uint256 indexed chainId,
+        uint256 indexed withdrawalId,
         address indexed recipient,
-        address indexed token,
+        address token,
         uint256 amount,
         uint256 fee
     );
     event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds);
     event DailyWithdrawalLimitsUpdated(address[] tokens, uint256[] limits);
-    event WithdrawalLocked(uint256 indexed withdrawId);
-    event WithdrawalUnlocked(uint256 indexed withdrawId);
+    event WithdrawalLocked(uint256 indexed withdrawalId);
+    event WithdrawalUnlocked(uint256 indexed withdrawalId);
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant WITHDRAWAL_UNLOCKER_ROLE = keccak256("WITHDRAWAL_UNLOCKER_ROLE");
@@ -376,7 +378,7 @@ contract MainchainGatewayTest is Test, Utils {
         expectEmit(CheckAll);
         emit Transfer(alice, address(gateway), amount);
         expectEmit(CheckAll);
-        emit RequestDeposit(0, alice, address(crossbellToken), crossbellAmount);
+        emit RequestDeposit(block.chainid, 0, alice, address(crossbellToken), crossbellAmount);
         // requestDeposit
         gateway.requestDeposit(alice, address(mainchainToken), amount);
         vm.stopPrank();
@@ -453,7 +455,7 @@ contract MainchainGatewayTest is Test, Utils {
         vm.chainId(chainId); // set block.chainid
         // expect events
         expectEmit(CheckAll);
-        emit Withdrew(withdrawalId, recipient, token, amount, fee);
+        emit Withdrew(chainId, withdrawalId, recipient, token, amount, fee);
         vm.prank(frank);
         gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
@@ -576,7 +578,7 @@ contract MainchainGatewayTest is Test, Utils {
             } else {
                 // expect events
                 expectEmit(CheckAll);
-                emit Withdrew(withdrawalId, recipient, token, amount, fee);
+                emit Withdrew(chainId, withdrawalId, recipient, token, amount, fee);
                 gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
                 // check withdrawal hash
                 assertEq(gateway.getWithdrawalHash(withdrawalId), hash);
@@ -771,7 +773,7 @@ contract MainchainGatewayTest is Test, Utils {
             }
             // expect events
             expectEmit(CheckAll);
-            emit Withdrew(withdrawalId, recipient, token, amount, fee);
+            emit Withdrew(chainId, withdrawalId, recipient, token, amount, fee);
             gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
             // check withdrawal hash
             assertEq(gateway.getWithdrawalHash(withdrawalId), hash);
@@ -859,7 +861,7 @@ contract MainchainGatewayTest is Test, Utils {
         expectEmit(CheckAll);
         emit WithdrawalUnlocked(withdrawalId);
         expectEmit(CheckAll);
-        emit Withdrew(withdrawalId, recipient, token, amount, fee);
+        emit Withdrew(chainId, withdrawalId, recipient, token, amount, fee);
         vm.prank(withdrawalUnlocker);
         gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
 
@@ -986,6 +988,10 @@ contract MainchainGatewayTest is Test, Utils {
         // check withdrawal hash
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0), "withdrawalHash");
     }
+
+    function testBatchUnlockWithdrawal() public {}
+
+    function testBatchUnlockWithdrawalFail() public {}
 
     function testVerifySignatures() public {
         bytes32 hash = keccak256(abi.encodePacked("testVerifySignatures"));

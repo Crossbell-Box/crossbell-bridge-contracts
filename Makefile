@@ -19,6 +19,10 @@ update:; forge update
 # Builds
 build  :; forge build
 
+bindings: build
+	@echo " > \033[32mCreating go bindings for contracts... \033[0m "
+	./scripts/createBindings.sh
+
 # chmod scripts
 scripts :; chmod +x ./scripts/*
 

@@ -18,6 +18,7 @@ interface IMainchainGateway {
 
     /**
      * @dev Emitted when the deposit is requested
+     * @param chainId The chain ID of mainchain network
      * @param depositId Deposit id
      * @param recipient Address to receive deposit on crossbell network
      * @param token Address of token to deposit on crossbell network
@@ -33,6 +34,7 @@ interface IMainchainGateway {
 
     /**
      * @dev Emitted when the assets are withdrawn on mainchain
+     * @param chainId The chain ID of mainchain network
      * @param withdrawalId Withdrawal ID from crossbell chain
      * @param recipient Address to receive withdrawal on mainchain chain
      * @param token Address of token to withdraw
@@ -55,10 +57,10 @@ interface IMainchainGateway {
     event DailyWithdrawalLimitsUpdated(address[] tokens, uint256[] limits);
 
     /// @dev Emitted when the withdrawal is locked
-    event WithdrawalLocked(uint256 indexed withdrawId);
+    event WithdrawalLocked(uint256 indexed withdrawalId);
 
     /// @dev Emitted when the withdrawal is unlocked
-    event WithdrawalUnlocked(uint256 indexed withdrawId);
+    event WithdrawalUnlocked(uint256 indexed withdrawalId);
 
     function TYPE_HASH() external view returns (bytes32);
 
@@ -131,14 +133,14 @@ interface IMainchainGateway {
     /**
      * @notice Withdraw based on the validator signatures.
      * Requirements:
-     * - The order of the signatures should be arranged in ascending order of the signer address.
-     * @param chainId ChainId
+     * - The signatures should be sorted by signing addresses of validators in ascending order.
+     * @param chainId The chain ID of mainchain network.
      * @param withdrawalId Withdrawal ID from crossbell chain
      * @param recipient Address to receive withdrawal on mainchain chain
      * @param token Address of token to withdraw
      * @param amount Amount of token to withdraw
      * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`
-     * @param signatures Validator signatures for withdrawal
+     * @param signatures The list of signatures sorted by signing addresses of validators in ascending order.
      */
     function withdraw(
         uint256 chainId,
@@ -154,7 +156,7 @@ interface IMainchainGateway {
      * @notice Approves a specific withdrawal.
      * Requirements:
      * - The caller must have the WITHDRAWAL_UNLOCKER_ROLE.
-     * @param chainId ChainId
+     * @param chainId The chain ID of mainchain network.
      * @param withdrawalId Withdrawal ID from crossbell chain
      * @param recipient Address to receive withdrawal on mainchain chain
      * @param token Address of token to withdraw
@@ -168,6 +170,18 @@ interface IMainchainGateway {
         address token,
         uint256 amount,
         uint256 fee
+    ) external;
+
+    /**
+     * @notice Tries bulk unlock withdrawals.
+     */
+    function batchUnlockWithdrawal(
+        uint256[] calldata chainIds,
+        uint256[] calldata withdrawalIds,
+        address[] calldata recipients,
+        address[] calldata tokens,
+        uint256[] calldata amounts,
+        uint256[] calldata fees
     ) external;
 
     /**

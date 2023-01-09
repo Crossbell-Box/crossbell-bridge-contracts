@@ -21,7 +21,7 @@ _Emitted when the tokens are mapped_
 ### RequestDeposit
 
 ```solidity
-event RequestDeposit(uint256 depositId, address recipient, address token, uint256 amount)
+event RequestDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount)
 ```
 
 _Emitted when the deposit is requested_
@@ -30,6 +30,7 @@ _Emitted when the deposit is requested_
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| chainId | uint256 | The chain ID of mainchain network |
 | depositId | uint256 | Deposit id |
 | recipient | address | Address to receive deposit on crossbell network |
 | token | address | Address of token to deposit on crossbell network |
@@ -38,7 +39,7 @@ _Emitted when the deposit is requested_
 ### Withdrew
 
 ```solidity
-event Withdrew(uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee)
+event Withdrew(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee)
 ```
 
 _Emitted when the assets are withdrawn on mainchain_
@@ -47,6 +48,7 @@ _Emitted when the assets are withdrawn on mainchain_
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| chainId | uint256 | The chain ID of mainchain network |
 | withdrawalId | uint256 | Withdrawal ID from crossbell chain |
 | recipient | address | Address to receive withdrawal on mainchain chain |
 | token | address | Address of token to withdraw |
@@ -72,7 +74,7 @@ _Emitted when the daily limit thresholds are updated_
 ### WithdrawalLocked
 
 ```solidity
-event WithdrawalLocked(uint256 withdrawId)
+event WithdrawalLocked(uint256 withdrawalId)
 ```
 
 _Emitted when the withdrawal is locked_
@@ -80,7 +82,7 @@ _Emitted when the withdrawal is locked_
 ### WithdrawalUnlocked
 
 ```solidity
-event WithdrawalUnlocked(uint256 withdrawId)
+event WithdrawalUnlocked(uint256 withdrawalId)
 ```
 
 _Emitted when the withdrawal is unlocked_
@@ -182,19 +184,19 @@ function withdraw(uint256 chainId, uint256 withdrawalId, address recipient, addr
 
 Withdraw based on the validator signatures.
 Requirements:
-- The order of the signatures should be arranged in ascending order of the signer address.
+- The signatures should be sorted by signing addresses of validators in ascending order.
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId |
+| chainId | uint256 | The chain ID of mainchain network. |
 | withdrawalId | uint256 | Withdrawal ID from crossbell chain |
 | recipient | address | Address to receive withdrawal on mainchain chain |
 | token | address | Address of token to withdraw |
 | amount | uint256 | Amount of token to withdraw |
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
-| signatures | struct DataTypes.Signature[] | Validator signatures for withdrawal |
+| signatures | struct DataTypes.Signature[] | The list of signatures sorted by signing addresses of validators in ascending order. |
 
 ### unlockWithdrawal
 
@@ -210,12 +212,20 @@ Requirements:
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | ChainId |
+| chainId | uint256 | The chain ID of mainchain network. |
 | withdrawalId | uint256 | Withdrawal ID from crossbell chain |
 | recipient | address | Address to receive withdrawal on mainchain chain |
 | token | address | Address of token to withdraw |
 | amount | uint256 | Amount of token to withdraw |
 | fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
+
+### batchUnlockWithdrawal
+
+```solidity
+function batchUnlockWithdrawal(uint256[] chainIds, uint256[] withdrawalIds, address[] recipients, address[] tokens, uint256[] amounts, uint256[] fees) external
+```
+
+Tries bulk unlock withdrawals.
 
 ### setLockedThresholds
 

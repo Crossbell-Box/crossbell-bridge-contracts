@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title MainchainGateway
@@ -20,6 +21,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 contract MainchainGateway is
     IMainchainGateway,
     Initializable,
+    ReentrancyGuard,
     Pausable,
     AccessControlEnumerable,
     MainchainGatewayStorage
@@ -90,7 +92,7 @@ contract MainchainGateway is
         address recipient,
         address token,
         uint256 amount
-    ) external whenNotPaused returns (uint256 depositId) {
+    ) external nonReentrant whenNotPaused returns (uint256 depositId) {
         require(amount > 0, "ZeroAmount");
 
         DataTypes.MappedToken memory crossbellToken = _getCrossbellToken(token);
@@ -105,7 +107,13 @@ contract MainchainGateway is
         unchecked {
             _depositCount++;
         }
-        emit RequestDeposit(block.chainid, depositId, recipient, crossbellToken.token, transformedAmount);
+        emit RequestDeposit(
+            block.chainid,
+            depositId,
+            recipient,
+            crossbellToken.token,
+            transformedAmount
+        );
     }
 
     /// @inheritdoc IMainchainGateway
@@ -117,7 +125,7 @@ contract MainchainGateway is
         uint256 amount,
         uint256 fee,
         DataTypes.Signature[] calldata signatures
-    ) external whenNotPaused returns (bool locked) {
+    ) external nonReentrant whenNotPaused returns (bool locked) {
         require(chainId == block.chainid, "InvalidChainId");
         require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
         require(!_reachedDailyWithdrawalLimit(token, amount), "DailyWithdrawalLimit");
@@ -146,19 +154,6 @@ contract MainchainGateway is
         emit Withdrew(chainId, withdrawalId, recipient, token, amount, fee);
     }
 
-    /**
-     * @dev Record withdrawal token.
-     */
-    function _recordWithdrawal(address token, uint256 amount) internal {
-        uint256 currentDate = block.timestamp / 1 days;
-        if (currentDate > _lastDateSynced[token]) {
-            _lastDateSynced[token] = currentDate;
-            _lastSyncedWithdrawal[token] = amount;
-        } else {
-            _lastSyncedWithdrawal[token] += amount;
-        }
-    }
-
     /// @inheritdoc IMainchainGateway
     function unlockWithdrawal(
         uint256 chainId,
@@ -168,25 +163,37 @@ contract MainchainGateway is
         uint256 amount,
         uint256 fee
     ) external whenNotPaused onlyRole(WITHDRAWAL_UNLOCKER_ROLE) {
-        require(chainId == block.chainid, "InvalidChainId");
-        require(_withdrawalLocked[withdrawalId], "WithdrawalNotLocked");
-        // check withdrawalHash, although this does not seem necessary
-        require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
+        _unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
+    }
 
-        delete _withdrawalLocked[withdrawalId];
-        emit WithdrawalUnlocked(withdrawalId);
-
-        bytes32 hash = keccak256(
-            abi.encodePacked(TYPE_HASH, chainId, withdrawalId, recipient, token, amount, fee)
+    /// @inheritdoc IMainchainGateway
+    function batchUnlockWithdrawal(
+        uint256[] calldata chainIds,
+        uint256[] calldata withdrawalIds,
+        address[] calldata recipients,
+        address[] calldata tokens,
+        uint256[] calldata amounts,
+        uint256[] calldata fees
+    ) external whenNotPaused onlyRole(WITHDRAWAL_UNLOCKER_ROLE) {
+        require(
+            chainIds.length == withdrawalIds.length &&
+                chainIds.length == recipients.length &&
+                chainIds.length == tokens.length &&
+                chainIds.length == amounts.length &&
+                chainIds.length == fees.length,
+            "InvalidArrayLength"
         );
 
-        // record withdrawal hash
-        _withdrawalHash[withdrawalId] = hash;
-        // transfer
-        IERC20(token).safeTransfer(recipient, amount - fee);
-        IERC20(token).safeTransfer(msg.sender, fee);
-
-        emit Withdrew(chainId, withdrawalId, recipient, token, amount, fee);
+        for (uint256 i; i < chainIds.length; i++) {
+            _unlockWithdrawal(
+                chainIds[i],
+                withdrawalIds[i],
+                recipients[i],
+                tokens[i],
+                amounts[i],
+                fees[i]
+            );
+        }
     }
 
     /// @inheritdoc IMainchainGateway
@@ -314,6 +321,51 @@ contract MainchainGateway is
             _dailyWithdrawalLimit[tokens[i]] = limits[i];
         }
         emit DailyWithdrawalLimitsUpdated(tokens, limits);
+    }
+
+    /**
+     * @dev Approves a specific withdrawal.
+     */
+    function _unlockWithdrawal(
+        uint256 chainId,
+        uint256 withdrawalId,
+        address recipient,
+        address token,
+        uint256 amount,
+        uint256 fee
+    ) internal {
+        require(chainId == block.chainid, "InvalidChainId");
+        require(_withdrawalLocked[withdrawalId], "WithdrawalNotLocked");
+        // check withdrawalHash, although this does not seem necessary
+        require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
+
+        delete _withdrawalLocked[withdrawalId];
+        emit WithdrawalUnlocked(withdrawalId);
+
+        bytes32 hash = keccak256(
+            abi.encodePacked(TYPE_HASH, chainId, withdrawalId, recipient, token, amount, fee)
+        );
+
+        // record withdrawal hash
+        _withdrawalHash[withdrawalId] = hash;
+        // transfer
+        IERC20(token).safeTransfer(recipient, amount - fee);
+        IERC20(token).safeTransfer(msg.sender, fee);
+
+        emit Withdrew(chainId, withdrawalId, recipient, token, amount, fee);
+    }
+
+    /**
+     * @dev Record withdrawal token.
+     */
+    function _recordWithdrawal(address token, uint256 amount) internal {
+        uint256 currentDate = block.timestamp / 1 days;
+        if (currentDate > _lastDateSynced[token]) {
+            _lastDateSynced[token] = currentDate;
+            _lastSyncedWithdrawal[token] = amount;
+        } else {
+            _lastSyncedWithdrawal[token] += amount;
+        }
     }
 
     /**

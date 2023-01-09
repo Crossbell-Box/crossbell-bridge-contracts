@@ -9,8 +9,11 @@ import "../contracts/Validator.sol";
 import "../contracts/mocks/MintableERC20.sol";
 import "../contracts/upgradeability/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract MainchainGatewayTest is Test, Utils {
+    using ECDSA for bytes32;
+
     // events
     event TokenMapped(
         address[] mainchainTokens,
@@ -442,7 +445,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -480,7 +483,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -488,18 +491,19 @@ contract MainchainGatewayTest is Test, Utils {
             amount,
             fee
         );
+        DataTypes.Signature[] memory signatures = _getTwoSignatures(hash);
 
         // case 1: invalid chainId
         vm.expectRevert(abi.encodePacked("InvalidChainId"));
         vm.prank(eve);
         gateway.withdraw(
             uint256(1001),
-            uint256(1),
+            withdrawalId,
             eve,
             address(mainchainToken),
             amount,
             fee,
-            _getTwoSignatures(hash)
+            signatures
         );
 
         // check balances
@@ -522,7 +526,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -559,7 +563,7 @@ contract MainchainGatewayTest is Test, Utils {
             withdrawalId = i;
 
             bytes32 hash = _hash(
-                gateway.TYPE_HASH(),
+                gateway.DOMAIN_SEPARATOR(),
                 chainId,
                 withdrawalId,
                 recipient,
@@ -599,7 +603,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -634,7 +638,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -674,7 +678,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -710,7 +714,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -753,7 +757,7 @@ contract MainchainGatewayTest is Test, Utils {
             withdrawalId = i;
 
             bytes32 hash = _hash(
-                gateway.TYPE_HASH(),
+                gateway.DOMAIN_SEPARATOR(),
                 chainId,
                 withdrawalId,
                 recipient,
@@ -802,7 +806,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -842,7 +846,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,

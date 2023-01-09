@@ -8,6 +8,9 @@ import "../libraries/DataTypes.sol";
  * @dev Storage of deposit and withdraw information.
  */
 abstract contract MainchainGatewayStorage {
+    /// @dev Domain seperator
+    bytes32 internal _domainSeparator;
+
     /// @dev Validator contract address
     address internal _validator;
 

@@ -87,11 +87,13 @@ event WithdrawalUnlocked(uint256 withdrawalId)
 
 _Emitted when the withdrawal is unlocked_
 
-### TYPE_HASH
+### DOMAIN_SEPARATOR
 
 ```solidity
-function TYPE_HASH() external view returns (bytes32)
+function DOMAIN_SEPARATOR() external view returns (bytes32)
 ```
+
+_Returns the domain seperator._
 
 ### initialize
 
@@ -276,7 +278,7 @@ Returns true if there is enough signatures from validators.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| hash | bytes32 | WithdrawHash |
+| hash | bytes32 | WithdrawalHash |
 | signatures | struct DataTypes.Signature[] | Validator's withdrawal signatures synced from crossbell network |
 
 ### getValidatorContract

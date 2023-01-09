@@ -29,9 +29,6 @@ contract MainchainGateway is
     using ECDSA for bytes32;
     using SafeERC20 for IERC20;
 
-    // keccak256("withdraw(uint256 chainId,uint256 withdrawalId,address recipient,address token,uint256 amount,bytes signatures)")
-    bytes32 public constant TYPE_HASH =
-        0xed7a87d78461bdc12aba24d19e67131757b33eab78ae3c422b3617d69a018b2f;
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant WITHDRAWAL_UNLOCKER_ROLE = keccak256("WITHDRAWAL_UNLOCKER_ROLE");
 
@@ -49,6 +46,8 @@ contract MainchainGateway is
     ) external initializer {
         _validator = validator;
 
+        _updateDomainSeparator();
+
         // map crossbell tokens
         if (mainchainTokens.length > 0) {
             _mapTokens(mainchainTokens, crossbellTokens, crossbellTokenDecimals);
@@ -64,6 +63,13 @@ contract MainchainGateway is
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
         _setupRole(ADMIN_ROLE, admin);
         _setupRole(WITHDRAWAL_UNLOCKER_ROLE, withdrawalUnlocker);
+    }
+
+    /**
+     * @inheritdoc IMainchainGateway
+     */
+    function DOMAIN_SEPARATOR() external view virtual returns (bytes32) {
+        return _domainSeparator;
     }
 
     /// @inheritdoc IMainchainGateway
@@ -131,7 +137,7 @@ contract MainchainGateway is
         require(!_reachedDailyWithdrawalLimit(token, amount), "DailyWithdrawalLimit");
 
         bytes32 hash = keccak256(
-            abi.encodePacked(TYPE_HASH, chainId, withdrawalId, recipient, token, amount, fee)
+            abi.encodePacked(_domainSeparator, chainId, withdrawalId, recipient, token, amount, fee)
         );
         require(_verifySignatures(hash, signatures), "InsufficientSignaturesNumber");
 
@@ -265,6 +271,23 @@ contract MainchainGateway is
         return _getCrossbellToken(mainchainToken);
     }
 
+    /**
+     * @dev Update domain seperator.
+     */
+    function _updateDomainSeparator() internal {
+        _domainSeparator = keccak256(
+            abi.encode(
+                keccak256(
+                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                ),
+                keccak256("MainchainGateway"),
+                keccak256("1"),
+                block.chainid,
+                address(this)
+            )
+        );
+    }
+
     function _verifySignatures(
         bytes32 hash,
         DataTypes.Signature[] calldata signatures
@@ -343,7 +366,7 @@ contract MainchainGateway is
         emit WithdrawalUnlocked(withdrawalId);
 
         bytes32 hash = keccak256(
-            abi.encodePacked(TYPE_HASH, chainId, withdrawalId, recipient, token, amount, fee)
+            abi.encodePacked(_domainSeparator, chainId, withdrawalId, recipient, token, amount, fee)
         );
 
         // record withdrawal hash
@@ -399,14 +422,14 @@ contract MainchainGateway is
     function _transformDepositAmount(
         address token,
         uint256 amount,
-        uint8 destinationDecimals
+        uint8 destDecimals
     ) internal view returns (uint256 transformedAmount) {
         uint8 decimals = IERC20Metadata(token).decimals();
 
-        if (destinationDecimals >= decimals) {
-            transformedAmount = amount * 10 ** (destinationDecimals - decimals);
+        if (destDecimals >= decimals) {
+            transformedAmount = amount * 10 ** (destDecimals - decimals);
         } else {
-            transformedAmount = amount / (10 ** (decimals - destinationDecimals));
+            transformedAmount = amount / (10 ** (decimals - destDecimals));
         }
     }
 

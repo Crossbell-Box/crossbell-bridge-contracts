@@ -4,12 +4,6 @@
 
 _Logic to handle deposits and withdrawals on mainchain._
 
-### TYPE_HASH
-
-```solidity
-bytes32 TYPE_HASH
-```
-
 ### ADMIN_ROLE
 
 ```solidity
@@ -44,6 +38,14 @@ Note that the thresholds contains:
 | thresholds | uint256[][2] | The amount thresholds  for withdrawal. |
 | crossbellTokens | address[] | Addresses of crossbell tokens. |
 | crossbellTokenDecimals | uint8[] | Decimals of crossbell tokens. |
+
+### DOMAIN_SEPARATOR
+
+```solidity
+function DOMAIN_SEPARATOR() external view virtual returns (bytes32)
+```
+
+_Returns the domain seperator._
 
 ### pause
 
@@ -205,7 +207,7 @@ Returns true if there is enough signatures from validators.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| hash | bytes32 | WithdrawHash |
+| hash | bytes32 | WithdrawalHash |
 | signatures | struct DataTypes.Signature[] | Validator's withdrawal signatures synced from crossbell network |
 
 ### getValidatorContract
@@ -333,6 +335,14 @@ Get mapped tokens from crossbell chain
 | ---- | ---- | ----------- |
 | token | struct DataTypes.MappedToken | Mapped token from crossbell chain |
 
+### _updateDomainSeparator
+
+```solidity
+function _updateDomainSeparator() internal
+```
+
+_Update domain seperator._
+
 ### _verifySignatures
 
 ```solidity
@@ -394,7 +404,7 @@ Note that the daily withdrawal threshold should not apply for locked withdrawals
 ### _transformDepositAmount
 
 ```solidity
-function _transformDepositAmount(address token, uint256 amount, uint8 destinationDecimals) internal view returns (uint256 transformedAmount)
+function _transformDepositAmount(address token, uint256 amount, uint8 destDecimals) internal view returns (uint256 transformedAmount)
 ```
 
 ### _getCrossbellToken

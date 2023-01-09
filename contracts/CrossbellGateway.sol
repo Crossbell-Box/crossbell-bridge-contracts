@@ -108,18 +108,15 @@ contract CrossbellGateway is
     function batchSubmitWithdrawalSignatures(
         uint256[] calldata chainIds,
         uint256[] calldata withdrawalIds,
-        bool[] calldata shouldReplaces,
         bytes[] calldata sigs
     ) external whenNotPaused onlyValidator {
         require(
-            withdrawalIds.length == chainIds.length &&
-                withdrawalIds.length == shouldReplaces.length &&
-                withdrawalIds.length == sigs.length,
+            withdrawalIds.length == chainIds.length && withdrawalIds.length == sigs.length,
             "InvalidArrayLength"
         );
 
         for (uint256 i; i < withdrawalIds.length; i++) {
-            _submitWithdrawalSignatures(chainIds[i], withdrawalIds[i], shouldReplaces[i], sigs[i]);
+            _submitWithdrawalSignature(chainIds[i], withdrawalIds[i], sigs[i]);
         }
     }
 
@@ -201,13 +198,12 @@ contract CrossbellGateway is
     }
 
     /// @inheritdoc ICrossbellGateway
-    function submitWithdrawalSignatures(
+    function submitWithdrawalSignature(
         uint256 chainId,
         uint256 withdrawalId,
-        bool shouldReplace,
         bytes calldata sig
     ) external whenNotPaused onlyValidator {
-        _submitWithdrawalSignatures(chainId, withdrawalId, shouldReplace, sig);
+        _submitWithdrawalSignature(chainId, withdrawalId, sig);
     }
 
     /// @inheritdoc ICrossbellGateway
@@ -243,14 +239,6 @@ contract CrossbellGateway is
         bytes32 hash
     ) external view returns (uint256) {
         return _ackCount[chainId][id][hash];
-    }
-
-    /// @inheritdoc ICrossbellGateway
-    function getWithdrawalSigners(
-        uint256 chainId,
-        uint256 withdrawalId
-    ) external view returns (address[] memory) {
-        return _getWithdrawalSigners(chainId, withdrawalId);
     }
 
     /// @inheritdoc ICrossbellGateway
@@ -322,35 +310,29 @@ contract CrossbellGateway is
     function _transformWithdrawalAmount(
         address token,
         uint256 amount,
-        uint8 destinationDecimals
+        uint8 destDecimals
     ) internal view returns (uint256 transformedAmount) {
         uint8 decimals = IERC20Metadata(token).decimals();
 
-        if (destinationDecimals >= decimals) {
-            transformedAmount = amount * 10 ** (destinationDecimals - decimals);
+        if (destDecimals >= decimals) {
+            transformedAmount = amount * 10 ** (destDecimals - decimals);
         } else {
-            transformedAmount = amount / (10 ** (decimals - destinationDecimals));
+            transformedAmount = amount / (10 ** (decimals - destDecimals));
         }
     }
 
-    function _submitWithdrawalSignatures(
+    function _submitWithdrawalSignature(
         uint256 chainId,
         uint256 withdrawalId,
-        bool shouldReplace,
         bytes calldata sig
     ) internal {
         bytes memory currentSig = _withdrawalSig[chainId][withdrawalId][msg.sender];
-
-        bool alreadyHasSig = currentSig.length != 0;
-
-        if (!shouldReplace && alreadyHasSig) {
-            return;
+        if (0 == currentSig.length) {
+            _withdrawalSigners[chainId][withdrawalId].push(msg.sender);
         }
 
         _withdrawalSig[chainId][withdrawalId][msg.sender] = sig;
-        if (!alreadyHasSig) {
-            _withdrawalSigners[chainId][withdrawalId].push(msg.sender);
-        }
+        emit SubmitWithdrawalSignature(chainId, withdrawalId, msg.sender, sig);
     }
 
     function _acknowledge(

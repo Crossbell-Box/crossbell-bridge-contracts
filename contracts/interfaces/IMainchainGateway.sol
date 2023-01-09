@@ -62,7 +62,10 @@ interface IMainchainGateway {
     /// @dev Emitted when the withdrawal is unlocked
     event WithdrawalUnlocked(uint256 indexed withdrawalId);
 
-    function TYPE_HASH() external view returns (bytes32);
+    /**
+     * @dev Returns the domain seperator.
+     */
+    function DOMAIN_SEPARATOR() external view returns (bytes32);
 
     /**
      * @notice Initializes the MainchainGateway.
@@ -210,7 +213,7 @@ interface IMainchainGateway {
 
     /**
      * @notice Returns true if there is enough signatures from validators.
-     * @param hash WithdrawHash
+     * @param hash WithdrawalHash
      * @param signatures Validator's withdrawal signatures synced from crossbell network
      */
     function verifySignatures(

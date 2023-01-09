@@ -9,8 +9,11 @@ import "../contracts/Validator.sol";
 import "../contracts/mocks/MintableERC20.sol";
 import "../contracts/upgradeability/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract MainchainGatewayTest is Test, Utils {
+    using ECDSA for bytes32;
+
     // events
     event TokenMapped(
         address[] mainchainTokens,
@@ -442,7 +445,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -480,7 +483,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -488,18 +491,19 @@ contract MainchainGatewayTest is Test, Utils {
             amount,
             fee
         );
+        DataTypes.Signature[] memory signatures = _getTwoSignatures(hash);
 
         // case 1: invalid chainId
         vm.expectRevert(abi.encodePacked("InvalidChainId"));
         vm.prank(eve);
         gateway.withdraw(
             uint256(1001),
-            uint256(1),
+            withdrawalId,
             eve,
             address(mainchainToken),
             amount,
             fee,
-            _getTwoSignatures(hash)
+            signatures
         );
 
         // check balances
@@ -522,7 +526,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -559,7 +563,7 @@ contract MainchainGatewayTest is Test, Utils {
             withdrawalId = i;
 
             bytes32 hash = _hash(
-                gateway.TYPE_HASH(),
+                gateway.DOMAIN_SEPARATOR(),
                 chainId,
                 withdrawalId,
                 recipient,
@@ -599,7 +603,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -634,7 +638,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -674,7 +678,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -710,7 +714,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -753,7 +757,7 @@ contract MainchainGatewayTest is Test, Utils {
             withdrawalId = i;
 
             bytes32 hash = _hash(
-                gateway.TYPE_HASH(),
+                gateway.DOMAIN_SEPARATOR(),
                 chainId,
                 withdrawalId,
                 recipient,
@@ -802,7 +806,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -842,7 +846,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.TYPE_HASH(),
+            gateway.DOMAIN_SEPARATOR(),
             chainId,
             withdrawalId,
             recipient,
@@ -989,9 +993,114 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0), "withdrawalHash");
     }
 
-    function testBatchUnlockWithdrawal() public {}
+    function testBatchUnlockWithdrawal() public {
+        // mint tokens to mainchain gateway contract
+        mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
-    function testBatchUnlockWithdrawalFail() public {}
+        // withdrawal for bob
+        address token = address(mainchainToken);
+        uint256 amount = WITHDRAWLAL_THRESHOLD;
+        uint256 fee = 1 * 10 ** 5;
+        uint256 chainId = 1337;
+        bytes32 hashBob = _hash(gateway.DOMAIN_SEPARATOR(), chainId, 1, bob, token, amount, fee);
+        DataTypes.Signature[] memory signaturesBob = _getTwoSignatures(hashBob);
+        vm.chainId(chainId); // set block.chainid
+        // locked when withdraw
+        gateway.withdraw(chainId, 1, bob, token, amount, fee, signaturesBob);
+
+        // withdrawal for carol
+        bytes32 hashCarol = _hash(
+            gateway.DOMAIN_SEPARATOR(),
+            chainId,
+            2,
+            carol,
+            token,
+            amount,
+            fee
+        );
+        DataTypes.Signature[] memory signaturesCarol = _getTwoSignatures(hashCarol);
+        // locked when withdraw
+        gateway.withdraw(chainId, 2, carol, token, amount, fee, signaturesCarol);
+
+        // check locked withdrawal
+        assertEq(gateway.getWithdrawalLocked(1), true);
+        assertEq(gateway.getWithdrawalLocked(2), true);
+
+        // unlocker withdrawal
+        vm.prank(withdrawalUnlocker);
+        gateway.batchUnlockWithdrawal(
+            array(chainId, chainId),
+            array(1, 2),
+            array(bob, carol),
+            array(token, token),
+            array(amount, amount),
+            array(fee, fee)
+        );
+
+        // check state
+        assertEq(gateway.getWithdrawalHash(1), hashBob);
+        assertEq(gateway.getWithdrawalHash(2), hashCarol);
+        // check locked withdrawal
+        assertEq(gateway.getWithdrawalLocked(1), false);
+        assertEq(gateway.getWithdrawalLocked(2), false);
+        // check balances
+        assertEq(mainchainToken.balanceOf(bob), amount - fee);
+        assertEq(mainchainToken.balanceOf(carol), amount - fee);
+        assertEq(mainchainToken.balanceOf(withdrawalUnlocker), fee * 2);
+        assertEq(mainchainToken.balanceOf(address(gateway)), INITIAL_AMOUNT_MAINCHAIN - amount * 2);
+    }
+
+    function testBatchUnlockWithdrawalFail() public {
+        address token = address(mainchainToken);
+        uint256 amount = WITHDRAWLAL_THRESHOLD;
+        uint256 fee = 1 * 10 ** 5;
+        uint256 chainId = 1337;
+
+        // case 1: InvalidArrayLength
+        vm.expectRevert(abi.encodePacked("InvalidArrayLength"));
+        vm.prank(withdrawalUnlocker);
+        gateway.batchUnlockWithdrawal(
+            array(chainId, chainId),
+            array(1, 2),
+            array(bob),
+            array(token, token),
+            array(amount, amount),
+            array(fee, fee)
+        );
+
+        // case 2: caller has no unlocker permission
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(eve),
+                " is missing role ",
+                Strings.toHexString(uint256(WITHDRAWAL_UNLOCKER_ROLE), 32)
+            )
+        );
+        vm.prank(eve);
+        gateway.batchUnlockWithdrawal(
+            array(chainId, chainId),
+            array(1, 2),
+            array(bob, carol),
+            array(token, token),
+            array(amount, amount),
+            array(fee, fee)
+        );
+
+        // case 3: paused
+        vm.prank(admin);
+        gateway.pause();
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        vm.prank(withdrawalUnlocker);
+        gateway.batchUnlockWithdrawal(
+            array(chainId, chainId),
+            array(1, 2),
+            array(bob, carol),
+            array(token, token),
+            array(amount, amount),
+            array(fee, fee)
+        );
+    }
 
     function testVerifySignatures() public {
         bytes32 hash = keccak256(abi.encodePacked("testVerifySignatures"));
@@ -1052,7 +1161,7 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     function _hash(
-        bytes32 typeHash,
+        bytes32 domain,
         uint256 chainId,
         uint256 withdrawalId,
         address recipient,
@@ -1062,7 +1171,7 @@ contract MainchainGatewayTest is Test, Utils {
     ) internal pure returns (bytes32) {
         return
             keccak256(
-                abi.encodePacked(typeHash, chainId, withdrawalId, recipient, token, amount, fee)
+                abi.encodePacked(domain, chainId, withdrawalId, recipient, token, amount, fee)
             );
     }
 }

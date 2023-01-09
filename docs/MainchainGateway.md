@@ -404,7 +404,7 @@ Note that the daily withdrawal threshold should not apply for locked withdrawals
 ### _transformDepositAmount
 
 ```solidity
-function _transformDepositAmount(address token, uint256 amount, uint8 destinationDecimals) internal view returns (uint256 transformedAmount)
+function _transformDepositAmount(address token, uint256 amount, uint8 destDecimals) internal view returns (uint256 transformedAmount)
 ```
 
 ### _getCrossbellToken

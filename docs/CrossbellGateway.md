@@ -361,7 +361,7 @@ function _ackDeposit(uint256 chainId, uint256 depositId, address recipient, addr
 ### _transformWithdrawalAmount
 
 ```solidity
-function _transformWithdrawalAmount(address token, uint256 amount, uint8 destinationDecimals) internal view returns (uint256 transformedAmount)
+function _transformWithdrawalAmount(address token, uint256 amount, uint8 destDecimals) internal view returns (uint256 transformedAmount)
 ```
 
 ### _submitWithdrawalSignature

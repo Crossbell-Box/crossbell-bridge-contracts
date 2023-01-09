@@ -535,7 +535,7 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(address(recipient)), 0, "recipient balance ");
     }
 
-    function testBatchAckDepositx() public {
+    function testBatchAckDeposit() public {
         // mint tokens to gateway contract
         crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
 
@@ -922,7 +922,7 @@ contract CrossbellGatewayTest is Test, Utils {
         gateway.requestWithdrawalSignatures(chainId, withdrawalId);
     }
 
-    function testSubmitWithdrawalSignatures() public {
+    function testSubmitWithdrawalSignature() public {
         uint256 chainId = 1;
         uint256 withdrawalId = 1;
 
@@ -965,7 +965,7 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(sigs[2], bytes("signature333"));
     }
 
-    function testSubmitWithdrawalSignaturesFail() public {
+    function testSubmitWithdrawalSignatureFail() public {
         uint256 chainId = 1;
         uint256 withdrawalId = 1;
 
@@ -982,9 +982,54 @@ contract CrossbellGatewayTest is Test, Utils {
         gateway.submitWithdrawalSignature(chainId, withdrawalId, bytes("signature1"));
     }
 
-    function testBatchSubmitWithdrawalSignatures() public {}
+    function testBatchSubmitWithdrawalSignatures() public {
+        bytes memory sig1 = bytes("signature1");
+        bytes memory sig2 = bytes("signature2");
+        bytes[] memory signatures = new bytes[](2);
+        signatures[0] = sig1;
+        signatures[1] = sig2;
 
-    function testBatchSubmitWithdrawalSignaturesFail() public {}
+        // submit withdrawal signatures
+        // expect events
+        expectEmit(CheckAll);
+        emit SubmitWithdrawalSignature(1, 3, validator1, sig1);
+        expectEmit(CheckAll);
+        emit SubmitWithdrawalSignature(2, 4, validator1, sig2);
+        vm.prank(validator1);
+        gateway.batchSubmitWithdrawalSignatures(array(1, 2), array(3, 4), signatures);
+
+        // check state
+        (address[] memory signers, bytes[] memory sigs) = gateway.getWithdrawalSignatures(1, 3);
+        assertEq(signers, array(validator1));
+        assertEq(sigs[0], sig1);
+
+        (signers, sigs) = gateway.getWithdrawalSignatures(2, 4);
+        assertEq(signers, array(validator1));
+        assertEq(sigs[0], sig2);
+    }
+
+    function testBatchSubmitWithdrawalSignaturesFail() public {
+        bytes memory sig1 = bytes("signature1");
+        bytes memory sig2 = bytes("signature2");
+        bytes[] memory signatures = new bytes[](2);
+        signatures[0] = sig1;
+        signatures[1] = sig2;
+
+        // case 1: InvalidArrayLength
+        vm.expectRevert(abi.encodePacked("InvalidArrayLength"));
+        vm.prank(validator1);
+        gateway.batchSubmitWithdrawalSignatures(array(1, 2), array(4), signatures);
+
+        // case 2: not validator
+        vm.expectRevert(abi.encodePacked("NotValidator"));
+        gateway.batchSubmitWithdrawalSignatures(array(1, 2), array(3, 4), signatures);
+
+        // case 3: paused
+        vm.prank(admin);
+        gateway.pause();
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        gateway.batchSubmitWithdrawalSignatures(array(1, 2), array(3, 4), signatures);
+    }
 
     function _checkAcknowledgementStatus(
         uint256 chainId,

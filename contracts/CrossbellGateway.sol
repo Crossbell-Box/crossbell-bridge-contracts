@@ -310,14 +310,14 @@ contract CrossbellGateway is
     function _transformWithdrawalAmount(
         address token,
         uint256 amount,
-        uint8 destinationDecimals
+        uint8 destDecimals
     ) internal view returns (uint256 transformedAmount) {
         uint8 decimals = IERC20Metadata(token).decimals();
 
-        if (destinationDecimals >= decimals) {
-            transformedAmount = amount * 10 ** (destinationDecimals - decimals);
+        if (destDecimals >= decimals) {
+            transformedAmount = amount * 10 ** (destDecimals - decimals);
         } else {
-            transformedAmount = amount / (10 ** (decimals - destinationDecimals));
+            transformedAmount = amount / (10 ** (decimals - destDecimals));
         }
     }
 
@@ -327,8 +327,7 @@ contract CrossbellGateway is
         bytes calldata sig
     ) internal {
         bytes memory currentSig = _withdrawalSig[chainId][withdrawalId][msg.sender];
-        bool alreadyHasSig = currentSig.length != 0;
-        if (!alreadyHasSig) {
+        if (0 == currentSig.length) {
             _withdrawalSigners[chainId][withdrawalId].push(msg.sender);
         }
 

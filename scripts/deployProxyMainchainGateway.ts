@@ -4,19 +4,18 @@
 // When running the scripts with `npx hardhat run <scripts>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
+import {
+    proxyAdmin,
+    withdrawalUnlocker,
+    validatorContract,
+    gatewayAdmin,
+    mainchainTokens,
+    thresholds,
+    crossbellTokens,
+    crossbellTokenDecimals,
+} from "./config/polygonMumbai"; // NOTE: update the config before deployment
 
 async function main() {
-    // NOTE: update these addresses before deployment
-    const proxyAdmin = "0x0000000000000000000000000000000000000001";
-    const withdrawalUnlocker = "0x0000000000000000000000000000000000000002";
-
-    const validatorContract = "0x0000000000000000000000000000000000000001";
-    const gatewayAdmin = "0x0000000000000000000000000000000000000003";
-    const mainchainTokens = ["0x0000000000000000000000000000000000000004"];
-    const thresholds = [[1000000000], [1000000000000]];
-    const crossbellTokens = ["0x0000000000000000000000000000000000000004"];
-    const crossbellTokenDecimals = [18];
-
     // deploy mainchainGateway
     const MainchainGateway = await ethers.getContractFactory("MainchainGateway");
     // always initialize the logic contract

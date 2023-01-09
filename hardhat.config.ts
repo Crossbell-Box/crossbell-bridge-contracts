@@ -23,6 +23,7 @@ const chainIds = {
     goerli: 5,
     polygon: 137,
     polygonMumbai: 80001,
+    avalancheFujiTestnet:43113,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
@@ -32,13 +33,16 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
             jsonRpcUrl = "https://bsc-dataseed1.binance.org";
             break;
         case "bscTestnet":
-            jsonRpcUrl = "https://data-seed-prebsc-1-s2.binance.org:8545";
+            jsonRpcUrl = "https://data-seed-prebsc-1-s3.binance.org:8545/";
             break;
         case "polygon":
             jsonRpcUrl = "https://polygon-rpc.com/";
             break;
         case "polygonMumbai":
             jsonRpcUrl = "https://matic-mumbai.chainstacklabs.com";
+            break;
+        case "avalancheFujiTestnet":
+            jsonRpcUrl = "https://api.avax-test.network/ext/C/rpc";
             break;
         default:
             jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
@@ -80,6 +84,7 @@ module.exports = {
         goerli: getChainConfig("goerli"),
         polygon: getChainConfig("polygon"),
         polygonMumbai: getChainConfig("polygonMumbai"),
+        avalancheFujiTestnet:getChainConfig("avalancheFujiTestnet"),
     },
 
     etherscan: {
@@ -91,6 +96,7 @@ module.exports = {
             goerli: process.env.ETHERSCAN_API_KEY || "",
             polygon: process.env.POLYGONSCAN_API_KEY || "",
             polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
+            avalancheFujiTestnet: process.env.AVAX_API_KEY || "",
         },
         customChains: [
             {

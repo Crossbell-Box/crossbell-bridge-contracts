@@ -6,17 +6,17 @@
 import { ethers } from "hardhat";
 
 async function main() {
+    const [owner] = await ethers.getSigners();
+
     // NOTE: update `initial_validators` and `requiredNumber` before deployment
-    const initial_validators = [
-        "0x211F1925f0409957927e33bc1a8eA5FB67A37516",
-        "0x6d4C924Cbe6c3B2349517477Edc4933c3059d5d0",
-    ];
-    const requiredNumber = 2;
+    const name = "USD Coin";
+    const symbol = "USDC";
+    const decimals = 18;
 
-    const Validator = await ethers.getContractFactory("Validator");
-    const validator = await Validator.deploy(initial_validators, requiredNumber);
+    const Token = await ethers.getContractFactory("MintableERC20");
+    const token = await Token.deploy(name, symbol, decimals);
 
-    console.log("validator deployed to:", validator.address);
+    console.log("token deployed to:", token.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

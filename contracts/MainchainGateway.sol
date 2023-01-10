@@ -192,7 +192,7 @@ contract MainchainGateway is
 
         // operations inside a loop might waste gas,
         // so the caller should decide by himself the size of the input array
-        for (uint256 i; i < chainIds.length; i++) {
+        for (uint256 i = 0; i < chainIds.length; i++) {
             _unlockWithdrawal(
                 chainIds[i],
                 withdrawalIds[i],

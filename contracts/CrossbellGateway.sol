@@ -90,7 +90,7 @@ contract CrossbellGateway is
         address[] calldata recipients,
         address[] calldata tokens,
         uint256[] calldata amounts
-    ) external whenNotPaused onlyValidator {
+    ) external nonReentrant whenNotPaused onlyValidator {
         require(
             depositIds.length == chainIds.length &&
                 depositIds.length == recipients.length &&
@@ -111,11 +111,11 @@ contract CrossbellGateway is
         bytes[] calldata sigs
     ) external whenNotPaused onlyValidator {
         require(
-            withdrawalIds.length == chainIds.length && withdrawalIds.length == sigs.length,
+            chainIds.length == withdrawalIds.length && chainIds.length == sigs.length,
             "InvalidArrayLength"
         );
 
-        for (uint256 i; i < withdrawalIds.length; i++) {
+        for (uint256 i = 0; i < chainIds.length; i++) {
             _submitWithdrawalSignature(chainIds[i], withdrawalIds[i], sigs[i]);
         }
     }
@@ -127,7 +127,7 @@ contract CrossbellGateway is
         address recipient,
         address token,
         uint256 amount
-    ) external whenNotPaused onlyValidator {
+    ) external nonReentrant whenNotPaused onlyValidator {
         _ackDeposit(chainId, depositId, recipient, token, amount);
     }
 

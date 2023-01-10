@@ -258,10 +258,10 @@ Returns the withdrawal hash by withdrawal id.
 | ---- | ---- | ----------- |
 | [0] | bytes32 | The withdrawal hash |
 
-### getWithdrawalLocked
+### isWithdrawalLocked
 
 ```solidity
-function getWithdrawalLocked(uint256 withdrawalId) external view returns (bool)
+function isWithdrawalLocked(uint256 withdrawalId) external view returns (bool)
 ```
 
 Returns whether the withdrawal is locked or not.
@@ -271,6 +271,12 @@ Returns whether the withdrawal is locked or not.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | withdrawalId | uint256 | WithdrawalId to query |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bool | True if the withdrawal is locked |
 
 ### getWithdrawalLockedThreshold
 

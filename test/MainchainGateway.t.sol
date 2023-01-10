@@ -824,7 +824,7 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
         // check locked state
-        assertEq(gateway.getWithdrawalLocked(withdrawalId), true);
+        assertEq(gateway.isWithdrawalLocked(withdrawalId), true);
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), INITIAL_AMOUNT_MAINCHAIN);
         assertEq(mainchainToken.balanceOf(bob), 0);
@@ -915,7 +915,7 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
 
         // check locked state
-        assertEq(gateway.getWithdrawalLocked(withdrawalId), false);
+        assertEq(gateway.isWithdrawalLocked(withdrawalId), false);
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), INITIAL_AMOUNT_MAINCHAIN - amount);
         assertEq(mainchainToken.balanceOf(bob), amount - fee, "amount");
@@ -941,7 +941,7 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
 
         // check locked state
-        assertEq(gateway.getWithdrawalLocked(withdrawalId), false);
+        assertEq(gateway.isWithdrawalLocked(withdrawalId), false);
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), 0);
         assertEq(mainchainToken.balanceOf(recipient), 0, "amount");
@@ -968,7 +968,7 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
 
         // check locked state
-        assertEq(gateway.getWithdrawalLocked(withdrawalId), false);
+        assertEq(gateway.isWithdrawalLocked(withdrawalId), false);
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), 0);
         assertEq(mainchainToken.balanceOf(recipient), 0, "amount");
@@ -996,7 +996,7 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
 
         // check locked state
-        assertEq(gateway.getWithdrawalLocked(withdrawalId), false);
+        assertEq(gateway.isWithdrawalLocked(withdrawalId), false);
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), 0);
         assertEq(mainchainToken.balanceOf(recipient), 0, "amount");
@@ -1029,7 +1029,7 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
 
         // check locked state
-        assertEq(gateway.getWithdrawalLocked(withdrawalId), false);
+        assertEq(gateway.isWithdrawalLocked(withdrawalId), false);
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), 0);
         assertEq(mainchainToken.balanceOf(recipient), 0, "amount");
@@ -1068,8 +1068,8 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.withdraw(chainId, 2, carol, token, amount, fee, signaturesCarol);
 
         // check locked withdrawal
-        assertEq(gateway.getWithdrawalLocked(1), true);
-        assertEq(gateway.getWithdrawalLocked(2), true);
+        assertEq(gateway.isWithdrawalLocked(1), true);
+        assertEq(gateway.isWithdrawalLocked(2), true);
 
         // unlocker withdrawal
         vm.prank(withdrawalUnlocker);
@@ -1086,8 +1086,8 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(1), hashBob);
         assertEq(gateway.getWithdrawalHash(2), hashCarol);
         // check locked withdrawal
-        assertEq(gateway.getWithdrawalLocked(1), false);
-        assertEq(gateway.getWithdrawalLocked(2), false);
+        assertEq(gateway.isWithdrawalLocked(1), false);
+        assertEq(gateway.isWithdrawalLocked(2), false);
         // check balances
         assertEq(mainchainToken.balanceOf(bob), amount - fee);
         assertEq(mainchainToken.balanceOf(carol), amount - fee);

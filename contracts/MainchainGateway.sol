@@ -244,7 +244,7 @@ contract MainchainGateway is
     }
 
     /// @inheritdoc IMainchainGateway
-    function getWithdrawalLocked(uint256 withdrawalId) external view returns (bool) {
+    function isWithdrawalLocked(uint256 withdrawalId) external view returns (bool) {
         return _withdrawalLocked[withdrawalId];
     }
 

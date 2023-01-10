@@ -278,12 +278,13 @@ contract MainchainGateway is
         _domainSeparator = keccak256(
             abi.encode(
                 keccak256(
-                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)"
                 ),
                 keccak256("MainchainGateway"),
                 keccak256("1"),
                 block.chainid,
-                address(this)
+                address(this),
+                keccak256(abi.encodePacked(block.timestamp))
             )
         );
     }

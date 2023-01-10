@@ -56,7 +56,8 @@ interface ICrossbellGateway {
      * @param withdrawalId Withdrawal identifier id.
      * @param recipient The address of account to receive the withdrawal.
      * @param token The address of token to withdraw on mainchain network.
-     * @param amount The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature
+     * @param amount The amount of token to withdraw on mainchain network.
+     * Note that validator should use this `amount' for submitting signature
      * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
      */
     event RequestWithdrawal(
@@ -88,7 +89,8 @@ interface ICrossbellGateway {
      * @param withdrawalId Withdrawal identifier id.
      * @param recipient The address of account to receive the withdrawal.
      * @param token The address of token to withdraw on mainchain network.
-     * @param amount The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature
+     * @param amount The amount of token to withdraw on mainchain network.
+     * Note that validator should use this `amount' for submitting signature
      * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
      */
     event RequestWithdrawalSignatures(
@@ -198,8 +200,9 @@ interface ICrossbellGateway {
     ) external returns (uint256 withdrawalId);
 
     /**
-     * @notice Request withdrawal signatures, in case the withdrawer didn't submit to mainchain in time and the set of the validator
-     * has changed.
+     * @notice Request withdrawal signatures.
+     * In case the withdrawer didn't submit to mainchain in time,
+     * and the set of the validator has changed.
      * @param chainId The chain ID of mainchain network
      * @param withdrawalId WithdrawalId
      */

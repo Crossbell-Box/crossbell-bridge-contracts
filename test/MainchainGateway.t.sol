@@ -47,21 +47,21 @@ contract MainchainGatewayTest is Test, Utils {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant WITHDRAWAL_UNLOCKER_ROLE = keccak256("WITHDRAWAL_UNLOCKER_ROLE");
 
-    address internal alice = address(0x111);
-    address internal bob = address(0x222);
-    address internal carol = address(0x333);
-    address internal dave = address(0x444);
-    address internal eve = address(0x555);
-    address internal frank = address(0x666);
+    address internal constant alice = address(0x111);
+    address internal constant bob = address(0x222);
+    address internal constant carol = address(0x333);
+    address internal constant dave = address(0x444);
+    address internal constant eve = address(0x555);
+    address internal constant frank = address(0x666);
 
-    address internal admin = address(0x777);
-    address internal proxyAdmin = address(0x888);
-    address internal withdrawalUnlocker = address(0x999);
+    address internal constant admin = address(0x777);
+    address internal constant proxyAdmin = address(0x888);
+    address internal constant withdrawalUnlocker = address(0x999);
 
     // validators
-    uint256 internal validator1PrivateKey = 1;
-    uint256 internal validator2PrivateKey = 2;
-    uint256 internal validator3PrivateKey = 3;
+    uint256 internal constant validator1PrivateKey = 1;
+    uint256 internal constant validator2PrivateKey = 2;
+    uint256 internal constant validator3PrivateKey = 3;
     address internal validator1 = vm.addr(validator1PrivateKey);
     address internal validator2 = vm.addr(validator2PrivateKey);
     address internal validator3 = vm.addr(validator3PrivateKey);
@@ -80,7 +80,7 @@ contract MainchainGatewayTest is Test, Utils {
     // daily withdrawal limit: 100 tokens
     uint256 internal constant DAILY_WITHDRAWLAL_LIMIT = 100 * 10 ** 6;
 
-    uint256[][2] internal INITIAL_THRESHOLDS = [
+    uint256[][2] internal initialThresholds = [
         array(WITHDRAWLAL_THRESHOLD),
         array(DAILY_WITHDRAWLAL_LIMIT)
     ];
@@ -109,7 +109,7 @@ contract MainchainGatewayTest is Test, Utils {
             admin,
             withdrawalUnlocker,
             array(address(mainchainToken)),
-            INITIAL_THRESHOLDS,
+            initialThresholds,
             array(address(crossbellToken)),
             decimals
         );
@@ -139,7 +139,7 @@ contract MainchainGatewayTest is Test, Utils {
             bob,
             withdrawalUnlocker,
             array(address(mainchainToken)),
-            INITIAL_THRESHOLDS,
+            initialThresholds,
             array(address(crossbellToken)),
             decimals
         );
@@ -832,7 +832,52 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0));
     }
 
-    function testReachedDailyWithdrawalLimit() public {}
+    function testReachedDailyWithdrawalLimit() public {
+        address token = address(mainchainToken);
+
+        // The daily withdrawal threshold should not apply for locked withdrawals.
+        assertEq(gateway.reachedDailyWithdrawalLimit(token, WITHDRAWLAL_THRESHOLD), false);
+        assertEq(gateway.reachedDailyWithdrawalLimit(token, DAILY_WITHDRAWLAL_LIMIT), false);
+
+        // small withdrawal amount
+        assertEq(gateway.reachedDailyWithdrawalLimit(token, 1), false);
+        assertEq(gateway.reachedDailyWithdrawalLimit(token, WITHDRAWLAL_THRESHOLD - 1), false);
+
+        // mint tokens to mainchain gateway contract
+        mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
+
+        // withdrawal info
+        address recipient = eve;
+        uint256 amount = 5 * 10 ** 6;
+        uint256 fee = 1 * 10 ** 5;
+        uint256 chainId = 1337;
+
+        vm.chainId(chainId); // set block.chainid
+        for (uint256 i = 0; i < 20; i++) {
+            if (i == 19) {
+                // reached daily withdrawal limit
+                assertEq(gateway.reachedDailyWithdrawalLimit(token, amount), true);
+            } else {
+                // withdraw
+
+                bytes32 hash = _hash(
+                    gateway.DOMAIN_SEPARATOR(),
+                    chainId,
+                    i,
+                    recipient,
+                    token,
+                    amount,
+                    fee
+                );
+                DataTypes.Signature[] memory signatures = _getThreeSignatures(hash);
+                gateway.withdraw(chainId, i, recipient, token, amount, fee, signatures);
+            }
+        }
+
+        // 1 days later, the daily withdrawal limit will be reset
+        skip(1 days);
+        assertEq(gateway.reachedDailyWithdrawalLimit(token, amount), false);
+    }
 
     function testUnlockWithdrawal() public {
         // mint tokens to mainchain gateway contract
@@ -1120,14 +1165,14 @@ contract MainchainGatewayTest is Test, Utils {
 
     function _getOneSignature(
         bytes32 hash
-    ) internal view returns (DataTypes.Signature[] memory signatures) {
+    ) internal pure returns (DataTypes.Signature[] memory signatures) {
         signatures = new DataTypes.Signature[](1);
         signatures[0] = _getSignature(hash, validator1PrivateKey);
     }
 
     function _getTwoSignatures(
         bytes32 hash
-    ) internal view returns (DataTypes.Signature[] memory signatures) {
+    ) internal pure returns (DataTypes.Signature[] memory signatures) {
         // note: for verifySignatures, signatures need to be arranged in ascending order of addresses
         // sorted address: validator1 > validator3 > validator2
         signatures = new DataTypes.Signature[](2);
@@ -1138,7 +1183,7 @@ contract MainchainGatewayTest is Test, Utils {
 
     function _getThreeSignatures(
         bytes32 hash
-    ) internal view returns (DataTypes.Signature[] memory signatures) {
+    ) internal pure returns (DataTypes.Signature[] memory signatures) {
         // note: for verifySignatures, signatures need to be arranged in ascending order of addresses
         // sorted address: validator1 > validator3 > validator2
         signatures = new DataTypes.Signature[](3);

@@ -380,7 +380,7 @@ contract CrossbellGateway is
         uint256 chainId,
         address crossbellToken
     ) internal view returns (DataTypes.MappedToken memory token) {
-        token = _mainchainToken[crossbellToken][chainId];
+        token = _mainchainTokens[crossbellToken][chainId];
     }
 
     /**
@@ -391,7 +391,7 @@ contract CrossbellGateway is
         uint256[] calldata chainIds,
         address[] calldata mainchainTokens,
         uint8[] calldata mainchainTokenDecimals
-    ) internal virtual {
+    ) internal {
         require(
             crossbellTokens.length == mainchainTokens.length &&
                 crossbellTokens.length == mainchainTokenDecimals.length &&
@@ -400,7 +400,7 @@ contract CrossbellGateway is
         );
 
         for (uint i = 0; i < crossbellTokens.length; i++) {
-            _mainchainToken[crossbellTokens[i]][chainIds[i]] = DataTypes.MappedToken({
+            _mainchainTokens[crossbellTokens[i]][chainIds[i]] = DataTypes.MappedToken({
                 token: mainchainTokens[i],
                 decimals: mainchainTokenDecimals[i]
             });

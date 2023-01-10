@@ -33,5 +33,5 @@ abstract contract MainchainGatewayStorage {
     mapping(address => uint256) internal _lastDateSynced;
 
     // @dev Mapping from mainchain token => token address on crossbell network
-    mapping(address => DataTypes.MappedToken) internal _crossbellToken;
+    mapping(address => DataTypes.MappedToken) internal _crossbellTokens;
 }

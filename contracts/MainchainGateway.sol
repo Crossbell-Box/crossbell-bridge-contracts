@@ -437,7 +437,7 @@ contract MainchainGateway is
     function _getCrossbellToken(
         address mainchainToken
     ) internal view returns (DataTypes.MappedToken memory token) {
-        token = _crossbellToken[mainchainToken];
+        token = _crossbellTokens[mainchainToken];
     }
 
     /**
@@ -454,8 +454,8 @@ contract MainchainGateway is
             "InvalidArrayLength"
         );
 
-        for (uint256 i; i < mainchainTokens.length; i++) {
-            _crossbellToken[mainchainTokens[i]] = DataTypes.MappedToken({
+        for (uint256 i = 0; i < mainchainTokens.length; i++) {
+            _crossbellTokens[mainchainTokens[i]] = DataTypes.MappedToken({
                 token: crossbellTokens[i],
                 decimals: crossbellTokenDecimals[i]
             });

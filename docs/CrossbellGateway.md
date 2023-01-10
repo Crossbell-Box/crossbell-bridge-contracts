@@ -140,8 +140,9 @@ Locks the assets and request withdrawal.
 function requestWithdrawalSignatures(uint256 chainId, uint256 withdrawalId) external
 ```
 
-Request withdrawal signatures, in case the withdrawer didn't submit to mainchain in time and the set of the validator
-has changed.
+Request withdrawal signatures.
+In case the withdrawer didn't submit to mainchain in time,
+and the set of the validator has changed.
 
 #### Parameters
 
@@ -397,7 +398,7 @@ function _getMainchainToken(uint256 chainId, address crossbellToken) internal vi
 ### _mapTokens
 
 ```solidity
-function _mapTokens(address[] crossbellTokens, uint256[] chainIds, address[] mainchainTokens, uint8[] mainchainTokenDecimals) internal virtual
+function _mapTokens(address[] crossbellTokens, uint256[] chainIds, address[] mainchainTokens, uint8[] mainchainTokenDecimals) internal
 ```
 
 _Maps crossbell tokens to mainchain networks._

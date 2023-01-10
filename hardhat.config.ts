@@ -16,6 +16,11 @@ if (!infuraApiKey) {
     throw new Error("Please set your INFURA_API_KEY in a .env file");
 }
 
+const PrivateKey: string | undefined = process.env.PRIVATE_KEY;
+if (!PrivateKey) {
+    throw new Error("Please set your PrivateKey in a .env file");
+}
+
 const chainIds = {
     bsc: 56,
     bscTestnet: 97,
@@ -23,6 +28,8 @@ const chainIds = {
     goerli: 5,
     polygon: 137,
     polygonMumbai: 80001,
+    sepolia: 11155111,
+    avaxFuji: 43113,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
@@ -40,11 +47,14 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
         case "polygonMumbai":
             jsonRpcUrl = "https://matic-mumbai.chainstacklabs.com";
             break;
+        case "avaxFuji":
+            jsonRpcUrl = "https://avalanche-fuji.infura.io/v3/461d31c50880488685731b86e524e3e6";
+            break;
         default:
             jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
     }
     return {
-        accounts: [process.env.PRIVATE_KEY],
+        accounts: [PrivateKey],
         chainId: chainIds[chain],
         url: jsonRpcUrl,
     };
@@ -80,6 +90,8 @@ module.exports = {
         goerli: getChainConfig("goerli"),
         polygon: getChainConfig("polygon"),
         polygonMumbai: getChainConfig("polygonMumbai"),
+        sepolia: getChainConfig("sepolia"),
+        avaxFuji:getChainConfig("avaxFuji")
     },
 
     etherscan: {
@@ -89,6 +101,7 @@ module.exports = {
             bscTestnet: process.env.BSCSCAN_API_KEY || "",
             mainnet: process.env.ETHERSCAN_API_KEY || "",
             goerli: process.env.ETHERSCAN_API_KEY || "",
+            sepolia: process.env.ETHERSCAN_API_KEY || "",
             polygon: process.env.POLYGONSCAN_API_KEY || "",
             polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
         },

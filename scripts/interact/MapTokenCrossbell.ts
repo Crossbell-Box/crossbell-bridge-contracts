@@ -6,18 +6,14 @@
 import { ethers } from "hardhat";
 
 async function main() {
-    // NOTE: update `initial_validators` and `requiredNumber` before deployment
-    const initial_validators = [
-        "0x2df7C8956Eb62BBE7B888aDf3C9c6969689F3084", // mainchain
-        "0xEA21E4C0d7256a858122B6FA0121D3A8C7f94f4E", // crossbell
-    ];
-    const requiredNumber = 1;
+    const proxyAddr = "0xc0ED7Aa61B21468a8a1468D85CF52096664fecf8";
 
-    var Validator = await ethers.getContractFactory("Validator");
+    const CrossbellGateway = await ethers.getContractFactory("CrossbellGateway");
+    const crossbellTokenAddr = "0x112351ddcc1Ba7842618aF89Af8274F4652E9246";
+    const mainchainTokenAddr = "0x43ca1e76d31f0138356a4422b294f895418fFca3";
 
-    const validator = await Validator.deploy(initial_validators, requiredNumber);
-
-    console.log("validator deployed to:", validator.address);
+    const proxyGateway = await CrossbellGateway.attach(proxyAddr);
+    proxyGateway.mapTokens([crossbellTokenAddr], [80001], [mainchainTokenAddr], [6]);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

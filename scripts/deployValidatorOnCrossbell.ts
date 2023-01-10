@@ -16,7 +16,7 @@ async function main() {
     const requiredNumber = 1;
 
     var Validator = await (await ethers.getContractFactory("Validator")).connect(addr2);
-    
+
     const validator = await Validator.deploy(initial_validators, requiredNumber);
 
     console.log("validator deployed to:", validator.address);

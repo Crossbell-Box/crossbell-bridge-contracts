@@ -6,16 +6,20 @@
 import { ethers } from "hardhat";
 
 async function main() {
-    const proxyAddr = "0x391A2c28b2Cf920a36f11800636C0532A7a21F58"
+    const myAddr = "0x4BCe096F44b90B812420637068dC215C1C3C8B54";
+    const proxyAddr = "0x1384CD5f2a66EA3101fcBe71720242Fbbfa5EAf8";
+
+    const mainchainTokenAddr = "0x43ca1e76d31f0138356a4422b294f895418fFca3";
+    const erc20 = await (
+        await ethers.getContractFactory("MintableERC20")
+    ).attach(mainchainTokenAddr);
+    erc20.approve(proxyAddr, 100000000000);
 
     const MainchainGateway = await ethers.getContractFactory("MainchainGateway");
 
-    // initialize proxy
     const proxyGateway = await MainchainGateway.attach(proxyAddr);
-    proxyGateway.mapTokens(["0xBa023BAE41171260821d5bADE769B8E242468B9e"],["0xaBea54cF50F1Cc269B664662AE33cF9B736dC953"],[18])
 
-    
-
+    proxyGateway.requestDeposit(myAddr, mainchainTokenAddr, 1);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -190,6 +190,8 @@ contract MainchainGateway is
             "InvalidArrayLength"
         );
 
+        // operations inside a loop might waste gas,
+        // so the caller should decide by himself the size of the input array
         for (uint256 i; i < chainIds.length; i++) {
             _unlockWithdrawal(
                 chainIds[i],

@@ -36,10 +36,11 @@ interface IValidator {
     function removeValidators(address[] calldata validators) external;
 
     /**
-     * @notice Change the required number of validators. This function can only be called by the owner of validator contract.
-     * Note that this reverts if:
-     *  1. new required number > validators length.
-     *  2. new required number is zero.
+     * @notice Change the required number of validators.
+     * Requirements::
+     *  1. the caller is owner of validator contract.
+     *  2. new required number > validators length.
+     *  3. new required number is zero.
      * @param newRequiredNumber New required number to set.
      */
     function changeRequiredNumber(uint256 newRequiredNumber) external;

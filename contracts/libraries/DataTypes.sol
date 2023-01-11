@@ -31,7 +31,8 @@ library DataTypes {
      * @param chainId The ChainId of mainchain network.
      * @param recipient The address of account to receive the withdrawal.
      * @param token The address of token to withdraw.
-     * @param amount The amount of token to be withdrawn on mainchain network. Note that validator should use this `amount' for submitting signature
+     * @param amount The amount of token to be withdrawn on mainchain network.
+     * Note that validator should use this `amount' for submitting signature
      * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
      */
     struct WithdrawalEntry {
@@ -52,7 +53,8 @@ library DataTypes {
     }
 
     /**
-     * @notice Acknowledge status, once the acknowledgements reach the threshold the 1st time, it can take effect to the system.
+     * @notice Acknowledge status, once the acknowledgements reach the threshold the 1st time,
+     * it can take effect to the system.
      * Acknowledgments after that should not have any effects.
      */
     enum Status {

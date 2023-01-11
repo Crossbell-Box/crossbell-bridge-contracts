@@ -243,8 +243,9 @@ interface IMainchainGateway {
     /**
      * @notice Returns whether the withdrawal is locked or not.
      * @param withdrawalId WithdrawalId to query
+     * @return True if the withdrawal is locked
      */
-    function getWithdrawalLocked(uint256 withdrawalId) external view returns (bool);
+    function isWithdrawalLocked(uint256 withdrawalId) external view returns (bool);
 
     /**
      * @notice Returns the amount thresholds to lock withdrawal.

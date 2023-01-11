@@ -90,7 +90,7 @@ contract CrossbellGateway is
         address[] calldata recipients,
         address[] calldata tokens,
         uint256[] calldata amounts
-    ) external whenNotPaused onlyValidator {
+    ) external nonReentrant whenNotPaused onlyValidator {
         require(
             depositIds.length == chainIds.length &&
                 depositIds.length == recipients.length &&
@@ -111,11 +111,11 @@ contract CrossbellGateway is
         bytes[] calldata sigs
     ) external whenNotPaused onlyValidator {
         require(
-            withdrawalIds.length == chainIds.length && withdrawalIds.length == sigs.length,
+            chainIds.length == withdrawalIds.length && chainIds.length == sigs.length,
             "InvalidArrayLength"
         );
 
-        for (uint256 i; i < withdrawalIds.length; i++) {
+        for (uint256 i = 0; i < chainIds.length; i++) {
             _submitWithdrawalSignature(chainIds[i], withdrawalIds[i], sigs[i]);
         }
     }
@@ -127,7 +127,7 @@ contract CrossbellGateway is
         address recipient,
         address token,
         uint256 amount
-    ) external whenNotPaused onlyValidator {
+    ) external nonReentrant whenNotPaused onlyValidator {
         _ackDeposit(chainId, depositId, recipient, token, amount);
     }
 
@@ -157,9 +157,8 @@ contract CrossbellGateway is
         uint256 feeAmount = _transformWithdrawalAmount(token, fee, mainchainToken.decimals);
 
         // save withdrawal
-        withdrawalId = _withdrawalCounts[chainId];
         unchecked {
-            _withdrawalCounts[chainId]++;
+            withdrawalId = _withdrawalCounter[chainId]++;
         }
         _withdrawals[chainId][withdrawalId] = DataTypes.WithdrawalEntry(
             chainId,
@@ -268,7 +267,7 @@ contract CrossbellGateway is
 
     /// @inheritdoc ICrossbellGateway
     function getWithdrawalCount(uint256 chainId) external view returns (uint256) {
-        return _withdrawalCounts[chainId];
+        return _withdrawalCounter[chainId];
     }
 
     /// @inheritdoc ICrossbellGateway
@@ -380,7 +379,7 @@ contract CrossbellGateway is
         uint256 chainId,
         address crossbellToken
     ) internal view returns (DataTypes.MappedToken memory token) {
-        token = _mainchainToken[crossbellToken][chainId];
+        token = _mainchainTokens[crossbellToken][chainId];
     }
 
     /**
@@ -391,7 +390,7 @@ contract CrossbellGateway is
         uint256[] calldata chainIds,
         address[] calldata mainchainTokens,
         uint8[] calldata mainchainTokenDecimals
-    ) internal virtual {
+    ) internal {
         require(
             crossbellTokens.length == mainchainTokens.length &&
                 crossbellTokens.length == mainchainTokenDecimals.length &&
@@ -400,7 +399,7 @@ contract CrossbellGateway is
         );
 
         for (uint i = 0; i < crossbellTokens.length; i++) {
-            _mainchainToken[crossbellTokens[i]][chainIds[i]] = DataTypes.MappedToken({
+            _mainchainTokens[crossbellTokens[i]][chainIds[i]] = DataTypes.MappedToken({
                 token: mainchainTokens[i],
                 decimals: mainchainTokenDecimals[i]
             });

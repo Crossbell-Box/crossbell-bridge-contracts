@@ -63,20 +63,20 @@ contract CrossbellGatewayTest is Test, Utils {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    address internal alice = address(0x111);
-    address internal bob = address(0x222);
-    address internal carol = address(0x333);
-    address internal dave = address(0x444);
-    address internal eve = address(0x555);
-    address internal frank = address(0x666);
+    address internal constant alice = address(0x111);
+    address internal constant bob = address(0x222);
+    address internal constant carol = address(0x333);
+    address internal constant dave = address(0x444);
+    address internal constant eve = address(0x555);
+    address internal constant frank = address(0x666);
 
-    address internal admin = address(0x777);
-    address internal proxyAdmin = address(0x888);
+    address internal constant admin = address(0x777);
+    address internal constant proxyAdmin = address(0x888);
 
     // validators
-    uint256 internal validator1PrivateKey = 1;
-    uint256 internal validator2PrivateKey = 2;
-    uint256 internal validator3PrivateKey = 3;
+    uint256 internal constant validator1PrivateKey = 1;
+    uint256 internal constant validator2PrivateKey = 2;
+    uint256 internal constant validator3PrivateKey = 3;
     address internal validator1 = vm.addr(validator1PrivateKey);
     address internal validator2 = vm.addr(validator2PrivateKey);
     address internal validator3 = vm.addr(validator3PrivateKey);

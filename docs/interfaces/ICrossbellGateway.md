@@ -228,8 +228,9 @@ Locks the assets and request withdrawal.
 function requestWithdrawalSignatures(uint256 chainId, uint256 withdrawalId) external
 ```
 
-Request withdrawal signatures, in case the withdrawer didn't submit to mainchain in time and the set of the validator
-has changed.
+Request withdrawal signatures.
+In case the withdrawer didn't submit to mainchain in time,
+and the set of the validator has changed.
 
 #### Parameters
 

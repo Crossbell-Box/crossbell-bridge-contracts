@@ -14,8 +14,8 @@ abstract contract MainchainGatewayStorage {
     /// @dev Validator contract address
     address internal _validator;
 
-    /// @dev Total deposit
-    uint256 internal _depositCount;
+    /// @dev Total deposit count
+    uint256 internal _depositCounter;
 
     /// @dev Mapping from withdrawal id => withdrawal hash
     mapping(uint256 => bytes32) internal _withdrawalHash;
@@ -33,5 +33,5 @@ abstract contract MainchainGatewayStorage {
     mapping(address => uint256) internal _lastDateSynced;
 
     // @dev Mapping from mainchain token => token address on crossbell network
-    mapping(address => DataTypes.MappedToken) internal _crossbellToken;
+    mapping(address => DataTypes.MappedToken) internal _crossbellTokens;
 }

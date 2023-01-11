@@ -109,9 +109,8 @@ contract MainchainGateway is
         // transform token amount by different chain
         uint256 transformedAmount = _transformDepositAmount(token, amount, crossbellToken.decimals);
 
-        depositId = _depositCount;
         unchecked {
-            _depositCount++;
+            depositId = _depositCounter++;
         }
         emit RequestDeposit(
             block.chainid,
@@ -190,7 +189,9 @@ contract MainchainGateway is
             "InvalidArrayLength"
         );
 
-        for (uint256 i; i < chainIds.length; i++) {
+        // operations inside a loop might waste gas,
+        // so the caller should decide by himself the size of the input array
+        for (uint256 i = 0; i < chainIds.length; i++) {
             _unlockWithdrawal(
                 chainIds[i],
                 withdrawalIds[i],
@@ -233,7 +234,7 @@ contract MainchainGateway is
 
     /// @inheritdoc IMainchainGateway
     function getDepositCount() external view returns (uint256) {
-        return _depositCount;
+        return _depositCounter;
     }
 
     /// @inheritdoc IMainchainGateway
@@ -242,7 +243,7 @@ contract MainchainGateway is
     }
 
     /// @inheritdoc IMainchainGateway
-    function getWithdrawalLocked(uint256 withdrawalId) external view returns (bool) {
+    function isWithdrawalLocked(uint256 withdrawalId) external view returns (bool) {
         return _withdrawalLocked[withdrawalId];
     }
 
@@ -278,12 +279,13 @@ contract MainchainGateway is
         _domainSeparator = keccak256(
             abi.encode(
                 keccak256(
-                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)"
                 ),
                 keccak256("MainchainGateway"),
                 keccak256("1"),
                 block.chainid,
-                address(this)
+                address(this),
+                keccak256(abi.encodePacked(block.timestamp))
             )
         );
     }
@@ -436,7 +438,7 @@ contract MainchainGateway is
     function _getCrossbellToken(
         address mainchainToken
     ) internal view returns (DataTypes.MappedToken memory token) {
-        token = _crossbellToken[mainchainToken];
+        token = _crossbellTokens[mainchainToken];
     }
 
     /**
@@ -453,8 +455,8 @@ contract MainchainGateway is
             "InvalidArrayLength"
         );
 
-        for (uint256 i; i < mainchainTokens.length; i++) {
-            _crossbellToken[mainchainTokens[i]] = DataTypes.MappedToken({
+        for (uint256 i = 0; i < mainchainTokens.length; i++) {
+            _crossbellTokens[mainchainTokens[i]] = DataTypes.MappedToken({
                 token: crossbellTokens[i],
                 decimals: crossbellTokenDecimals[i]
             });

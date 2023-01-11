@@ -68,7 +68,7 @@ contract MainchainGateway is
     /**
      * @inheritdoc IMainchainGateway
      */
-    function DOMAIN_SEPARATOR() external view virtual returns (bytes32) {
+    function getDomainSeparator() external view virtual returns (bytes32) {
         return _domainSeparator;
     }
 

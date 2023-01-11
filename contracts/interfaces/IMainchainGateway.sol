@@ -63,9 +63,10 @@ interface IMainchainGateway {
     event WithdrawalUnlocked(uint256 indexed withdrawalId);
 
     /**
-     * @dev Returns the domain seperator.
+     * @notice Returns the domain separator for this contract.
+     * @return bytes32 The domain separator.
      */
-    function DOMAIN_SEPARATOR() external view returns (bytes32);
+    function getDomainSeparator() external view returns (bytes32);
 
     /**
      * @notice Initializes the MainchainGateway.

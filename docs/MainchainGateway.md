@@ -39,13 +39,19 @@ Note that the thresholds contains:
 | crossbellTokens | address[] | Addresses of crossbell tokens. |
 | crossbellTokenDecimals | uint8[] | Decimals of crossbell tokens. |
 
-### DOMAIN_SEPARATOR
+### getDomainSeparator
 
 ```solidity
-function DOMAIN_SEPARATOR() external view virtual returns (bytes32)
+function getDomainSeparator() external view virtual returns (bytes32)
 ```
 
-_Returns the domain seperator._
+Returns the domain separator for this contract.
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bytes32 | bytes32 The domain separator. |
 
 ### pause
 

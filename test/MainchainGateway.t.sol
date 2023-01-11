@@ -445,7 +445,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.DOMAIN_SEPARATOR(),
+            gateway.getDomainSeparator(),
             chainId,
             withdrawalId,
             recipient,
@@ -483,7 +483,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.DOMAIN_SEPARATOR(),
+            gateway.getDomainSeparator(),
             chainId,
             withdrawalId,
             recipient,
@@ -526,7 +526,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.DOMAIN_SEPARATOR(),
+            gateway.getDomainSeparator(),
             chainId,
             withdrawalId,
             recipient,
@@ -563,7 +563,7 @@ contract MainchainGatewayTest is Test, Utils {
             withdrawalId = i;
 
             bytes32 hash = _hash(
-                gateway.DOMAIN_SEPARATOR(),
+                gateway.getDomainSeparator(),
                 chainId,
                 withdrawalId,
                 recipient,
@@ -603,7 +603,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.DOMAIN_SEPARATOR(),
+            gateway.getDomainSeparator(),
             chainId,
             withdrawalId,
             recipient,
@@ -638,7 +638,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.DOMAIN_SEPARATOR(),
+            gateway.getDomainSeparator(),
             chainId,
             withdrawalId,
             recipient,
@@ -678,7 +678,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.DOMAIN_SEPARATOR(),
+            gateway.getDomainSeparator(),
             chainId,
             withdrawalId,
             recipient,
@@ -714,7 +714,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.DOMAIN_SEPARATOR(),
+            gateway.getDomainSeparator(),
             chainId,
             withdrawalId,
             recipient,
@@ -757,7 +757,7 @@ contract MainchainGatewayTest is Test, Utils {
             withdrawalId = i;
 
             bytes32 hash = _hash(
-                gateway.DOMAIN_SEPARATOR(),
+                gateway.getDomainSeparator(),
                 chainId,
                 withdrawalId,
                 recipient,
@@ -806,7 +806,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.DOMAIN_SEPARATOR(),
+            gateway.getDomainSeparator(),
             chainId,
             withdrawalId,
             recipient,
@@ -861,7 +861,7 @@ contract MainchainGatewayTest is Test, Utils {
                 // withdraw
 
                 bytes32 hash = _hash(
-                    gateway.DOMAIN_SEPARATOR(),
+                    gateway.getDomainSeparator(),
                     chainId,
                     i,
                     recipient,
@@ -891,7 +891,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(
-            gateway.DOMAIN_SEPARATOR(),
+            gateway.getDomainSeparator(),
             chainId,
             withdrawalId,
             recipient,
@@ -1047,7 +1047,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 amount = WITHDRAWLAL_THRESHOLD;
         uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
-        bytes32 hashBob = _hash(gateway.DOMAIN_SEPARATOR(), chainId, 1, bob, token, amount, fee);
+        bytes32 hashBob = _hash(gateway.getDomainSeparator(), chainId, 1, bob, token, amount, fee);
         DataTypes.Signature[] memory signaturesBob = _getTwoSignatures(hashBob);
         vm.chainId(chainId); // set block.chainid
         // locked when withdraw
@@ -1055,7 +1055,7 @@ contract MainchainGatewayTest is Test, Utils {
 
         // withdrawal for carol
         bytes32 hashCarol = _hash(
-            gateway.DOMAIN_SEPARATOR(),
+            gateway.getDomainSeparator(),
             chainId,
             2,
             carol,

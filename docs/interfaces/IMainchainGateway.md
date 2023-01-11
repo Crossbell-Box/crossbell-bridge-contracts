@@ -87,13 +87,19 @@ event WithdrawalUnlocked(uint256 withdrawalId)
 
 _Emitted when the withdrawal is unlocked_
 
-### DOMAIN_SEPARATOR
+### getDomainSeparator
 
 ```solidity
-function DOMAIN_SEPARATOR() external view returns (bytes32)
+function getDomainSeparator() external view returns (bytes32)
 ```
 
-_Returns the domain seperator._
+Returns the domain separator for this contract.
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bytes32 | bytes32 The domain separator. |
 
 ### initialize
 

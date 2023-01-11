@@ -157,9 +157,8 @@ contract CrossbellGateway is
         uint256 feeAmount = _transformWithdrawalAmount(token, fee, mainchainToken.decimals);
 
         // save withdrawal
-        withdrawalId = _withdrawalCounts[chainId];
         unchecked {
-            _withdrawalCounts[chainId]++;
+            withdrawalId = _withdrawalCounter[chainId]++;
         }
         _withdrawals[chainId][withdrawalId] = DataTypes.WithdrawalEntry(
             chainId,
@@ -268,7 +267,7 @@ contract CrossbellGateway is
 
     /// @inheritdoc ICrossbellGateway
     function getWithdrawalCount(uint256 chainId) external view returns (uint256) {
-        return _withdrawalCounts[chainId];
+        return _withdrawalCounter[chainId];
     }
 
     /// @inheritdoc ICrossbellGateway

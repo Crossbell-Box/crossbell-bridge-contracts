@@ -13,7 +13,7 @@ abstract contract CrossbellGatewayStorage {
     mapping(uint256 => mapping(uint256 => DataTypes.DepositEntry)) internal _deposits;
 
     // chainId => withdrawCount
-    mapping(uint256 => uint256) internal _withdrawalCounts;
+    mapping(uint256 => uint256) internal _withdrawalCounter;
     // chainId =>  withdrawalId =>WithdrawalEntry
     mapping(uint256 => mapping(uint256 => DataTypes.WithdrawalEntry)) internal _withdrawals;
     // chainId => withdrawalId  => signature

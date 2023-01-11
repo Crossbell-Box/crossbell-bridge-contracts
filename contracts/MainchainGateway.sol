@@ -109,9 +109,8 @@ contract MainchainGateway is
         // transform token amount by different chain
         uint256 transformedAmount = _transformDepositAmount(token, amount, crossbellToken.decimals);
 
-        depositId = _depositCount;
         unchecked {
-            _depositCount++;
+            depositId = _depositCounter++;
         }
         emit RequestDeposit(
             block.chainid,
@@ -235,7 +234,7 @@ contract MainchainGateway is
 
     /// @inheritdoc IMainchainGateway
     function getDepositCount() external view returns (uint256) {
-        return _depositCount;
+        return _depositCounter;
     }
 
     /// @inheritdoc IMainchainGateway

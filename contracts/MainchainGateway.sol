@@ -220,14 +220,6 @@ contract MainchainGateway is
     }
 
     /// @inheritdoc IMainchainGateway
-    function verifySignatures(
-        bytes32 hash,
-        DataTypes.Signature[] calldata signatures
-    ) external view returns (bool) {
-        return _verifySignatures(hash, signatures);
-    }
-
-    /// @inheritdoc IMainchainGateway
     function getValidatorContract() external view returns (address) {
         return _validator;
     }

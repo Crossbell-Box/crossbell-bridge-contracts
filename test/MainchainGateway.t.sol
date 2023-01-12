@@ -1147,22 +1147,6 @@ contract MainchainGatewayTest is Test, Utils {
         );
     }
 
-    function testVerifySignatures() public {
-        bytes32 hash = keccak256(abi.encodePacked("testVerifySignatures"));
-
-        // one validator signature, not enough signatures
-        DataTypes.Signature[] memory signatures = _getOneSignature(hash);
-        assertFalse(gateway.verifySignatures(hash, signatures));
-
-        // two validator signature, enough signatures
-        signatures = _getTwoSignatures(hash);
-        assertTrue(gateway.verifySignatures(hash, signatures));
-
-        // three validator signature, enough signatures
-        signatures = _getThreeSignatures(hash);
-        assertTrue(gateway.verifySignatures(hash, signatures));
-    }
-
     function _getOneSignature(
         bytes32 hash
     ) internal pure returns (DataTypes.Signature[] memory signatures) {

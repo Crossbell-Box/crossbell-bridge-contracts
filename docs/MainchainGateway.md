@@ -80,6 +80,7 @@ function mapTokens(address[] mainchainTokens, address[] crossbellTokens, uint8[]
 ```
 
 Maps Crossbell tokens to mainchain.
+Emits the `TokenMapped` event.
 Requirements:
 - The caller must have the ADMIN_ROLE.
 
@@ -98,6 +99,7 @@ function requestDeposit(address recipient, address token, uint256 amount) extern
 ```
 
 Request deposit to crossbell chain.
+Emits the `RequestDeposit` event.
 
 #### Parameters
 
@@ -120,6 +122,7 @@ function withdraw(uint256 chainId, uint256 withdrawalId, address recipient, addr
 ```
 
 Withdraw based on the validator signatures.
+Emits the `WithdrawalLocked` event if withdrawal is locked, otherwise `Withdrew` event.
 Requirements:
 - The signatures should be sorted by signing addresses of validators in ascending order.
 
@@ -142,6 +145,7 @@ function unlockWithdrawal(uint256 chainId, uint256 withdrawalId, address recipie
 ```
 
 Approves a specific withdrawal.
+Emits the `Withdrew` event.
 Requirements:
 - The caller must have the WITHDRAWAL_UNLOCKER_ROLE.
 
@@ -171,6 +175,7 @@ function setLockedThresholds(address[] tokens, uint256[] thresholds) external
 ```
 
 Sets the amount thresholds to lock withdrawal.
+Emits the `LockedThresholdsUpdated` event.
 Requirements:
 - The caller must have the ADMIN_ROLE.
 - The arrays have the same length.
@@ -189,10 +194,10 @@ function setDailyWithdrawalLimits(address[] tokens, uint256[] limits) external
 ```
 
 Sets daily limit amounts for the withdrawals.
+Emits the `DailyWithdrawalLimitsUpdated` event.
 Requirements:
 - The caller must have the ADMIN_ROLE.
 - The arrays have the same length.
-Emits the `DailyWithdrawalLimitsUpdated` event.
 
 #### Parameters
 
@@ -200,21 +205,6 @@ Emits the `DailyWithdrawalLimitsUpdated` event.
 | ---- | ---- | ----------- |
 | tokens | address[] | Addresses of token to set |
 | limits | uint256[] | Limits corresponding to the tokens to set |
-
-### verifySignatures
-
-```solidity
-function verifySignatures(bytes32 hash, struct DataTypes.Signature[] signatures) external view returns (bool)
-```
-
-Returns true if there is enough signatures from validators.
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| hash | bytes32 | WithdrawalHash |
-| signatures | struct DataTypes.Signature[] | Validator's withdrawal signatures synced from crossbell network |
 
 ### getValidatorContract
 

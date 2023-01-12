@@ -78,6 +78,10 @@ module.exports = {
             url: "https://rpc.crossbell.io",
             accounts: [process.env.PRIVATE_KEY],
         },
+        cronosTestnet: {
+            url: "https://evm-t3.cronos.org",
+            accounts: [process.env.PRIVATE_KEY],
+        },
         bsc: getChainConfig("bsc"),
         bscTestnet: getChainConfig("bscTestnet"),
         mainnet: getChainConfig("mainnet"),
@@ -90,6 +94,7 @@ module.exports = {
     etherscan: {
         apiKey: {
             crossbell: "no API key",
+            cronosTestnet: "no API key",
             bsc: process.env.BSCSCAN_API_KEY || "",
             bscTestnet: process.env.BSCSCAN_API_KEY || "",
             mainnet: process.env.ETHERSCAN_API_KEY || "",
@@ -105,6 +110,14 @@ module.exports = {
                 urls: {
                     apiURL: "https://scan.crossbell.io/api",
                     browserURL: "https://scan.crossbell.io",
+                },
+            },
+            {
+                network: "cronosTestnet",
+                chainId: 338,
+                urls: {
+                    apiURL: "https://cronos.org/explorer/testnet3/api",
+                    browserURL: "https://cronos.org/explorer/testnet3",
                 },
             },
         ],

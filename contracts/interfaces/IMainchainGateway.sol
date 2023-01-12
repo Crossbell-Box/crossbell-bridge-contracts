@@ -109,6 +109,7 @@ interface IMainchainGateway {
 
     /**
      * @notice Maps Crossbell tokens to mainchain.
+     * Emits the `TokenMapped` event.
      * Requirements:
      * - The caller must have the ADMIN_ROLE.
      * @param mainchainTokens Addresses of mainchain tokens.
@@ -123,6 +124,7 @@ interface IMainchainGateway {
 
     /**
      * @notice Request deposit to crossbell chain.
+     * Emits the `RequestDeposit` event.
      * @param recipient Address to receive deposit on crossbell chain
      * @param token Address of token to deposit from mainchain network
      * @param amount Amount of token to deposit  from mainchain network
@@ -136,6 +138,7 @@ interface IMainchainGateway {
 
     /**
      * @notice Withdraw based on the validator signatures.
+     * Emits the `WithdrawalLocked` event if withdrawal is locked, otherwise `Withdrew` event.
      * Requirements:
      * - The signatures should be sorted by signing addresses of validators in ascending order.
      * @param chainId The chain ID of mainchain network.
@@ -158,6 +161,7 @@ interface IMainchainGateway {
 
     /**
      * @notice Approves a specific withdrawal.
+     * Emits the `Withdrew` event.
      * Requirements:
      * - The caller must have the WITHDRAWAL_UNLOCKER_ROLE.
      * @param chainId The chain ID of mainchain network.
@@ -190,6 +194,7 @@ interface IMainchainGateway {
 
     /**
      * @notice Sets the amount thresholds to lock withdrawal.
+     * Emits the `LockedThresholdsUpdated` event.
      * Requirements:
      * - The caller must have the ADMIN_ROLE.
      * - The arrays have the same length.
@@ -200,10 +205,10 @@ interface IMainchainGateway {
 
     /**
      * @notice Sets daily limit amounts for the withdrawals.
+     * Emits the `DailyWithdrawalLimitsUpdated` event.
      * Requirements:
      * - The caller must have the ADMIN_ROLE.
      * - The arrays have the same length.
-     * Emits the `DailyWithdrawalLimitsUpdated` event.
      * @param tokens Addresses of token to set
      * @param limits Limits corresponding to the tokens to set
      */
@@ -211,16 +216,6 @@ interface IMainchainGateway {
         address[] calldata tokens,
         uint256[] calldata limits
     ) external;
-
-    /**
-     * @notice Returns true if there is enough signatures from validators.
-     * @param hash WithdrawalHash
-     * @param signatures Validator's withdrawal signatures synced from crossbell network
-     */
-    function verifySignatures(
-        bytes32 hash,
-        DataTypes.Signature[] calldata signatures
-    ) external view returns (bool);
 
     /**
      * @notice Returns the address of the validator contract.

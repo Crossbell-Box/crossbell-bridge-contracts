@@ -8,17 +8,9 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract MiraToken is Context, AccessControlEnumerable, ERC20 {
     bytes32 public constant BLOCK_ROLE = keccak256("BLOCK_ROLE");
 
-    uint8 internal _decimals;
-
-    constructor(string memory name_, string memory symbol_, uint8 decimals_) ERC20(name_, symbol_) {
+    constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {
         // Grant `DEFAULT_ADMIN_ROLE` to the account that deploys the contract
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-
-        _decimals = decimals_;
-    }
-
-    function decimals() public view override returns (uint8) {
-        return _decimals;
     }
 
     /**

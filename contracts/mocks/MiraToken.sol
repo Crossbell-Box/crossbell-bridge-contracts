@@ -31,7 +31,7 @@ contract MiraToken is Context, AccessControlEnumerable, ERC20 {
     }
 
     /**
-     * @dev Block transfers tokens from account `from` who has the `BLOCK_ROLE`.
+     * @dev Block transfers from account `from` who has the `BLOCK_ROLE`.
      */
     function _transfer(address from, address to, uint256 amount) internal override {
         require(!hasRole(BLOCK_ROLE, from), "transfer is blocked");

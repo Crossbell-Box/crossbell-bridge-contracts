@@ -9,12 +9,12 @@ contract MiraToken is Context, AccessControlEnumerable, ERC20 {
     bytes32 public constant BLOCK_ROLE = keccak256("BLOCK_ROLE");
 
     constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {
-        // Grant `DEFAULT_ADMIN_ROLE` to the account that deploys the contract
+        // Grants `DEFAULT_ADMIN_ROLE` to the account that deploys the contract
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
     /**
-     * @dev Create `amount` new tokens for `to`.
+     * @dev Creates `amount` new tokens for `to`.
      * Requirements:
      * - the caller must have the `DEFAULT_ADMIN_ROLE`.
      */
@@ -23,7 +23,7 @@ contract MiraToken is Context, AccessControlEnumerable, ERC20 {
     }
 
     /**
-     * @dev Block transfers from account `from` who has the `BLOCK_ROLE`.
+     * @dev Blocks transfer from account `from` who has the `BLOCK_ROLE`.
      */
     function _transfer(address from, address to, uint256 amount) internal override {
         require(!hasRole(BLOCK_ROLE, from), "transfer is blocked");

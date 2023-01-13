@@ -91,25 +91,6 @@ _Emitted when a withdrawal signature is submitted by validator._
 | validator | address | The address of validator who submitted the signature. |
 | signature | bytes | The submitted signature. |
 
-### RequestWithdrawalSignatures
-
-```solidity
-event RequestWithdrawalSignatures(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee)
-```
-
-_Emitted when the withdrawal signatures is requested._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| chainId | uint256 | The ChainId of mainchain network. |
-| withdrawalId | uint256 | Withdrawal identifier id. |
-| recipient | address | The address of account to receive the withdrawal. |
-| token | address | The address of token to withdraw on mainchain network. |
-| amount | uint256 | The amount of token to withdraw on mainchain network. Note that validator should use this `amount' for submitting signature |
-| fee | uint256 | The fee amount to pay for the withdrawal tx sender on mainchain network. |
-
 ### initialize
 
 ```solidity
@@ -221,23 +202,6 @@ Locks the assets and request withdrawal.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | withdrawalId | uint256 | The newly generated withdrawalId |
-
-### requestWithdrawalSignatures
-
-```solidity
-function requestWithdrawalSignatures(uint256 chainId, uint256 withdrawalId) external
-```
-
-Request withdrawal signatures.
-In case the withdrawer didn't submit to mainchain in time,
-and the set of the validator has changed.
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| withdrawalId | uint256 | WithdrawalId |
 
 ### submitWithdrawalSignature
 

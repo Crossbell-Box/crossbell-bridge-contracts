@@ -872,56 +872,6 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(address(gateway)), 0);
     }
 
-    function testRequestWithdrawalSignatures() public {
-        uint256 chainId = 1;
-        uint256 withdrawalId = 0;
-        address recipient = alice;
-        address token = address(crossbellToken);
-        uint256 amount = INITIAL_AMOUNT_CROSSBELL / 100; // amount > balanceOf(alice)
-        uint256 fee = amount / 100;
-
-        // transformed amount
-        uint256 transformedAmount = amount / (10 ** 12);
-        uint256 feeAmount = fee / (10 ** 12);
-        DataTypes.MappedToken memory mapppedToken = gateway.getMainchainToken(chainId, token);
-
-        // approve token
-        vm.startPrank(recipient);
-        crossbellToken.approve(address(gateway), amount);
-        // request withdrawal
-        gateway.requestWithdrawal(chainId, recipient, token, amount, fee);
-        // request withdrawal signatures
-        // expect events
-        expectEmit(CheckAll);
-        emit RequestWithdrawalSignatures(
-            chainId,
-            withdrawalId,
-            recipient,
-            mapppedToken.token,
-            transformedAmount,
-            feeAmount
-        );
-        gateway.requestWithdrawalSignatures(chainId, withdrawalId);
-        vm.stopPrank();
-    }
-
-    function testRequestWithdrawalSignaturesFail() public {
-        uint256 chainId = 1;
-        uint256 withdrawalId = 1;
-
-        // case 1: NotEntryOwner
-        vm.expectRevert(abi.encodePacked("NotEntryOwner"));
-        vm.prank(alice);
-        gateway.requestWithdrawalSignatures(chainId, withdrawalId);
-
-        // case 2: gateway has been paused
-        vm.prank(admin);
-        gateway.pause();
-        vm.expectRevert(abi.encodePacked("Pausable: paused"));
-        vm.prank(alice);
-        gateway.requestWithdrawalSignatures(chainId, withdrawalId);
-    }
-
     function testSubmitWithdrawalSignature() public {
         uint256 chainId = 1;
         uint256 withdrawalId = 1;

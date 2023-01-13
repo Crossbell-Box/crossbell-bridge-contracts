@@ -134,23 +134,6 @@ Locks the assets and request withdrawal.
 | ---- | ---- | ----------- |
 | withdrawalId | uint256 | The newly generated withdrawalId |
 
-### requestWithdrawalSignatures
-
-```solidity
-function requestWithdrawalSignatures(uint256 chainId, uint256 withdrawalId) external
-```
-
-Request withdrawal signatures.
-In case the withdrawer didn't submit to mainchain in time,
-and the set of the validator has changed.
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| withdrawalId | uint256 | WithdrawalId |
-
 ### submitWithdrawalSignature
 
 ```solidity

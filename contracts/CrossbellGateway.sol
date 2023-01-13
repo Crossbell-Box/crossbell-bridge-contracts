@@ -179,24 +179,6 @@ contract CrossbellGateway is
     }
 
     /// @inheritdoc ICrossbellGateway
-    function requestWithdrawalSignatures(
-        uint256 chainId,
-        uint256 withdrawalId
-    ) external whenNotPaused {
-        DataTypes.WithdrawalEntry memory entry = _withdrawals[chainId][withdrawalId];
-        require(entry.recipient == msg.sender, "NotEntryOwner");
-
-        emit RequestWithdrawalSignatures(
-            chainId,
-            withdrawalId,
-            entry.recipient,
-            entry.token,
-            entry.amount,
-            entry.fee
-        );
-    }
-
-    /// @inheritdoc ICrossbellGateway
     function submitWithdrawalSignature(
         uint256 chainId,
         uint256 withdrawalId,

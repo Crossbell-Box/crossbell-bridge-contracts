@@ -29,4 +29,16 @@ contract MiraToken is Context, AccessControlEnumerable, ERC20 {
         require(!hasRole(BLOCK_ROLE, from), "transfer is blocked");
         super._transfer(from, to, amount);
     }
+
+    /**
+     * @dev Revokes `role` from the calling account.
+     * Requirements:
+     * - the caller must have the `DEFAULT_ADMIN_ROLE`.
+     */
+    function renounceRole(
+        bytes32 role,
+        address account
+    ) public override onlyRole(DEFAULT_ADMIN_ROLE) {
+        _revokeRole(role, account);
+    }
 }

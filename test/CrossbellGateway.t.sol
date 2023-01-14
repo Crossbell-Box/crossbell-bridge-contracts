@@ -45,14 +45,7 @@ contract CrossbellGatewayTest is Test, Utils {
         uint256 amount,
         uint256 fee
     );
-    event RequestWithdrawalSignatures(
-        uint256 indexed chainId,
-        uint256 indexed withdrawalId,
-        address indexed recipient,
-        address token,
-        uint256 amount,
-        uint256 fee
-    );
+
     event SubmitWithdrawalSignature(
         uint256 indexed chainId,
         uint256 indexed withdrawalId,

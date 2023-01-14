@@ -116,7 +116,7 @@ Initializes the CrossbellGateway.
 function pause() external
 ```
 
-Pause interaction with the gateway contract
+Pauses interaction with the gateway contract
 
 ### unpause
 
@@ -124,7 +124,7 @@ Pause interaction with the gateway contract
 function unpause() external
 ```
 
-Resume interaction with the gateway contract
+Resumes interaction with the gateway contract
 
 ### mapTokens
 

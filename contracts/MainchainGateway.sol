@@ -30,17 +30,13 @@ contract MainchainGateway is
     using SafeERC20 for IERC20;
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant WITHDRAWAL_UNLOCKER_ROLE = keccak256("WITHDRAWAL_UNLOCKER_ROLE");
 
     /// @inheritdoc IMainchainGateway
     function initialize(
         address validator,
         address admin,
-        address withdrawalUnlocker,
         address[] calldata mainchainTokens,
-        // thresholds[0]: lockedThresholds
-        // thresholds[1]: dailyWithdrawalMaxQuota
-        uint256[][2] calldata thresholds,
+        uint256[] calldata dailyWithdrawalMaxQuota,
         address[] calldata crossbellTokens,
         uint8[] calldata crossbellTokenDecimals
     ) external initializer {
@@ -53,16 +49,11 @@ contract MainchainGateway is
             _mapTokens(mainchainTokens, crossbellTokens, crossbellTokenDecimals);
         }
 
-        // set the amount thresholds to lock withdrawal
-        _setLockedThresholds(mainchainTokens, thresholds[0]);
-
         // set daily withdrawal quotas
-        _setDailyWithdrawalQuotas(mainchainTokens, thresholds[1]);
+        _setDailyWithdrawalMaxQuotas(mainchainTokens, dailyWithdrawalMaxQuota);
 
-        // grants `DEFAULT_ADMIN_ROLE`, `ADMIN_ROLE` and `WITHDRAWAL_UNLOCKER_ROLE`
-        _setupRole(DEFAULT_ADMIN_ROLE, admin);
+        // grants `ADMIN_ROLE`
         _setupRole(ADMIN_ROLE, admin);
-        _setupRole(WITHDRAWAL_UNLOCKER_ROLE, withdrawalUnlocker);
     }
 
     /**
@@ -130,7 +121,7 @@ contract MainchainGateway is
         uint256 amount,
         uint256 fee,
         DataTypes.Signature[] calldata signatures
-    ) external nonReentrant whenNotPaused returns (bool locked) {
+    ) external nonReentrant whenNotPaused {
         require(chainId == block.chainid, "InvalidChainId");
         require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
         require(!_reachedDailyWithdrawalQuota(token, amount), "DailyWithdrawalMaxQuota");
@@ -139,14 +130,6 @@ contract MainchainGateway is
             abi.encodePacked(_domainSeparator, chainId, withdrawalId, recipient, token, amount, fee)
         );
         require(_verifySignatures(hash, signatures), "InsufficientSignaturesNumber");
-
-        // check locked
-        locked = _lockedWithdrawalRequest(token, amount);
-        if (locked) {
-            _withdrawalLocked[withdrawalId] = true;
-            emit WithdrawalLocked(withdrawalId);
-            return locked;
-        }
 
         // record withdrawal hash
         _withdrawalHash[withdrawalId] = hash;
@@ -160,63 +143,11 @@ contract MainchainGateway is
     }
 
     /// @inheritdoc IMainchainGateway
-    function unlockWithdrawal(
-        uint256 chainId,
-        uint256 withdrawalId,
-        address recipient,
-        address token,
-        uint256 amount,
-        uint256 fee
-    ) external whenNotPaused onlyRole(WITHDRAWAL_UNLOCKER_ROLE) {
-        _unlockWithdrawal(chainId, withdrawalId, recipient, token, amount, fee);
-    }
-
-    /// @inheritdoc IMainchainGateway
-    function batchUnlockWithdrawal(
-        uint256[] calldata chainIds,
-        uint256[] calldata withdrawalIds,
-        address[] calldata recipients,
-        address[] calldata tokens,
-        uint256[] calldata amounts,
-        uint256[] calldata fees
-    ) external whenNotPaused onlyRole(WITHDRAWAL_UNLOCKER_ROLE) {
-        require(
-            chainIds.length == withdrawalIds.length &&
-                chainIds.length == recipients.length &&
-                chainIds.length == tokens.length &&
-                chainIds.length == amounts.length &&
-                chainIds.length == fees.length,
-            "InvalidArrayLength"
-        );
-
-        // operations inside a loop might waste gas,
-        // so the caller should decide by himself the size of the input array
-        for (uint256 i = 0; i < chainIds.length; i++) {
-            _unlockWithdrawal(
-                chainIds[i],
-                withdrawalIds[i],
-                recipients[i],
-                tokens[i],
-                amounts[i],
-                fees[i]
-            );
-        }
-    }
-
-    /// @inheritdoc IMainchainGateway
-    function setLockedThresholds(
-        address[] calldata tokens,
-        uint256[] calldata thresholds
-    ) external onlyRole(ADMIN_ROLE) {
-        _setLockedThresholds(tokens, thresholds);
-    }
-
-    /// @inheritdoc IMainchainGateway
-    function setDailyWithdrawalQuotas(
+    function setDailyWithdrawalMaxQuotas(
         address[] calldata tokens,
         uint256[] calldata quotas
     ) external onlyRole(ADMIN_ROLE) {
-        _setDailyWithdrawalQuotas(tokens, quotas);
+        _setDailyWithdrawalMaxQuotas(tokens, quotas);
     }
 
     /// @inheritdoc IMainchainGateway
@@ -232,16 +163,6 @@ contract MainchainGateway is
     /// @inheritdoc IMainchainGateway
     function getWithdrawalHash(uint256 withdrawalId) external view returns (bytes32) {
         return _withdrawalHash[withdrawalId];
-    }
-
-    /// @inheritdoc IMainchainGateway
-    function isWithdrawalLocked(uint256 withdrawalId) external view returns (bool) {
-        return _withdrawalLocked[withdrawalId];
-    }
-
-    /// @inheritdoc IMainchainGateway
-    function getWithdrawalLockedThreshold(address token) external view returns (uint256) {
-        return _lockedThresholds[token];
     }
 
     /// @inheritdoc IMainchainGateway
@@ -310,27 +231,11 @@ contract MainchainGateway is
     }
 
     /**
-     * @dev Sets the amount thresholds to lock withdrawal.
-     * Note that the array lengths must be equal.
-     */
-    function _setLockedThresholds(
-        address[] calldata tokens,
-        uint256[] calldata thresholds
-    ) internal {
-        require(tokens.length == thresholds.length, "InvalidArrayLength");
-
-        for (uint256 i = 0; i < tokens.length; i++) {
-            _lockedThresholds[tokens[i]] = thresholds[i];
-        }
-        emit LockedThresholdsUpdated(tokens, thresholds);
-    }
-
-    /**
-     * @dev Sets daily quota for the withdrawals.
+     * @dev Sets daily max quota for the withdrawals.
      * Note that the array lengths must be equal.
      * Emits the `DailyWithdrawalQuotasUpdated` event.
      */
-    function _setDailyWithdrawalQuotas(
+    function _setDailyWithdrawalMaxQuotas(
         address[] calldata tokens,
         uint256[] calldata quotas
     ) internal {
@@ -339,39 +244,7 @@ contract MainchainGateway is
         for (uint256 i = 0; i < tokens.length; i++) {
             _dailyWithdrawalMaxQuota[tokens[i]] = quotas[i];
         }
-        emit DailyWithdrawalQuotasUpdated(tokens, quotas);
-    }
-
-    /**
-     * @dev Approves a specific withdrawal.
-     */
-    function _unlockWithdrawal(
-        uint256 chainId,
-        uint256 withdrawalId,
-        address recipient,
-        address token,
-        uint256 amount,
-        uint256 fee
-    ) internal {
-        require(chainId == block.chainid, "InvalidChainId");
-        require(_withdrawalLocked[withdrawalId], "WithdrawalNotLocked");
-        // check withdrawalHash, although this does not seem necessary
-        require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
-
-        delete _withdrawalLocked[withdrawalId];
-        emit WithdrawalUnlocked(withdrawalId);
-
-        bytes32 hash = keccak256(
-            abi.encodePacked(_domainSeparator, chainId, withdrawalId, recipient, token, amount, fee)
-        );
-
-        // record withdrawal hash
-        _withdrawalHash[withdrawalId] = hash;
-        // transfer
-        IERC20(token).safeTransfer(recipient, amount - fee);
-        IERC20(token).safeTransfer(msg.sender, fee);
-
-        emit Withdrew(chainId, withdrawalId, recipient, token, amount, fee);
+        emit DailyWithdrawalMaxQuotasUpdated(tokens, quotas);
     }
 
     /**
@@ -388,15 +261,7 @@ contract MainchainGateway is
     }
 
     /**
-     * @dev Returns whether the withdrawal request is locked or not.
-     */
-    function _lockedWithdrawalRequest(address token, uint256 amount) internal view returns (bool) {
-        return _lockedThresholds[token] <= amount;
-    }
-
-    /**
      * @dev Checks whether the withdrawal reaches the daily quota.
-     * - Note that the daily withdrawal threshold should not apply for locked withdrawals.
      * @param token Token address to withdraw
      * @param amount Token amount to withdraw
      */
@@ -404,10 +269,6 @@ contract MainchainGateway is
         address token,
         uint256 amount
     ) internal view returns (bool) {
-        if (_lockedWithdrawalRequest(token, amount)) {
-            return false;
-        }
-
         uint256 currentDate = block.timestamp / 1 days;
         if (currentDate > _lastDateSynced[token]) {
             return _dailyWithdrawalMaxQuota[token] <= amount;

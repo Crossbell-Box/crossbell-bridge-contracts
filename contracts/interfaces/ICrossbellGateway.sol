@@ -102,12 +102,12 @@ interface ICrossbellGateway {
     ) external;
 
     /**
-     * @notice Pause interaction with the gateway contract
+     * @notice Pauses interaction with the gateway contract
      */
     function pause() external;
 
     /**
-     * @notice Resume interaction with the gateway contract
+     * @notice Resumes interaction with the gateway contract
      */
     function unpause() external;
 

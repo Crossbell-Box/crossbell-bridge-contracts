@@ -8,6 +8,8 @@ import "hardhat-contract-sizer";
 import "solidity-docgen";
 import * as dotenv from "dotenv";
 import "hardhat-abi-exporter";
+import "@cronos-labs/hardhat-cronoscan";
+
 
 dotenv.config();
 
@@ -24,6 +26,7 @@ const chainIds = {
     polygon: 137,
     polygonMumbai: 80001,
     avalancheFujiTestnet:43113,
+    cronosTestnet:338,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
@@ -43,6 +46,9 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
             break;
         case "avalancheFujiTestnet":
             jsonRpcUrl = "https://api.avax-test.network/ext/C/rpc";
+            break;
+        case "cronosTestnet":
+            jsonRpcUrl = "https://evm-t3.cronos.org/";
             break;
         default:
             jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
@@ -78,10 +84,6 @@ module.exports = {
             url: "https://rpc.crossbell.io",
             accounts: [process.env.PRIVATE_KEY],
         },
-        cronosTestnet: {
-            url: "https://evm-t3.cronos.org",
-            accounts: [process.env.PRIVATE_KEY],
-        },
         bsc: getChainConfig("bsc"),
         bscTestnet: getChainConfig("bscTestnet"),
         mainnet: getChainConfig("mainnet"),
@@ -89,12 +91,13 @@ module.exports = {
         polygon: getChainConfig("polygon"),
         polygonMumbai: getChainConfig("polygonMumbai"),
         avalancheFujiTestnet:getChainConfig("avalancheFujiTestnet"),
+        cronosTestnet:getChainConfig("cronosTestnet"),
     },
 
     etherscan: {
         apiKey: {
             crossbell: "no API key",
-            cronosTestnet: "no API key",
+            cronosTestnet: process.env.CRONOS_API_KEY || "",
             bsc: process.env.BSCSCAN_API_KEY || "",
             bscTestnet: process.env.BSCSCAN_API_KEY || "",
             mainnet: process.env.ETHERSCAN_API_KEY || "",
@@ -110,14 +113,6 @@ module.exports = {
                 urls: {
                     apiURL: "https://scan.crossbell.io/api",
                     browserURL: "https://scan.crossbell.io",
-                },
-            },
-            {
-                network: "cronosTestnet",
-                chainId: 338,
-                urls: {
-                    apiURL: "https://cronos.org/explorer/testnet3/api",
-                    browserURL: "https://cronos.org/explorer/testnet3",
                 },
             },
         ],

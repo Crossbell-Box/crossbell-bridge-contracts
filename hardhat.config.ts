@@ -16,11 +16,6 @@ if (!infuraApiKey) {
     throw new Error("Please set your INFURA_API_KEY in a .env file");
 }
 
-const PrivateKey: string | undefined = process.env.PRIVATE_KEY;
-if (!PrivateKey) {
-    throw new Error("Please set your PrivateKey in a .env file");
-}
-
 const chainIds = {
     bsc: 56,
     bscTestnet: 97,
@@ -39,7 +34,7 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
             jsonRpcUrl = "https://bsc-dataseed1.binance.org";
             break;
         case "bscTestnet":
-            jsonRpcUrl = "https://data-seed-prebsc-1-s2.binance.org:8545";
+            jsonRpcUrl = "https://endpoints.omniatech.io/v1/bsc/testnet/public";
             break;
         case "polygon":
             jsonRpcUrl = "https://polygon-rpc.com/";
@@ -54,7 +49,7 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
             jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
     }
     return {
-        accounts: [PrivateKey],
+        accounts: [`0x${process.env.PRIVATE_KEY}`],
         chainId: chainIds[chain],
         url: jsonRpcUrl,
     };
@@ -82,7 +77,7 @@ module.exports = {
     networks: {
         crossbell: {
             url: "https://rpc.crossbell.io",
-            accounts: [process.env.PRIVATE_KEY],
+            accounts: [`0x${process.env.PRIVATE_KEY}`],
         },
         bsc: getChainConfig("bsc"),
         bscTestnet: getChainConfig("bscTestnet"),

@@ -15,11 +15,11 @@
         {
           "indexed": false,
           "internalType": "uint256[]",
-          "name": "limits",
+          "name": "quotas",
           "type": "uint256[]"
         }
       ],
-      "name": "DailyWithdrawalLimitsUpdated",
+      "name": "DailyWithdrawalQuotasUpdated",
       "type": "event"
     },
     {
@@ -173,19 +173,6 @@
       "type": "event"
     },
     {
-      "inputs": [],
-      "name": "DOMAIN_SEPARATOR",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "uint256[]",
@@ -262,7 +249,26 @@
           "type": "address"
         }
       ],
-      "name": "getDailyWithdrawalLimit",
+      "name": "getDailyWithdrawalMaxQuota",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "getDailyWithdrawalRemainingQuota",
       "outputs": [
         {
           "internalType": "uint256",
@@ -281,6 +287,19 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getDomainSeparator",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
         }
       ],
       "stateMutability": "view",
@@ -433,30 +452,6 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "reachedDailyWithdrawalLimit",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "recipient",
           "type": "address"
         },
@@ -491,11 +486,11 @@
         },
         {
           "internalType": "uint256[]",
-          "name": "limits",
+          "name": "quotas",
           "type": "uint256[]"
         }
       ],
-      "name": "setDailyWithdrawalLimits",
+      "name": "setDailyWithdrawalQuotas",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -561,47 +556,6 @@
       "name": "unpause",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "hash",
-          "type": "bytes32"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint8",
-              "name": "v",
-              "type": "uint8"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "r",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "s",
-              "type": "bytes32"
-            }
-          ],
-          "internalType": "struct DataTypes.Signature[]",
-          "name": "signatures",
-          "type": "tuple[]"
-        }
-      ],
-      "name": "verifySignatures",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {

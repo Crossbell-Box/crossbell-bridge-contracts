@@ -40,7 +40,7 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 fee
     );
     event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds);
-    event DailyWithdrawalLimitsUpdated(address[] tokens, uint256[] limits);
+    event DailyWithdrawalQuotasUpdated(address[] tokens, uint256[] quotas);
     event WithdrawalLocked(uint256 indexed withdrawalId);
     event WithdrawalUnlocked(uint256 indexed withdrawalId);
 
@@ -77,12 +77,12 @@ contract MainchainGatewayTest is Test, Utils {
     uint256 internal constant INITIAL_AMOUNT_CROSSBELL = 200 * 10 ** 18;
     // withdrawal threshold: 10 tokens
     uint256 internal constant WITHDRAWLAL_THRESHOLD = 10 * 10 ** 6;
-    // daily withdrawal limit: 100 tokens
-    uint256 internal constant DAILY_WITHDRAWLAL_LIMIT = 100 * 10 ** 6;
+    // daily withdrawal max quota: 100 tokens
+    uint256 internal constant DAILY_WITHDRAWLAL_MAX_QUOTA = 100 * 10 ** 6;
 
     uint256[][2] internal initialThresholds = [
         array(WITHDRAWLAL_THRESHOLD),
-        array(DAILY_WITHDRAWLAL_LIMIT)
+        array(DAILY_WITHDRAWLAL_MAX_QUOTA)
     ];
 
     function setUp() public {
@@ -324,35 +324,35 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalLockedThreshold(token), 0);
     }
 
-    function testSetDailyWithdrawalLimits() public {
+    function testSetDailyWithdrawalQuotas() public {
         address[] memory tokens = array(address(0x0001), address(0x0002));
-        uint256[] memory limits = array(111, 222);
+        uint256[] memory quotas = array(111, 222);
 
         // expect events
         expectEmit(CheckAll);
-        emit DailyWithdrawalLimitsUpdated(tokens, limits);
+        emit DailyWithdrawalQuotasUpdated(tokens, quotas);
         vm.prank(admin);
-        gateway.setDailyWithdrawalLimits(tokens, limits);
+        gateway.setDailyWithdrawalQuotas(tokens, quotas);
         // check states
         for (uint256 i = 0; i < tokens.length; i++) {
-            assertEq(gateway.getDailyWithdrawalLimit(tokens[i]), limits[i]);
+            assertEq(gateway.getDailyWithdrawalMaxQuota(tokens[i]), quotas[i]);
         }
 
-        // set new limits
-        uint256[] memory newLimits = array(333, 444);
+        // set new quotas
+        uint256[] memory newQuotas = array(333, 444);
         vm.prank(admin);
-        gateway.setDailyWithdrawalLimits(tokens, newLimits);
+        gateway.setDailyWithdrawalQuotas(tokens, newQuotas);
         // check states
         for (uint256 i = 0; i < tokens.length; i++) {
-            assertEq(gateway.getDailyWithdrawalLimit(tokens[i]), newLimits[i]);
+            assertEq(gateway.getDailyWithdrawalMaxQuota(tokens[i]), newQuotas[i]);
         }
     }
 
-    function testSetDailyWithdrawalLimitsFail() public {
+    function testSetDailyWithdrawalQuotasFail() public {
         address[] memory tokens = array(address(0x0001), address(0x0002));
-        uint256[] memory limits = array(111, 222);
+        uint256[] memory quotas = array(111, 222);
 
-        // eve has no permission to set the daily withdrawal limit
+        // eve has no permission to set the daily withdrawal quota
         vm.expectRevert(
             abi.encodePacked(
                 "AccessControl: account ",
@@ -362,11 +362,11 @@ contract MainchainGatewayTest is Test, Utils {
             )
         );
         vm.prank(eve);
-        gateway.setDailyWithdrawalLimits(tokens, limits);
+        gateway.setDailyWithdrawalQuotas(tokens, quotas);
 
         // check states
         for (uint256 i = 0; i < tokens.length; i++) {
-            assertEq(gateway.getDailyWithdrawalLimit(tokens[i]), 0);
+            assertEq(gateway.getDailyWithdrawalMaxQuota(tokens[i]), 0);
         }
     }
 
@@ -544,7 +544,7 @@ contract MainchainGatewayTest is Test, Utils {
         gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
     }
 
-    // case 3: reached daily withdrawal limit
+    // case 3: reached daily withdrawal max quota
     function testWithdrawFailCase3() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
@@ -574,8 +574,8 @@ contract MainchainGatewayTest is Test, Utils {
             DataTypes.Signature[] memory signatures = _getThreeSignatures(hash);
 
             if (i == 19) {
-                // case 3: reached daily withdrawal limit
-                vm.expectRevert(abi.encodePacked("DailyWithdrawalLimit"));
+                // case 3: reached daily withdrawal max quota
+                vm.expectRevert(abi.encodePacked("DailyWithdrawalMaxQuota"));
                 gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
                 // check withdrawal hash
                 assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0));
@@ -738,14 +738,14 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0));
     }
 
-    function testWithdrawWithDailyLimit() public {
+    function testWithdrawWithDailyQuota() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
         // withdrawal info
         address recipient = bob;
         address token = address(mainchainToken);
-        uint256 amount = DAILY_WITHDRAWLAL_LIMIT / 20;
+        uint256 amount = DAILY_WITHDRAWLAL_MAX_QUOTA / 20;
         uint256 fee = amount / 100;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
@@ -768,11 +768,11 @@ contract MainchainGatewayTest is Test, Utils {
             DataTypes.Signature[] memory signatures = _getThreeSignatures(hash);
 
             if (i == 19) {
-                // the last withdrawal will reach the daily withdrawal limit
-                vm.expectRevert(abi.encodePacked("DailyWithdrawalLimit"));
+                // the last withdrawal will reach the daily withdrawal max quota
+                vm.expectRevert(abi.encodePacked("DailyWithdrawalMaxQuota"));
                 gateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, signatures);
 
-                // 1 days later, the limit will restore
+                // 1 days later, the max quota will restore
                 skip(1 days);
             }
             // expect events
@@ -832,16 +832,11 @@ contract MainchainGatewayTest is Test, Utils {
         assertEq(gateway.getWithdrawalHash(withdrawalId), bytes32(0));
     }
 
-    function testReachedDailyWithdrawalLimit() public {
+    function testGetDailyWithdrawalRemainingQuota() public {
+        skip(10 days);
+
         address token = address(mainchainToken);
-
-        // The daily withdrawal threshold should not apply for locked withdrawals.
-        assertEq(gateway.reachedDailyWithdrawalLimit(token, WITHDRAWLAL_THRESHOLD), false);
-        assertEq(gateway.reachedDailyWithdrawalLimit(token, DAILY_WITHDRAWLAL_LIMIT), false);
-
-        // small withdrawal amount
-        assertEq(gateway.reachedDailyWithdrawalLimit(token, 1), false);
-        assertEq(gateway.reachedDailyWithdrawalLimit(token, WITHDRAWLAL_THRESHOLD - 1), false);
+        assertEq(gateway.getDailyWithdrawalRemainingQuota(token), DAILY_WITHDRAWLAL_MAX_QUOTA, "1");
 
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
@@ -852,14 +847,14 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 fee = 1 * 10 ** 5;
         uint256 chainId = 1337;
 
+        uint256 remainingQuota = DAILY_WITHDRAWLAL_MAX_QUOTA;
+
         vm.chainId(chainId); // set block.chainid
         for (uint256 i = 0; i < 20; i++) {
             if (i == 19) {
-                // reached daily withdrawal limit
-                assertEq(gateway.reachedDailyWithdrawalLimit(token, amount), true);
+                assertEq(gateway.getDailyWithdrawalRemainingQuota(token), amount, "loop 19");
             } else {
                 // withdraw
-
                 bytes32 hash = _hash(
                     gateway.getDomainSeparator(),
                     chainId,
@@ -871,12 +866,16 @@ contract MainchainGatewayTest is Test, Utils {
                 );
                 DataTypes.Signature[] memory signatures = _getThreeSignatures(hash);
                 gateway.withdraw(chainId, i, recipient, token, amount, fee, signatures);
+
+                // check remaining quota
+                remainingQuota = remainingQuota - amount;
+                assertEq(gateway.getDailyWithdrawalRemainingQuota(token), remainingQuota, "loop");
             }
         }
 
-        // 1 days later, the daily withdrawal limit will be reset
+        // 1 days later, the daily withdrawal max quota will be reset
         skip(1 days);
-        assertEq(gateway.reachedDailyWithdrawalLimit(token, amount), false);
+        assertEq(gateway.getDailyWithdrawalRemainingQuota(token), DAILY_WITHDRAWLAL_MAX_QUOTA);
     }
 
     function testUnlockWithdrawal() public {

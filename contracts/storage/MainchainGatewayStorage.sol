@@ -25,8 +25,8 @@ abstract contract MainchainGatewayStorage {
     mapping(uint256 => bool) internal _withdrawalLocked;
     /// @dev Mapping from mainchain token => the amount thresholds to lock withdrawal
     mapping(address => uint256) internal _lockedThresholds;
-    /// @dev Mapping from mainchain token => daily limit amount for withdrawal
-    mapping(address => uint256) internal _dailyWithdrawalLimit;
+    /// @dev Mapping from mainchain token => daily max amount for withdrawal
+    mapping(address => uint256) internal _dailyWithdrawalMaxQuota;
     /// @dev Mapping from token address => today withdrawal amount
     mapping(address => uint256) internal _lastSyncedWithdrawal;
     /// @dev Mapping from token address => last date synced to record the `_lastSyncedWithdrawal`

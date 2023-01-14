@@ -63,13 +63,13 @@ event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds)
 
 _Emitted when the thresholds for locked withdrawals are updated_
 
-### DailyWithdrawalLimitsUpdated
+### DailyWithdrawalQuotasUpdated
 
 ```solidity
-event DailyWithdrawalLimitsUpdated(address[] tokens, uint256[] limits)
+event DailyWithdrawalQuotasUpdated(address[] tokens, uint256[] quotas)
 ```
 
-_Emitted when the daily limit thresholds are updated_
+_Emitted when the daily quota thresholds are updated_
 
 ### WithdrawalLocked
 
@@ -110,7 +110,7 @@ function initialize(address validator, address admin, address withdrawalUnlocker
 Initializes the MainchainGateway.
 Note that the thresholds contains:
  - thresholds[0]: lockedThresholds The amount thresholds to lock withdrawal.
- - thresholds[1]: dailyWithdrawalLimits Daily withdrawal limits for mainchain tokens.
+ - thresholds[1]: dailyWithdrawalMaxQuota Daily withdrawal quotas for mainchain tokens.
 
 #### Parameters
 
@@ -258,14 +258,14 @@ Requirements:
 | tokens | address[] | Addresses of token to set |
 | thresholds | uint256[] | Thresholds corresponding to the tokens to set |
 
-### setDailyWithdrawalLimits
+### setDailyWithdrawalQuotas
 
 ```solidity
-function setDailyWithdrawalLimits(address[] tokens, uint256[] limits) external
+function setDailyWithdrawalQuotas(address[] tokens, uint256[] quotas) external
 ```
 
-Sets daily limit amounts for the withdrawals.
-Emits the `DailyWithdrawalLimitsUpdated` event.
+Sets daily quotas for the withdrawals.
+Emits the `DailyWithdrawalQuotasUpdated` event.
 Requirements:
 - The caller must have the ADMIN_ROLE.
 - The arrays have the same length.
@@ -275,7 +275,7 @@ Requirements:
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tokens | address[] | Addresses of token to set |
-| limits | uint256[] | Limits corresponding to the tokens to set |
+| quotas | uint256[] | quotas corresponding to the tokens to set |
 
 ### getValidatorContract
 
@@ -359,13 +359,13 @@ Returns the amount thresholds to lock withdrawal.
 | ---- | ---- | ----------- |
 | token | address | Token address |
 
-### getDailyWithdrawalLimit
+### getDailyWithdrawalMaxQuota
 
 ```solidity
-function getDailyWithdrawalLimit(address token) external view returns (uint256)
+function getDailyWithdrawalMaxQuota(address token) external view returns (uint256)
 ```
 
-Returns the daily withdrawal limit.
+Returns the daily withdrawal max quota.
 
 #### Parameters
 
@@ -373,20 +373,19 @@ Returns the daily withdrawal limit.
 | ---- | ---- | ----------- |
 | token | address | Token address |
 
-### reachedDailyWithdrawalLimit
+### getDailyWithdrawalRemainingQuota
 
 ```solidity
-function reachedDailyWithdrawalLimit(address token, uint256 amount) external view returns (bool)
+function getDailyWithdrawalRemainingQuota(address token) external view returns (uint256)
 ```
 
-Checks whether the withdrawal reaches the daily limitation.
+Returns today's withdrawal remaining quota.
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| token | address | Token address to withdraw |
-| amount | uint256 | Token amount to withdraw |
+| token | address | Token address to query |
 
 ### getCrossbellToken
 
@@ -394,7 +393,7 @@ Checks whether the withdrawal reaches the daily limitation.
 function getCrossbellToken(address mainchainToken) external view returns (struct DataTypes.MappedToken token)
 ```
 
-Get mapped tokens from crossbell chain
+Returns mapped tokens from crossbell chain
 
 #### Parameters
 

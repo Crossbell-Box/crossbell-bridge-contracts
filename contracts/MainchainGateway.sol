@@ -39,7 +39,7 @@ contract MainchainGateway is
         address withdrawalUnlocker,
         address[] calldata mainchainTokens,
         // thresholds[0]: lockedThresholds
-        // thresholds[1]: dailyWithdrawalLimits
+        // thresholds[1]: dailyWithdrawalMaxQuota
         uint256[][2] calldata thresholds,
         address[] calldata crossbellTokens,
         uint8[] calldata crossbellTokenDecimals
@@ -56,8 +56,8 @@ contract MainchainGateway is
         // set the amount thresholds to lock withdrawal
         _setLockedThresholds(mainchainTokens, thresholds[0]);
 
-        // set daily withdrawal limits
-        _setDailyWithdrawalLimits(mainchainTokens, thresholds[1]);
+        // set daily withdrawal quotas
+        _setDailyWithdrawalQuotas(mainchainTokens, thresholds[1]);
 
         // grants `DEFAULT_ADMIN_ROLE`, `ADMIN_ROLE` and `WITHDRAWAL_UNLOCKER_ROLE`
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
@@ -133,7 +133,7 @@ contract MainchainGateway is
     ) external nonReentrant whenNotPaused returns (bool locked) {
         require(chainId == block.chainid, "InvalidChainId");
         require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
-        require(!_reachedDailyWithdrawalLimit(token, amount), "DailyWithdrawalLimit");
+        require(!_reachedDailyWithdrawalQuota(token, amount), "DailyWithdrawalMaxQuota");
 
         bytes32 hash = keccak256(
             abi.encodePacked(_domainSeparator, chainId, withdrawalId, recipient, token, amount, fee)
@@ -212,11 +212,11 @@ contract MainchainGateway is
     }
 
     /// @inheritdoc IMainchainGateway
-    function setDailyWithdrawalLimits(
+    function setDailyWithdrawalQuotas(
         address[] calldata tokens,
-        uint256[] calldata limits
+        uint256[] calldata quotas
     ) external onlyRole(ADMIN_ROLE) {
-        _setDailyWithdrawalLimits(tokens, limits);
+        _setDailyWithdrawalQuotas(tokens, quotas);
     }
 
     /// @inheritdoc IMainchainGateway
@@ -245,16 +245,18 @@ contract MainchainGateway is
     }
 
     /// @inheritdoc IMainchainGateway
-    function getDailyWithdrawalLimit(address token) external view returns (uint256) {
-        return _dailyWithdrawalLimit[token];
+    function getDailyWithdrawalMaxQuota(address token) external view returns (uint256) {
+        return _dailyWithdrawalMaxQuota[token];
     }
 
     /// @inheritdoc IMainchainGateway
-    function reachedDailyWithdrawalLimit(
-        address token,
-        uint256 amount
-    ) external view returns (bool) {
-        return _reachedDailyWithdrawalLimit(token, amount);
+    function getDailyWithdrawalRemainingQuota(address token) external view returns (uint256) {
+        uint256 currentDate = block.timestamp / 1 days;
+        if (currentDate > _lastDateSynced[token]) {
+            return _dailyWithdrawalMaxQuota[token];
+        } else {
+            return _dailyWithdrawalMaxQuota[token] - _lastSyncedWithdrawal[token];
+        }
     }
 
     /// @inheritdoc IMainchainGateway
@@ -324,20 +326,20 @@ contract MainchainGateway is
     }
 
     /**
-     * @dev Sets daily limit amounts for the withdrawals.
+     * @dev Sets daily quota for the withdrawals.
      * Note that the array lengths must be equal.
-     * Emits the `DailyWithdrawalLimitsUpdated` event.
+     * Emits the `DailyWithdrawalQuotasUpdated` event.
      */
-    function _setDailyWithdrawalLimits(
+    function _setDailyWithdrawalQuotas(
         address[] calldata tokens,
-        uint256[] calldata limits
+        uint256[] calldata quotas
     ) internal {
-        require(tokens.length == limits.length, "InvalidArrayLength");
+        require(tokens.length == quotas.length, "InvalidArrayLength");
 
         for (uint256 i = 0; i < tokens.length; i++) {
-            _dailyWithdrawalLimit[tokens[i]] = limits[i];
+            _dailyWithdrawalMaxQuota[tokens[i]] = quotas[i];
         }
-        emit DailyWithdrawalLimitsUpdated(tokens, limits);
+        emit DailyWithdrawalQuotasUpdated(tokens, quotas);
     }
 
     /**
@@ -393,10 +395,12 @@ contract MainchainGateway is
     }
 
     /**
-     * @dev Checks whether the withdrawal reaches the daily limitation.
-     * Note that the daily withdrawal threshold should not apply for locked withdrawals.
+     * @dev Checks whether the withdrawal reaches the daily quota.
+     * - Note that the daily withdrawal threshold should not apply for locked withdrawals.
+     * @param token Token address to withdraw
+     * @param amount Token amount to withdraw
      */
-    function _reachedDailyWithdrawalLimit(
+    function _reachedDailyWithdrawalQuota(
         address token,
         uint256 amount
     ) internal view returns (bool) {
@@ -406,9 +410,9 @@ contract MainchainGateway is
 
         uint256 currentDate = block.timestamp / 1 days;
         if (currentDate > _lastDateSynced[token]) {
-            return _dailyWithdrawalLimit[token] <= amount;
+            return _dailyWithdrawalMaxQuota[token] <= amount;
         } else {
-            return _dailyWithdrawalLimit[token] <= _lastSyncedWithdrawal[token] + amount;
+            return _dailyWithdrawalMaxQuota[token] <= _lastSyncedWithdrawal[token] + amount;
         }
     }
 

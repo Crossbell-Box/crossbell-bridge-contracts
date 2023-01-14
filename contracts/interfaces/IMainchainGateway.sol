@@ -53,8 +53,8 @@ interface IMainchainGateway {
     /// @dev Emitted when the thresholds for locked withdrawals are updated
     event LockedThresholdsUpdated(address[] tokens, uint256[] thresholds);
 
-    /// @dev Emitted when the daily limit thresholds are updated
-    event DailyWithdrawalLimitsUpdated(address[] tokens, uint256[] limits);
+    /// @dev Emitted when the daily quota thresholds are updated
+    event DailyWithdrawalQuotasUpdated(address[] tokens, uint256[] quotas);
 
     /// @dev Emitted when the withdrawal is locked
     event WithdrawalLocked(uint256 indexed withdrawalId);
@@ -72,7 +72,7 @@ interface IMainchainGateway {
      * @notice Initializes the MainchainGateway.
      * Note that the thresholds contains:
      *  - thresholds[0]: lockedThresholds The amount thresholds to lock withdrawal.
-     *  - thresholds[1]: dailyWithdrawalLimits Daily withdrawal limits for mainchain tokens.
+     *  - thresholds[1]: dailyWithdrawalMaxQuota Daily withdrawal quotas for mainchain tokens.
      * @param validator Address of validator contract.
      * @param admin Address of gateway admin.
      * @param withdrawalUnlocker Address of operator who can unlock the locked withdrawals.
@@ -87,7 +87,7 @@ interface IMainchainGateway {
         address withdrawalUnlocker,
         address[] calldata mainchainTokens,
         // thresholds[0]: lockedThresholds
-        // thresholds[1]: dailyWithdrawalLimits
+        // thresholds[1]: dailyWithdrawalMaxQuota
         uint256[][2] calldata thresholds,
         address[] calldata crossbellTokens,
         uint8[] calldata crossbellTokenDecimals
@@ -204,17 +204,17 @@ interface IMainchainGateway {
     function setLockedThresholds(address[] calldata tokens, uint256[] calldata thresholds) external;
 
     /**
-     * @notice Sets daily limit amounts for the withdrawals.
-     * Emits the `DailyWithdrawalLimitsUpdated` event.
+     * @notice Sets daily quotas for the withdrawals.
+     * Emits the `DailyWithdrawalQuotasUpdated` event.
      * Requirements:
      * - The caller must have the ADMIN_ROLE.
      * - The arrays have the same length.
      * @param tokens Addresses of token to set
-     * @param limits Limits corresponding to the tokens to set
+     * @param quotas quotas corresponding to the tokens to set
      */
-    function setDailyWithdrawalLimits(
+    function setDailyWithdrawalQuotas(
         address[] calldata tokens,
-        uint256[] calldata limits
+        uint256[] calldata quotas
     ) external;
 
     /**
@@ -250,23 +250,19 @@ interface IMainchainGateway {
     function getWithdrawalLockedThreshold(address token) external view returns (uint256);
 
     /**
-     * @notice Returns the daily withdrawal limit.
+     * @notice Returns the daily withdrawal max quota.
      * @param token Token address
      */
-    function getDailyWithdrawalLimit(address token) external view returns (uint256);
+    function getDailyWithdrawalMaxQuota(address token) external view returns (uint256);
 
     /**
-     * @notice Checks whether the withdrawal reaches the daily limitation.
-     * @param token Token address to withdraw
-     * @param amount Token amount to withdraw
+     * @notice Returns today's withdrawal remaining quota.
+     * @param token Token address to query
      */
-    function reachedDailyWithdrawalLimit(
-        address token,
-        uint256 amount
-    ) external view returns (bool);
+    function getDailyWithdrawalRemainingQuota(address token) external view returns (uint256);
 
     /**
-     * @notice Get mapped tokens from crossbell chain
+     * @notice Returns mapped tokens from crossbell chain
      * @param mainchainToken Token address on mainchain
      * @return token Mapped token from crossbell chain
      */

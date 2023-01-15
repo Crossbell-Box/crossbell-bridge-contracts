@@ -6,14 +6,13 @@
 import { ethers } from "hardhat";
 import {
     proxyAdmin,
-    withdrawalUnlocker,
     validatorContract,
     gatewayAdmin,
     mainchainTokens,
-    thresholds,
+    dailyWithdrawalMaxQuota,
     crossbellTokens,
     crossbellTokenDecimals,
-} from "./config/polygonMumbai"; // NOTE: update the config before deployment
+} from "./config/testnet/goerli"; // NOTE: update the config before deployment
 
 async function main() {
     // deploy mainchainGateway
@@ -23,9 +22,8 @@ async function main() {
     await mainchainGateway.initialize(
         validatorContract,
         gatewayAdmin,
-        withdrawalUnlocker,
         mainchainTokens,
-        thresholds,
+        dailyWithdrawalMaxQuota,
         crossbellTokens,
         crossbellTokenDecimals
     );
@@ -40,9 +38,8 @@ async function main() {
     await proxyGateway.initialize(
         validatorContract,
         gatewayAdmin,
-        withdrawalUnlocker,
         mainchainTokens,
-        thresholds,
+        dailyWithdrawalMaxQuota,
         crossbellTokens,
         crossbellTokenDecimals
     );

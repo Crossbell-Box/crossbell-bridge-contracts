@@ -27,6 +27,7 @@ const chainIds = {
     polygonMumbai: 80001,
     avalancheFujiTestnet:43113,
     cronosTestnet:338,
+    sepolia:11155111,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
@@ -92,6 +93,7 @@ module.exports = {
         polygonMumbai: getChainConfig("polygonMumbai"),
         avalancheFujiTestnet:getChainConfig("avalancheFujiTestnet"),
         cronosTestnet:getChainConfig("cronosTestnet"),
+        sepolia:getChainConfig("sepolia"),
     },
 
     etherscan: {
@@ -105,6 +107,7 @@ module.exports = {
             polygon: process.env.POLYGONSCAN_API_KEY || "",
             polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
             avalancheFujiTestnet: process.env.AVAX_API_KEY || "",
+            sepolia: process.env.ETHERSCAN_API_KEY || "",
         },
         customChains: [
             {

@@ -12,7 +12,7 @@ import {
     chainIds,
     mainchainTokens,
     mainchainTokenDecimals,
-} from "./config/avalancheFujiTestnet"; // NOTE: update the config before deployment
+} from "./config/testnet/sepolia"; // NOTE: update the config before deployment
 
 async function main() {
     // deploy crossbellGateway

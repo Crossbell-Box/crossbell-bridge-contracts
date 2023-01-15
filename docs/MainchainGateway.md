@@ -265,7 +265,7 @@ function _verifySignatures(bytes32 hash, struct DataTypes.Signature[] signatures
 function _setDailyWithdrawalMaxQuotas(address[] tokens, uint256[] quotas) internal
 ```
 
-_Sets daily quota for the withdrawals.
+_Sets daily max quota for the withdrawals.
 Note that the array lengths must be equal.
 Emits the `DailyWithdrawalQuotasUpdated` event._
 

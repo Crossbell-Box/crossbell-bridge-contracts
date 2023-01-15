@@ -19,26 +19,7 @@
           "type": "uint256[]"
         }
       ],
-      "name": "DailyWithdrawalQuotasUpdated",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address[]",
-          "name": "tokens",
-          "type": "address[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256[]",
-          "name": "thresholds",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "LockedThresholdsUpdated",
+      "name": "DailyWithdrawalMaxQuotasUpdated",
       "type": "event"
     },
     {
@@ -109,32 +90,6 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "withdrawalId",
-          "type": "uint256"
-        }
-      ],
-      "name": "WithdrawalLocked",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "withdrawalId",
-          "type": "uint256"
-        }
-      ],
-      "name": "WithdrawalUnlocked",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
           "name": "chainId",
           "type": "uint256"
         },
@@ -171,44 +126,6 @@
       ],
       "name": "Withdrew",
       "type": "event"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "chainIds",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "withdrawalIds",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "address[]",
-          "name": "recipients",
-          "type": "address[]"
-        },
-        {
-          "internalType": "address[]",
-          "name": "tokens",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "amounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "fees",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "batchUnlockWithdrawal",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
     },
     {
       "inputs": [
@@ -341,25 +258,6 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "token",
-          "type": "address"
-        }
-      ],
-      "name": "getWithdrawalLockedThreshold",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "validator",
           "type": "address"
         },
@@ -369,19 +267,14 @@
           "type": "address"
         },
         {
-          "internalType": "address",
-          "name": "withdrawalUnlocker",
-          "type": "address"
-        },
-        {
           "internalType": "address[]",
           "name": "mainchainTokens",
           "type": "address[]"
         },
         {
-          "internalType": "uint256[][2]",
-          "name": "thresholds",
-          "type": "uint256[][2]"
+          "internalType": "uint256[]",
+          "name": "dailyWithdrawalMaxQuota",
+          "type": "uint256[]"
         },
         {
           "internalType": "address[]",
@@ -397,25 +290,6 @@
       "name": "initialize",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "withdrawalId",
-          "type": "uint256"
-        }
-      ],
-      "name": "isWithdrawalLocked",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -490,63 +364,7 @@
           "type": "uint256[]"
         }
       ],
-      "name": "setDailyWithdrawalQuotas",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address[]",
-          "name": "tokens",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "thresholds",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "setLockedThresholds",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "chainId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "withdrawalId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "recipient",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "fee",
-          "type": "uint256"
-        }
-      ],
-      "name": "unlockWithdrawal",
+      "name": "setDailyWithdrawalMaxQuotas",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -614,13 +432,7 @@
         }
       ],
       "name": "withdraw",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "locked",
-          "type": "bool"
-        }
-      ],
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     }

@@ -5,7 +5,7 @@ import "../libraries/DataTypes.sol";
 
 interface ICrossbellGateway {
     /**
-     * @dev Emitted when the tokens are mapped
+     * @dev Emitted when the tokens are mapped.
      * @param crossbellTokens Addresses of crossbell tokens.
      * @param chainIds The chain IDs of mainchain networks.
      * @param mainchainTokens Addresses of mainchain tokens.
@@ -19,8 +19,8 @@ interface ICrossbellGateway {
     );
 
     /**
-     * @dev Emitted when the assets are deposited
-     * @param chainId The chain ID of mainchain network
+     * @dev Emitted when the assets are deposited.
+     * @param chainId The chain ID of mainchain network.
      * @param depositId Deposit identifier id.
      * @param recipient The address of account to receive the deposit.
      * @param token The address of token to deposit.
@@ -35,7 +35,7 @@ interface ICrossbellGateway {
     );
 
     /**
-     * @dev Emitted when the deposit is acknowledged by a validator
+     * @dev Emitted when the deposit is acknowledged by a validator.
      * @param chainId The ChainId of mainchain network.
      * @param depositId Deposit identifier id.
      * @param recipient The address of account to receive the deposit.
@@ -51,13 +51,13 @@ interface ICrossbellGateway {
     );
 
     /**
-     * @dev Emitted when the withdrawal is requested
+     * @dev Emitted when the withdrawal is requested.
      * @param chainId The ChainId of mainchain network.
      * @param withdrawalId Withdrawal identifier id.
      * @param recipient The address of account to receive the withdrawal.
      * @param token The address of token to withdraw on mainchain network.
      * @param amount The amount of token to withdraw on mainchain network.
-     * Note that validator should use this `amount' for submitting signature
+     * Note that validator should use this `amount' for submitting signature.
      * @param fee The fee amount to pay for the withdrawal tx sender on mainchain network.
      */
     event RequestWithdrawal(
@@ -149,11 +149,11 @@ interface ICrossbellGateway {
     /**
      * @notice Acknowledges a deposit.
      * Note that the caller must be a validator.
-     * @param chainId The chain ID of mainchain network
+     * @param chainId The chain ID of mainchain network.
      * @param depositId Deposit identifier id.
-     * @param recipient Address to receive deposit on crossbell network
-     * @param token Token address to deposit on crossbell network
-     * @param amount Token amount to deposit on crossbell network
+     * @param recipient Address to receive deposit on crossbell network.
+     * @param token Token address to deposit on crossbell network.
+     * @param amount Token amount to deposit on crossbell network.
      */
     function ackDeposit(
         uint256 chainId,
@@ -165,12 +165,12 @@ interface ICrossbellGateway {
 
     /**
      * @notice Locks the assets and request withdrawal.
-     * @param chainId The chain ID of mainchain network
-     * @param recipient Address to receive withdrawal on mainchain network
-     * @param token Token address to lock from crossbell network
-     * @param amount Token amount to lock from crossbell network
+     * @param chainId The chain ID of mainchain network.
+     * @param recipient Address to receive withdrawal on mainchain network.
+     * @param token Token address to lock from crossbell network.
+     * @param amount Token amount to lock from crossbell network.
      * @param fee Fee amount to pay. This is subtracted from the `amount`.
-     * @return withdrawalId The newly generated withdrawalId
+     * @return withdrawalId The newly generated withdrawalId.
      */
     function requestWithdrawal(
         uint256 chainId,
@@ -183,9 +183,9 @@ interface ICrossbellGateway {
     /**
      * @notice Submits validator signature for withdrawal.
      * Note that the caller must be a validator.
-     * @param chainId The chain ID of mainchain network
-     * @param withdrawalId WithdrawalId
-     * @param sig Validator signature for the withdrawal
+     * @param chainId The chain ID of mainchain network.
+     * @param withdrawalId WithdrawalId.
+     * @param sig Validator signature for the withdrawal.
      */
     function submitWithdrawalSignature(
         uint256 chainId,
@@ -195,9 +195,9 @@ interface ICrossbellGateway {
 
     /**
      * @notice Returns mapped token on mainchain.
-     * @param chainId The chain ID of mainchain network
-     * @param crossbellToken Token address on crossbell
-     * @return token Mapped token on mainchain chain
+     * @param chainId The chain ID of mainchain network.
+     * @param crossbellToken Token address on crossbell.
+     * @return token Mapped token on mainchain chain.
      */
     function getMainchainToken(
         uint256 chainId,
@@ -206,10 +206,10 @@ interface ICrossbellGateway {
 
     /**
      * @notice Returns the acknowledge depositHash by validator.
-     * @param chainId The chain ID of mainchain network
-     * @param id DepositId
-     * @param validator Validator address
-     * @return bytes32 depositHash if validator has acknowledged, otherwise 0
+     * @param chainId The chain ID of mainchain network.
+     * @param id DepositId.
+     * @param validator Validator address.
+     * @return bytes32 depositHash if validator has acknowledged, otherwise 0.
      */
     function getValidatorAcknowledgementHash(
         uint256 chainId,
@@ -219,10 +219,10 @@ interface ICrossbellGateway {
 
     /**
      * @notice Returns the acknowledge status of deposit by validators.
-     * @param chainId The chain ID of mainchain network
-     * @param id DepositId
-     * @param hash depositHash
-     * @return DataTypes.Status Acknowledgement status
+     * @param chainId The chain ID of mainchain network.
+     * @param id DepositId.
+     * @param hash depositHash.
+     * @return DataTypes.Status Acknowledgement status.
      */
     function getAcknowledgementStatus(
         uint256 chainId,
@@ -232,10 +232,10 @@ interface ICrossbellGateway {
 
     /**
      * @notice Returns the acknowledge count of deposit by validators.
-     * @param chainId The chain ID of mainchain network
-     * @param id DepositId
-     * @param hash depositHash
-     * @return uint256 Acknowledgement count
+     * @param chainId The chain ID of mainchain network.
+     * @param id DepositId.
+     * @param hash depositHash.
+     * @return uint256 Acknowledgement count.
      */
     function getAcknowledgementCount(
         uint256 chainId,
@@ -245,10 +245,10 @@ interface ICrossbellGateway {
 
     /**
      * @notice Returns withdrawal signatures.
-     * @param chainId The chain ID of mainchain network
-     * @param withdrawalId Withdrawal Id to query
-     * @return signers Signer addresses
-     * @return sigs Signer signatures
+     * @param chainId The chain ID of mainchain network.
+     * @param withdrawalId Withdrawal Id to query.
+     * @return signers Signer addresses.
+     * @return sigs Signer signatures.
      */
     function getWithdrawalSignatures(
         uint256 chainId,
@@ -257,15 +257,15 @@ interface ICrossbellGateway {
 
     /**
      * @notice Returns the address of the validator contract.
-     * @return The validator contract address
+     * @return The validator contract address.
      */
     function getValidatorContract() external view returns (address);
 
     /**
      * @notice Returns the deposit entry.
-     * @param chainId The chain ID of mainchain network
-     * @param depositId Deposit Id to query
-     * @return DataTypes.DepositEntry Deposit entry
+     * @param chainId The chain ID of mainchain network.
+     * @param depositId Deposit Id to query.
+     * @return DataTypes.DepositEntry Deposit entry.
      */
     function getDepositEntry(
         uint256 chainId,
@@ -274,16 +274,16 @@ interface ICrossbellGateway {
 
     /**
      * @notice Returns the withdrawal count of different mainchain networks.
-     * @param chainId The chain ID of mainchain network
-     * @return Withdrawal count
+     * @param chainId The chain ID of mainchain network.
+     * @return Withdrawal count.
      */
     function getWithdrawalCount(uint256 chainId) external view returns (uint256);
 
     /**
      * @notice Returns the withdrawal entry.
-     * @param chainId The chain ID of mainchain network
-     * @param withdrawalId Withdrawal Id to query
-     * @return DataTypes.WithdrawalEntry Withdrawal entry
+     * @param chainId The chain ID of mainchain network.
+     * @param withdrawalId Withdrawal Id to query.
+     * @return DataTypes.WithdrawalEntry Withdrawal entry.
      */
     function getWithdrawalEntry(
         uint256 chainId,

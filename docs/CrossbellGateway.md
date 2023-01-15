@@ -104,11 +104,11 @@ Note that the caller must be a validator.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
+| chainId | uint256 | The chain ID of mainchain network. |
 | depositId | uint256 | Deposit identifier id. |
-| recipient | address | Address to receive deposit on crossbell network |
-| token | address | Token address to deposit on crossbell network |
-| amount | uint256 | Token amount to deposit on crossbell network |
+| recipient | address | Address to receive deposit on crossbell network. |
+| token | address | Token address to deposit on crossbell network. |
+| amount | uint256 | Token amount to deposit on crossbell network. |
 
 ### requestWithdrawal
 
@@ -122,17 +122,17 @@ Locks the assets and request withdrawal.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| recipient | address | Address to receive withdrawal on mainchain network |
-| token | address | Token address to lock from crossbell network |
-| amount | uint256 | Token amount to lock from crossbell network |
+| chainId | uint256 | The chain ID of mainchain network. |
+| recipient | address | Address to receive withdrawal on mainchain network. |
+| token | address | Token address to lock from crossbell network. |
+| amount | uint256 | Token amount to lock from crossbell network. |
 | fee | uint256 | Fee amount to pay. This is subtracted from the `amount`. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| withdrawalId | uint256 | The newly generated withdrawalId |
+| withdrawalId | uint256 | The newly generated withdrawalId. |
 
 ### submitWithdrawalSignature
 
@@ -147,9 +147,9 @@ Note that the caller must be a validator.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| withdrawalId | uint256 | WithdrawalId |
-| sig | bytes | Validator signature for the withdrawal |
+| chainId | uint256 | The chain ID of mainchain network. |
+| withdrawalId | uint256 | WithdrawalId. |
+| sig | bytes | Validator signature for the withdrawal. |
 
 ### getMainchainToken
 
@@ -163,14 +163,14 @@ Returns mapped token on mainchain.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| crossbellToken | address | Token address on crossbell |
+| chainId | uint256 | The chain ID of mainchain network. |
+| crossbellToken | address | Token address on crossbell. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| token | struct DataTypes.MappedToken | Mapped token on mainchain chain |
+| token | struct DataTypes.MappedToken | Mapped token on mainchain chain. |
 
 ### getValidatorAcknowledgementHash
 
@@ -184,15 +184,15 @@ Returns the acknowledge depositHash by validator.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| id | uint256 | DepositId |
-| validator | address | Validator address |
+| chainId | uint256 | The chain ID of mainchain network. |
+| id | uint256 | DepositId. |
+| validator | address | Validator address. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | bytes32 | bytes32 depositHash if validator has acknowledged, otherwise 0 |
+| [0] | bytes32 | bytes32 depositHash if validator has acknowledged, otherwise 0. |
 
 ### getAcknowledgementStatus
 
@@ -206,15 +206,15 @@ Returns the acknowledge status of deposit by validators.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| id | uint256 | DepositId |
-| hash | bytes32 | depositHash |
+| chainId | uint256 | The chain ID of mainchain network. |
+| id | uint256 | DepositId. |
+| hash | bytes32 | depositHash. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | enum DataTypes.Status | DataTypes.Status Acknowledgement status |
+| [0] | enum DataTypes.Status | DataTypes.Status Acknowledgement status. |
 
 ### getAcknowledgementCount
 
@@ -228,15 +228,15 @@ Returns the acknowledge count of deposit by validators.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| id | uint256 | DepositId |
-| hash | bytes32 | depositHash |
+| chainId | uint256 | The chain ID of mainchain network. |
+| id | uint256 | DepositId. |
+| hash | bytes32 | depositHash. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | uint256 | uint256 Acknowledgement count |
+| [0] | uint256 | uint256 Acknowledgement count. |
 
 ### getWithdrawalSignatures
 
@@ -250,15 +250,15 @@ Returns withdrawal signatures.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| withdrawalId | uint256 | Withdrawal Id to query |
+| chainId | uint256 | The chain ID of mainchain network. |
+| withdrawalId | uint256 | Withdrawal Id to query. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| signers | address[] | Signer addresses |
-| sigs | bytes[] | Signer signatures |
+| signers | address[] | Signer addresses. |
+| sigs | bytes[] | Signer signatures. |
 
 ### getValidatorContract
 
@@ -272,7 +272,7 @@ Returns the address of the validator contract.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | address | The validator contract address |
+| [0] | address | The validator contract address. |
 
 ### getDepositEntry
 
@@ -286,14 +286,14 @@ Returns the deposit entry.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| depositId | uint256 | Deposit Id to query |
+| chainId | uint256 | The chain ID of mainchain network. |
+| depositId | uint256 | Deposit Id to query. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | struct DataTypes.DepositEntry | DataTypes.DepositEntry Deposit entry |
+| [0] | struct DataTypes.DepositEntry | DataTypes.DepositEntry Deposit entry. |
 
 ### getWithdrawalCount
 
@@ -307,13 +307,13 @@ Returns the withdrawal count of different mainchain networks.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
+| chainId | uint256 | The chain ID of mainchain network. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | uint256 | Withdrawal count |
+| [0] | uint256 | Withdrawal count. |
 
 ### getWithdrawalEntry
 
@@ -327,14 +327,14 @@ Returns the withdrawal entry.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| withdrawalId | uint256 | Withdrawal Id to query |
+| chainId | uint256 | The chain ID of mainchain network. |
+| withdrawalId | uint256 | Withdrawal Id to query. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | struct DataTypes.WithdrawalEntry | DataTypes.WithdrawalEntry Withdrawal entry |
+| [0] | struct DataTypes.WithdrawalEntry | DataTypes.WithdrawalEntry Withdrawal entry. |
 
 ### _ackDeposit
 

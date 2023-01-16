@@ -12,11 +12,12 @@ contract MiraTokenTest is Test {
 
     address internal constant alice = address(0x111);
     address internal constant bob = address(0x222);
+    address internal constant carol = address(0x333);
 
     string internal constant name = "Mira Token";
     string internal constant symbol = "MIRA";
 
-    MiraToken public token;
+    MiraToken internal token;
 
     function setUp() public {
         token = new MiraToken(name, symbol);
@@ -91,6 +92,8 @@ contract MiraTokenTest is Test {
 
         // grant `DEFAULT_ADMIN_ROLE` to alice
         token.grantRole(DEFAULT_ADMIN_ROLE, alice);
+        // renounce `DEFAULT_ADMIN_ROLE` for alice
+        token.renounceRole(DEFAULT_ADMIN_ROLE, alice);
     }
 
     function testRenounceRoleFail() public {
@@ -98,6 +101,7 @@ contract MiraTokenTest is Test {
         token.grantRole(BLOCK_ROLE, bob);
 
         // renounce role
+        // bob can't renounce `BLOCK_ROLE'  for himself
         vm.expectRevert(
             abi.encodePacked(
                 "AccessControl: account ",
@@ -108,6 +112,19 @@ contract MiraTokenTest is Test {
         );
         vm.prank(bob);
         token.renounceRole(BLOCK_ROLE, bob);
+        // alice has no `DEFAULT_ADMIN_ROLE`, so she can't renounce `BLOCK_ROLE' for bob
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(alice),
+                " is missing role ",
+                Strings.toHexString(uint256(DEFAULT_ADMIN_ROLE), 32)
+            )
+        );
+        vm.prank(alice);
+        token.renounceRole(BLOCK_ROLE, bob);
+
+        // check role
         assertEq(token.hasRole(BLOCK_ROLE, bob), true);
     }
 
@@ -118,6 +135,8 @@ contract MiraTokenTest is Test {
 
         // renounce role
         token.revokeRole(BLOCK_ROLE, bob);
+
+        // check role
         assertEq(token.hasRole(BLOCK_ROLE, bob), false);
         assertEq(token.getRoleMemberCount(BLOCK_ROLE), 0);
     }
@@ -127,7 +146,8 @@ contract MiraTokenTest is Test {
         token.grantRole(BLOCK_ROLE, bob);
         assertEq(token.hasRole(BLOCK_ROLE, bob), true);
 
-        // renounce role
+        // revoke role
+        // bob has no `DEFAULT_ADMIN_ROLE`, so he can't revoke role
         vm.expectRevert(
             abi.encodePacked(
                 "AccessControl: account ",
@@ -138,16 +158,97 @@ contract MiraTokenTest is Test {
         );
         vm.prank(bob);
         token.revokeRole(BLOCK_ROLE, bob);
+
+        // check role
         assertEq(token.hasRole(BLOCK_ROLE, bob), true);
     }
 
-    function testMint() public {}
+    function testMint() public {
+        uint256 amount = 1 ether;
 
-    function testMintFail() public {}
+        // mint tokens
+        token.mint(alice, amount);
+        token.mint(bob, amount * 2);
+        // check balance
+        assertEq(token.balanceOf(alice), amount);
+        assertEq(token.balanceOf(bob), amount * 2);
 
-    function testTransfer() public {}
+        // grant alice `DEFAULT_ADMIN_ROLE`
+        token.grantRole(DEFAULT_ADMIN_ROLE, alice);
+        // alice mints tokens
+        vm.prank(alice);
+        token.mint(carol, amount);
+        assertEq(token.balanceOf(carol), amount);
+    }
 
-    function testTransferFail() public {}
+    function testMintFail() public {
+        // alice has no `DEFAULT_ADMIN_ROLE`, so she can't mint tokens
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(alice),
+                " is missing role ",
+                Strings.toHexString(uint256(DEFAULT_ADMIN_ROLE), 32)
+            )
+        );
+        vm.prank(alice);
+        token.mint(alice, 1 ether);
+    }
+
+    function testTransfer() public {
+        uint256 amount = 1 ether;
+
+        // mint tokens
+        token.mint(alice, amount);
+
+        // transfer
+        vm.prank(alice);
+        token.transfer(bob, amount / 2);
+        // check balances
+        assertEq(token.balanceOf(alice), amount / 2);
+        assertEq(token.balanceOf(bob), amount / 2);
+    }
+
+    function testTransferFail() public {
+        uint256 amount = 1 ether;
+
+        // mint tokens
+        token.mint(alice, amount);
+        // grant alice `BLOCK_ROLE`
+        token.grantRole(BLOCK_ROLE, alice);
+
+        // transfer
+        // alice is blocked, so she can't transfer tokens
+        vm.expectRevert(abi.encodePacked("transfer is blocked"));
+        vm.prank(alice);
+        token.transfer(bob, amount);
+
+        // check balances
+        assertEq(token.balanceOf(alice), amount);
+        assertEq(token.balanceOf(bob), 0);
+    }
+
+    function testTransferFromFail() public {
+        uint256 amount = 1 ether;
+
+        // mint tokens
+        token.mint(alice, amount);
+        // grant alice `BLOCK_ROLE`
+        token.grantRole(BLOCK_ROLE, alice);
+
+        // alice approves tokens for bob
+        vm.prank(alice);
+        token.approve(bob, amount);
+        // bob transfers tokens from account of alice
+        vm.expectRevert(abi.encodePacked("transfer is blocked"));
+        vm.prank(bob);
+        token.transferFrom(alice, carol, amount);
+
+        // check balances
+        assertEq(token.balanceOf(alice), amount);
+        assertEq(token.balanceOf(bob), 0);
+        assertEq(token.balanceOf(carol), 0);
+    }
 
     function _compare(string memory str1, string memory str2) internal pure returns (bool) {
         return keccak256(abi.encodePacked(str1)) == keccak256(abi.encodePacked(str2));

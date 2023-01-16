@@ -21,7 +21,13 @@ async function main() {
     await erc20.approve(proxyAddr, 2000000000000000000n);
 
     const proxyGateway = await CrossbellGateway.attach(proxyAddr);
-    await proxyGateway.requestWithdrawal(mainchainId, myAddr, crossbellTokenAddr, 1000000000000000000n, 2000000000000000000n);
+    await proxyGateway.requestWithdrawal(
+        mainchainId,
+        myAddr,
+        crossbellTokenAddr,
+        1000000000000000000n,
+        2000000000000000000n
+    );
 }
 
 // We recommend this pattern to be able to use async/await everywhere

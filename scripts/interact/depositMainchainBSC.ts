@@ -10,14 +10,14 @@ async function main() {
     const proxyAddr = "0x26E8166b41d1c0E89F2a6d97Be8eB8f8c7337384";
 
     const [addr] = await ethers.getSigners();
-    console.log("this is the address:", addr.getAddress)
+    console.log("this is the address:", addr.getAddress);
 
     const mainchainTokenAddr = "0xB865a7c5E88B052540213E77b43a76dDCEB1893b";
     const erc20 = await (
         await ethers.getContractFactory("MintableERC20")
     ).attach(mainchainTokenAddr);
     const balance = await erc20.balanceOf(myAddr);
-    console.log("this is my balance: ", balance)
+    console.log("this is my balance: ", balance);
     await erc20.approve(proxyAddr, balance);
 
     const MainchainGateway = await ethers.getContractFactory("MainchainGateway");

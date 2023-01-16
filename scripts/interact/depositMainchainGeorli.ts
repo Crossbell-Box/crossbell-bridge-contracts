@@ -10,19 +10,19 @@ async function main() {
     const proxyAddr = "0x462074b85c3bD27721FaF01be6600D5d7Bf49A7c";
 
     const [addr] = await ethers.getSigners();
-    console.log("this is the address:", addr.getAddress)
+    console.log("this is the address:", addr.getAddress);
 
     const mainchainTokenAddr = "0xbf58a5d64F451f537ABdB8B0203eF3F105097285";
     const erc20 = await (
         await ethers.getContractFactory("MintableERC20")
     ).attach(mainchainTokenAddr);
     const balance = await erc20.balanceOf(myAddr);
-    console.log("this is my balance: ", balance)
-    await erc20.approve(proxyAddr, balance);
+    console.log("this is my balance: ", balance);
+    // await erc20.approve(proxyAddr, 3000000);
 
     const MainchainGateway = await ethers.getContractFactory("MainchainGateway");
     const proxyGateway = await MainchainGateway.attach(proxyAddr);
-    await proxyGateway.requestDeposit(myAddr, mainchainTokenAddr, balance);
+    await proxyGateway.requestDeposit(myAddr, mainchainTokenAddr, 3000000n);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

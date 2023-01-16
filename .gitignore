@@ -12,6 +12,7 @@ cache_hardhat
 cache_foundry
 artifacts_hardhat
 artifacts_foundry
+artifacts
 
 # Ignore Environment Variables!
 .env

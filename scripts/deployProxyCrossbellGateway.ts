@@ -5,21 +5,17 @@
 // Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
 
-async function main() {
-    // NOTE: update these addresses before deployment
-    const [_, addr2] = await ethers.getSigners();
-    const proxyAdmin = "0x4fa9e39af9aA188c49a8AaF2984F2943107ca5b5"; // validator contract
-    const validatorContract = "0x4fa9e39af9aA188c49a8AaF2984F2943107ca5b5";
-    const gatewayAdmin = "0xEA21E4C0d7256a858122B6FA0121D3A8C7f94f4E"; // addr2
-    const crossbellTokens = ["0xaBea54cF50F1Cc269B664662AE33cF9B736dC953"];
-    const chainIds = [5];
-    const mainchainTokens = ["0xBa023BAE41171260821d5bADE769B8E242468B9e"];
-    const mainchainTokenDecimals = [6];
+const proxyAdmin = "0xbf58a5d64F451f537ABdB8B0203eF3F105097285";
+const validatorContract = "0xbf58a5d64F451f537ABdB8B0203eF3F105097285";
+const gatewayAdmin = "0x678e0E67555E8fC4533c1a9f204e2C1C7C1C9665";
+const crossbellTokens = ["0x73bE5E9f82f45564565Ffb53F52b23eAB32032F9","0x73bE5E9f82f45564565Ffb53F52b23eAB32032F9", "0x73bE5E9f82f45564565Ffb53F52b23eAB32032F9"];
+const chainIds = [5, 80001, 97];
+const mainchainTokens = ["0xbf58a5d64F451f537ABdB8B0203eF3F105097285", "0x460248221088C2D9541435f5cd0AB817BB0F197F", "0xB865a7c5E88B052540213E77b43a76dDCEB1893b"];
+const mainchainTokenDecimals = [6, 18, 18];
 
+async function main() {
     // deploy crossbellGateway
-    const CrossbellGateway = await (
-        await ethers.getContractFactory("CrossbellGateway")
-    ).connect(addr2);
+    const CrossbellGateway = await ethers.getContractFactory("CrossbellGateway");
     const crossbellGateway = await CrossbellGateway.deploy();
     // always initialize the logic contract
     await crossbellGateway.initialize(
@@ -32,18 +28,12 @@ async function main() {
     );
 
     // deploy proxy
-    const Proxy = await (
-        await ethers.getContractFactory("TransparentUpgradeableProxy")
-    ).connect(addr2);
-    const proxyCrossbellGateway = await (
-        await Proxy.deploy(crossbellGateway.address, proxyAdmin, "0x")
-    ).connect(addr2);
+    const Proxy = await ethers.getContractFactory("TransparentUpgradeableProxy");
+    const proxyCrossbellGateway = await Proxy.deploy(crossbellGateway.address, proxyAdmin, "0x");
     await proxyCrossbellGateway.deployed();
 
     // initialize proxy
-    const proxyGateway = await CrossbellGateway.attach(proxyCrossbellGateway.address).connect(
-        addr2
-    );
+    const proxyGateway = await CrossbellGateway.attach(proxyCrossbellGateway.address);
     await proxyGateway.initialize(
         validatorContract,
         gatewayAdmin,

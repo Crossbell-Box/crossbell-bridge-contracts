@@ -7,11 +7,14 @@ import { ethers } from "hardhat";
 
 async function main() {
     // NOTE: update `initial_validators` and `requiredNumber` before deployment
+    const [addr] = await ethers.getSigners();
+    const address = await addr.getAddress();
+    console.log(address);
     const initial_validators = [
-        "0x2df7C8956Eb62BBE7B888aDf3C9c6969689F3084", // mainchain
-        "0xEA21E4C0d7256a858122B6FA0121D3A8C7f94f4E", // crossbell
+        "0x211F1925f0409957927e33bc1a8eA5FB67A37516", // mainchain
+        "0x6d4C924Cbe6c3B2349517477Edc4933c3059d5d0", // crossbell
     ];
-    const requiredNumber = 1;
+    const requiredNumber = 2;
 
     var Validator = await ethers.getContractFactory("Validator");
 
@@ -26,3 +29,8 @@ main().catch((error) => {
     console.error(error);
     process.exitCode = 1;
 });
+
+
+[
+    "0x211F1925f0409957927e33bc1a8eA5FB67A37516", // mainchain
+    "0x6d4C924Cbe6c3B2349517477Edc4933c3059d5d0"]

@@ -18,7 +18,7 @@ contract MiraToken is Context, AccessControlEnumerable, ERC20 {
      * Requirements:
      * - the caller must have the `DEFAULT_ADMIN_ROLE`.
      */
-    function mint(address to, uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function mint(address to, uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _mint(to, amount);
     }
 
@@ -38,7 +38,7 @@ contract MiraToken is Context, AccessControlEnumerable, ERC20 {
     function renounceRole(
         bytes32 role,
         address account
-    ) public override onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) external override onlyRole(DEFAULT_ADMIN_ROLE) {
         _revokeRole(role, account);
     }
 }

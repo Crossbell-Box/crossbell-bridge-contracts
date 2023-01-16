@@ -84,16 +84,11 @@ contract MiraTokenTest is Test {
     function testRenounceRole() public {
         // grant `DEFAULT_ADMIN_ROLE` to bob
         token.grantRole(DEFAULT_ADMIN_ROLE, bob);
-        // bob renounce `DEFAULT_ADMIN_ROLE`
+        // bob renounce `DEFAULT_ADMIN_ROLE` for himself
         vm.prank(bob);
         token.renounceRole(DEFAULT_ADMIN_ROLE, bob);
         assertEq(token.hasRole(DEFAULT_ADMIN_ROLE, bob), false);
         assertEq(token.getRoleMemberCount(DEFAULT_ADMIN_ROLE), 1);
-
-        // grant `DEFAULT_ADMIN_ROLE` to alice
-        token.grantRole(DEFAULT_ADMIN_ROLE, alice);
-        // renounce `DEFAULT_ADMIN_ROLE` for alice
-        token.renounceRole(DEFAULT_ADMIN_ROLE, alice);
     }
 
     function testRenounceRoleFail() public {
@@ -101,7 +96,7 @@ contract MiraTokenTest is Test {
         token.grantRole(BLOCK_ROLE, bob);
 
         // renounce role
-        // bob can't renounce `BLOCK_ROLE'  for himself
+        // bob can't renounce `BLOCK_ROLE' for himself
         vm.expectRevert(
             abi.encodePacked(
                 "AccessControl: account ",
@@ -112,16 +107,9 @@ contract MiraTokenTest is Test {
         );
         vm.prank(bob);
         token.renounceRole(BLOCK_ROLE, bob);
-        // alice has no `DEFAULT_ADMIN_ROLE`, so she can't renounce `BLOCK_ROLE' for bob
-        vm.expectRevert(
-            abi.encodePacked(
-                "AccessControl: account ",
-                Strings.toHexString(alice),
-                " is missing role ",
-                Strings.toHexString(uint256(DEFAULT_ADMIN_ROLE), 32)
-            )
-        );
-        vm.prank(alice);
+
+        // admin can't renounce `BLOCK_ROLE' for bob
+        vm.expectRevert("AccessControl: can only renounce roles for self");
         token.renounceRole(BLOCK_ROLE, bob);
 
         // check role

@@ -39,6 +39,6 @@ contract MiraToken is Context, AccessControlEnumerable, ERC20 {
         bytes32 role,
         address account
     ) external override onlyRole(DEFAULT_ADMIN_ROLE) {
-        _revokeRole(role, account);
+        super.renounceRole(role, account);
     }
 }

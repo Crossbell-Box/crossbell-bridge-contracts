@@ -45,7 +45,8 @@ interface ICrossbellGateway {
     event AckDeposit(
         uint256 indexed chainId,
         uint256 indexed depositId,
-        address indexed recipient,
+        address indexed validator,
+        address recipient,
         address token,
         uint256 amount
     );

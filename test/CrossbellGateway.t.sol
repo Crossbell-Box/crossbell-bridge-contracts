@@ -33,7 +33,8 @@ contract CrossbellGatewayTest is Test, Utils {
     event AckDeposit(
         uint256 indexed chainId,
         uint256 indexed depositId,
-        address indexed recipient,
+        address indexed validator,
+        address recipient,
         address token,
         uint256 amount
     );
@@ -308,7 +309,7 @@ contract CrossbellGatewayTest is Test, Utils {
         // validator1 acknowledges deposit (validator acknowledgement threshold 2/3)
         // expect events
         expectEmit(CheckAll);
-        emit AckDeposit(chainId, depositId, recipient, token, amount);
+        emit AckDeposit(chainId, depositId, validator1, recipient, token, amount);
         vm.prank(validator1);
         gateway.ackDeposit(chainId, depositId, recipient, token, amount);
         // check state
@@ -332,7 +333,7 @@ contract CrossbellGatewayTest is Test, Utils {
         expectEmit(CheckAll);
         emit Deposited(chainId, depositId, recipient, token, amount);
         expectEmit(CheckAll);
-        emit AckDeposit(chainId, depositId, recipient, token, amount);
+        emit AckDeposit(chainId, depositId, validator2, recipient, token, amount);
         vm.prank(validator2);
         gateway.ackDeposit(chainId, depositId, recipient, token, amount);
         // check state
@@ -352,7 +353,7 @@ contract CrossbellGatewayTest is Test, Utils {
         // validator3 acknowledges deposit
         // expect events
         expectEmit(CheckAll);
-        emit AckDeposit(chainId, depositId, recipient, token, amount);
+        emit AckDeposit(chainId, depositId, validator3, recipient, token, amount);
         vm.prank(validator3);
         gateway.ackDeposit(chainId, depositId, recipient, token, amount);
         // check state
@@ -413,7 +414,7 @@ contract CrossbellGatewayTest is Test, Utils {
         expectEmit(CheckAll);
         emit Deposited(chainId, depositId, recipient, token, amount);
         expectEmit(CheckAll);
-        emit AckDeposit(chainId, depositId, recipient, token, amount);
+        emit AckDeposit(chainId, depositId, validator2, recipient, token, amount);
         vm.prank(validator2);
         gateway.ackDeposit(chainId, depositId, recipient, token, amount);
         // check state
@@ -542,9 +543,9 @@ contract CrossbellGatewayTest is Test, Utils {
         // validator1 acknowledges deposit (validator acknowledgement threshold 2/3)
         // expect events
         expectEmit(CheckAll);
-        emit AckDeposit(1, 1, bob, token, amount);
+        emit AckDeposit(1, 1, validator1, bob, token, amount);
         expectEmit(CheckAll);
-        emit AckDeposit(1337, 2, carol, token, amount);
+        emit AckDeposit(1337, 2, validator1, carol, token, amount);
         vm.prank(validator1);
         gateway.batchAckDeposit(
             array(1, 1337),
@@ -614,9 +615,9 @@ contract CrossbellGatewayTest is Test, Utils {
         // validator3 acknowledges deposit
         // expect events
         expectEmit(CheckAll);
-        emit AckDeposit(1, 1, bob, token, amount);
+        emit AckDeposit(1, 1, validator3, bob, token, amount);
         expectEmit(CheckAll);
-        emit AckDeposit(1337, 2, carol, token, amount);
+        emit AckDeposit(1337, 2, validator3, carol, token, amount);
         vm.prank(validator3);
         gateway.batchAckDeposit(
             array(1, 1337),

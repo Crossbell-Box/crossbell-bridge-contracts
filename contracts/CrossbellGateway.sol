@@ -284,7 +284,7 @@ contract CrossbellGateway is
             emit Deposited(chainId, depositId, recipient, token, amount);
         }
 
-        emit AckDeposit(chainId, depositId, recipient, token, amount);
+        emit AckDeposit(chainId, depositId, msg.sender, recipient, token, amount);
     }
 
     // @dev As there are different token decimals on different chains, so the amount need to be transformed.

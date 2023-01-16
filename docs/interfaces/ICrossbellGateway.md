@@ -40,7 +40,7 @@ _Emitted when the assets are deposited._
 ### AckDeposit
 
 ```solidity
-event AckDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount)
+event AckDeposit(uint256 chainId, uint256 depositId, address validator, address recipient, address token, uint256 amount)
 ```
 
 _Emitted when the deposit is acknowledged by a validator._
@@ -51,6 +51,7 @@ _Emitted when the deposit is acknowledged by a validator._
 | ---- | ---- | ----------- |
 | chainId | uint256 | The ChainId of mainchain network. |
 | depositId | uint256 | Deposit identifier id. |
+| validator | address |  |
 | recipient | address | The address of account to receive the deposit. |
 | token | address | The address of token to deposit. |
 | amount | uint256 | The amount of token to deposit. |

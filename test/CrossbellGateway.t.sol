@@ -7,7 +7,7 @@ import "./helpers/utils.sol";
 import "../contracts/libraries/DataTypes.sol";
 import "../contracts/CrossbellGateway.sol";
 import "../contracts/Validator.sol";
-import "../contracts/mocks/MintableERC20.sol";
+import "../contracts/token/MintableERC20.sol";
 import "../contracts/upgradeability/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -304,20 +304,22 @@ contract CrossbellGatewayTest is Test, Utils {
         address recipient = bob;
         address token = address(crossbellToken);
         uint256 amount = 1 * 10 ** 18;
-        bytes32 hash = keccak256(abi.encodePacked(chainId, depositId, recipient, token, amount));
+        bytes32 depositHash = keccak256(
+            abi.encodePacked(chainId, depositId, recipient, token, amount)
+        );
 
         // validator1 acknowledges deposit (validator acknowledgement threshold 2/3)
         // expect events
         expectEmit(CheckAll);
         emit AckDeposit(chainId, depositId, validator1, recipient, token, amount);
         vm.prank(validator1);
-        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
         // check state
         _checkAcknowledgementStatus(
             chainId,
             depositId,
             [validator1, validator2, validator3],
-            [hash, bytes32(0), bytes32(0)],
+            [depositHash, bytes32(0), bytes32(0)],
             DataTypes.Status.NotApproved,
             1
         );
@@ -335,13 +337,13 @@ contract CrossbellGatewayTest is Test, Utils {
         expectEmit(CheckAll);
         emit AckDeposit(chainId, depositId, validator2, recipient, token, amount);
         vm.prank(validator2);
-        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
         // check state
         _checkAcknowledgementStatus(
             chainId,
             depositId,
             [validator1, validator2, validator3],
-            [hash, hash, bytes32(0)],
+            [depositHash, depositHash, bytes32(0)],
             DataTypes.Status.FirstApproved,
             2
         );
@@ -355,13 +357,13 @@ contract CrossbellGatewayTest is Test, Utils {
         expectEmit(CheckAll);
         emit AckDeposit(chainId, depositId, validator3, recipient, token, amount);
         vm.prank(validator3);
-        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
         // check state
         _checkAcknowledgementStatus(
             chainId,
             depositId,
             [validator1, validator2, validator3],
-            [hash, hash, hash],
+            [depositHash, depositHash, depositHash],
             DataTypes.Status.AlreadyApproved,
             3
         );
@@ -386,17 +388,19 @@ contract CrossbellGatewayTest is Test, Utils {
         address recipient = bob;
         address token = address(crossbellToken);
         uint256 amount = 1 * 10 ** 18;
-        bytes32 hash = keccak256(abi.encodePacked(chainId, depositId, recipient, token, amount));
+        bytes32 depositHash = keccak256(
+            abi.encodePacked(chainId, depositId, recipient, token, amount)
+        );
 
         // validator1 acknowledges deposit (validator acknowledgement threshold 2/3)
         vm.prank(validator1);
-        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
         // check state
         _checkAcknowledgementStatus(
             chainId,
             depositId,
             [validator1, validator2, validator3],
-            [hash, bytes32(0), bytes32(0)],
+            [depositHash, bytes32(0), bytes32(0)],
             DataTypes.Status.NotApproved,
             1
         );
@@ -416,13 +420,13 @@ contract CrossbellGatewayTest is Test, Utils {
         expectEmit(CheckAll);
         emit AckDeposit(chainId, depositId, validator2, recipient, token, amount);
         vm.prank(validator2);
-        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
         // check state
         _checkAcknowledgementStatus(
             chainId,
             depositId,
             [validator1, validator2, validator3],
-            [hash, hash, bytes32(0)],
+            [depositHash, depositHash, bytes32(0)],
             DataTypes.Status.FirstApproved,
             2
         );
@@ -438,11 +442,14 @@ contract CrossbellGatewayTest is Test, Utils {
         address recipient = bob;
         address token = address(crossbellToken);
         uint256 amount = 1 * 10 ** 18;
+        bytes32 depositHash = keccak256(
+            abi.encodePacked(chainId, depositId, recipient, token, amount)
+        );
 
         // case 1: call is not validator
         vm.expectRevert(abi.encodePacked("NotValidator"));
         vm.prank(eve);
-        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
 
         // check state
         _checkAcknowledgementStatus(
@@ -465,7 +472,9 @@ contract CrossbellGatewayTest is Test, Utils {
         address recipient = bob;
         address token = address(crossbellToken);
         uint256 amount = 1 * 10 ** 18;
-
+        bytes32 depositHash = keccak256(
+            abi.encodePacked(chainId, depositId, recipient, token, amount)
+        );
         // case 2: paused
         vm.prank(admin);
         gateway.pause();
@@ -473,7 +482,7 @@ contract CrossbellGatewayTest is Test, Utils {
         for (uint256 i = 0; i < 3; i++) {
             vm.expectRevert(abi.encodePacked("Pausable: paused"));
             vm.prank([validator1, validator2, validator3][i]);
-            gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+            gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
         }
 
         // check state
@@ -501,23 +510,63 @@ contract CrossbellGatewayTest is Test, Utils {
         address recipient = bob;
         address token = address(crossbellToken);
         uint256 amount = 1 * 10 ** 18;
-        bytes32 hash = keccak256(abi.encodePacked(chainId, depositId, recipient, token, amount));
+        bytes32 depositHash = keccak256(
+            abi.encodePacked(chainId, depositId, recipient, token, amount)
+        );
 
         // case 3: validator already acknowledged
         vm.prank(validator1);
-        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
         vm.expectRevert(abi.encodePacked("AlreadyAcknowledged"));
         vm.prank(validator1);
-        gateway.ackDeposit(chainId, depositId, recipient, token, amount);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
 
         // check state
         _checkAcknowledgementStatus(
             chainId,
             depositId,
             [validator1, validator2, validator3],
-            [hash, bytes32(0), bytes32(0)],
+            [depositHash, bytes32(0), bytes32(0)],
             DataTypes.Status.NotApproved,
             1
+        );
+        // check balances
+        // deposit not approved, so bob's balance is 0
+        assertEq(
+            crossbellToken.balanceOf(address(gateway)),
+            INITIAL_AMOUNT_CROSSBELL,
+            "gateway balance"
+        );
+        assertEq(crossbellToken.balanceOf(address(recipient)), 0, "recipient balance ");
+    }
+
+    // case 4: invalid depositHash
+    function testAckDepositFailCase4() public {
+        // mint tokens to gateway contract
+        crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
+
+        uint256 chainId = 1337;
+        uint256 depositId = 1;
+        address recipient = bob;
+        address token = address(crossbellToken);
+        uint256 amount = 1 * 10 ** 18;
+        bytes32 depositHash = keccak256(
+            abi.encodePacked(chainId, depositId, recipient, token, amount + 1)
+        );
+
+        // case 4: invalid depositHash
+        vm.expectRevert(abi.encodePacked("InvalidHashCheck"));
+        vm.prank(validator1);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
+
+        // check state
+        _checkAcknowledgementStatus(
+            chainId,
+            depositId,
+            [validator1, validator2, validator3],
+            [bytes32(0), bytes32(0), bytes32(0)],
+            DataTypes.Status.NotApproved,
+            0
         );
         // check balances
         // deposit not approved, so bob's balance is 0
@@ -552,7 +601,8 @@ contract CrossbellGatewayTest is Test, Utils {
             array(1, 2),
             array(bob, carol),
             array(token, token),
-            array(amount, amount)
+            array(amount, amount),
+            array(hashBob, hashCarol)
         );
         // check state
         _checkAcknowledgementStatus(
@@ -584,7 +634,8 @@ contract CrossbellGatewayTest is Test, Utils {
             array(1, 2),
             array(bob, carol),
             array(token, token),
-            array(amount, amount)
+            array(amount, amount),
+            array(hashBob, hashCarol)
         );
         // check state
         _checkAcknowledgementStatus(
@@ -624,7 +675,8 @@ contract CrossbellGatewayTest is Test, Utils {
             array(1, 2),
             array(bob, carol),
             array(token, token),
-            array(amount, amount)
+            array(amount, amount),
+            array(hashBob, hashCarol)
         );
         // check state
         _checkAcknowledgementStatus(
@@ -679,7 +731,8 @@ contract CrossbellGatewayTest is Test, Utils {
             array(1, 2),
             array(bob, carol),
             array(token),
-            array(amount, amount)
+            array(amount, amount),
+            array(bytes32(0), bytes32(0))
         );
 
         // case 2: call is not validator
@@ -690,7 +743,8 @@ contract CrossbellGatewayTest is Test, Utils {
             array(1, 2),
             array(bob, carol),
             array(token),
-            array(amount, amount)
+            array(amount, amount),
+            array(bytes32(0), bytes32(0))
         );
 
         // case 3: paused
@@ -703,7 +757,8 @@ contract CrossbellGatewayTest is Test, Utils {
             array(1, 2),
             array(bob, carol),
             array(token),
-            array(amount, amount)
+            array(amount, amount),
+            array(bytes32(0), bytes32(0))
         );
 
         // check balances

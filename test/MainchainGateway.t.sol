@@ -6,7 +6,7 @@ import "forge-std/console2.sol";
 import "./helpers/utils.sol";
 import "../contracts/MainchainGateway.sol";
 import "../contracts/Validator.sol";
-import "../contracts/mocks/MintableERC20.sol";
+import "../contracts/token/MintableERC20.sol";
 import "../contracts/upgradeability/TransparentUpgradeableProxy.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -29,7 +29,8 @@ contract MainchainGatewayTest is Test, Utils {
         uint256 indexed depositId,
         address indexed recipient,
         address token,
-        uint256 amount
+        uint256 amount,
+        bytes32 depositHash
     );
     event Withdrew(
         uint256 indexed chainId,
@@ -315,24 +316,42 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     function testRequestDeposit() public {
+        uint256 depositId = 0;
+        address recipient = alice;
         uint256 amount = 1 * 10 ** 6;
-        uint256 crossbellAmount = amount * 10 ** 12; // transformed amount
+        uint256 transformedAmount = amount * 10 ** 12; // transformed amount
+        bytes32 depositHash = keccak256(
+            abi.encodePacked(
+                block.chainid,
+                depositId,
+                recipient,
+                address(crossbellToken),
+                transformedAmount
+            )
+        );
 
-        vm.startPrank(alice);
+        vm.startPrank(recipient);
         // approve token
         mainchainToken.approve(address(gateway), amount);
         // expect events
         expectEmit(CheckAll);
-        emit Transfer(alice, address(gateway), amount);
+        emit Transfer(recipient, address(gateway), amount);
         expectEmit(CheckAll);
-        emit RequestDeposit(block.chainid, 0, alice, address(crossbellToken), crossbellAmount);
+        emit RequestDeposit(
+            block.chainid,
+            0,
+            recipient,
+            address(crossbellToken),
+            transformedAmount,
+            depositHash
+        );
         // requestDeposit
-        gateway.requestDeposit(alice, address(mainchainToken), amount);
+        gateway.requestDeposit(recipient, address(mainchainToken), amount);
         vm.stopPrank();
 
         // check balances
         assertEq(mainchainToken.balanceOf(address(gateway)), amount);
-        assertEq(mainchainToken.balanceOf(alice), INITIAL_AMOUNT_MAINCHAIN - amount);
+        assertEq(mainchainToken.balanceOf(recipient), INITIAL_AMOUNT_MAINCHAIN - amount);
         // check deposit count
         assertEq(gateway.getDepositCount(), 1);
     }

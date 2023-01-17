@@ -103,12 +103,26 @@ contract MainchainGateway is
         unchecked {
             depositId = _depositCounter++;
         }
+
+        // @dev depositHash is used to verify the integrity of the deposit,
+        // in case that validator relays wrong parameters to the crossbell network.
+        bytes32 depositHash = keccak256(
+            abi.encodePacked(
+                _chainId(),
+                depositId,
+                recipient,
+                crossbellToken.token,
+                transformedAmount
+            )
+        );
+
         emit RequestDeposit(
-            block.chainid,
+            _chainId(),
             depositId,
             recipient,
             crossbellToken.token,
-            transformedAmount
+            transformedAmount,
+            depositHash
         );
     }
 
@@ -320,5 +334,12 @@ contract MainchainGateway is
         }
 
         emit TokenMapped(mainchainTokens, crossbellTokens, crossbellTokenDecimals);
+    }
+
+    /**
+     * @dev Returns block chainId.
+     */
+    function _chainId() internal view returns (uint256) {
+        return block.chainid;
     }
 }

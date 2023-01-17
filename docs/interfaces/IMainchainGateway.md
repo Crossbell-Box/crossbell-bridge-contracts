@@ -21,7 +21,7 @@ _Emitted when the tokens are mapped_
 ### RequestDeposit
 
 ```solidity
-event RequestDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount)
+event RequestDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount, bytes32 depositHash)
 ```
 
 _Emitted when the deposit is requested_
@@ -35,6 +35,7 @@ _Emitted when the deposit is requested_
 | recipient | address | Address to receive deposit on crossbell network |
 | token | address | Address of token to deposit on crossbell network |
 | amount | uint256 | Amount of token to deposit on crossbell network |
+| depositHash | bytes32 | Hash of deposit info. |
 
 ### Withdrew
 

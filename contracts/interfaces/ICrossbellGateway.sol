@@ -134,7 +134,8 @@ interface ICrossbellGateway {
         uint256[] calldata depositIds,
         address[] calldata recipients,
         address[] calldata tokens,
-        uint256[] calldata amounts
+        uint256[] calldata amounts,
+        bytes32[] calldata depositHashes
     ) external;
 
     /**
@@ -155,13 +156,15 @@ interface ICrossbellGateway {
      * @param recipient Address to receive deposit on crossbell network.
      * @param token Token address to deposit on crossbell network.
      * @param amount Token amount to deposit on crossbell network.
+     * @param depositHash Hash of deposit info.
      */
     function ackDeposit(
         uint256 chainId,
         uint256 depositId,
         address recipient,
         address token,
-        uint256 amount
+        uint256 amount,
+        bytes32 depositHash
     ) external;
 
     /**

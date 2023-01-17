@@ -77,7 +77,7 @@ Maps mainchain tokens to Crossbell network.
 ### batchAckDeposit
 
 ```solidity
-function batchAckDeposit(uint256[] chainIds, uint256[] depositIds, address[] recipients, address[] tokens, uint256[] amounts) external
+function batchAckDeposit(uint256[] chainIds, uint256[] depositIds, address[] recipients, address[] tokens, uint256[] amounts, bytes32[] depositHashes) external
 ```
 
 Tries bulk deposit.
@@ -94,7 +94,7 @@ Note that the caller must be a validator.
 ### ackDeposit
 
 ```solidity
-function ackDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount) external
+function ackDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount, bytes32 depositHash) external
 ```
 
 Acknowledges a deposit.
@@ -109,6 +109,7 @@ Note that the caller must be a validator.
 | recipient | address | Address to receive deposit on crossbell network. |
 | token | address | Token address to deposit on crossbell network. |
 | amount | uint256 | Token amount to deposit on crossbell network. |
+| depositHash | bytes32 | Hash of deposit info. |
 
 ### requestWithdrawal
 
@@ -339,7 +340,7 @@ Returns the withdrawal entry.
 ### _ackDeposit
 
 ```solidity
-function _ackDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount) internal
+function _ackDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount, bytes32 depositHash) internal
 ```
 
 ### _transformWithdrawalAmount

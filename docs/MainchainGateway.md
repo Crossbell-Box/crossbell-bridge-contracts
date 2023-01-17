@@ -312,3 +312,11 @@ function _mapTokens(address[] mainchainTokens, address[] crossbellTokens, uint8[
 
 _Maps Crossbell tokens to mainchain._
 
+### _chainId
+
+```solidity
+function _chainId() internal view returns (uint256)
+```
+
+_Returns block chainId._
+

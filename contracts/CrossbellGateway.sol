@@ -89,18 +89,27 @@ contract CrossbellGateway is
         uint256[] calldata depositIds,
         address[] calldata recipients,
         address[] calldata tokens,
-        uint256[] calldata amounts
+        uint256[] calldata amounts,
+        bytes32[] calldata depositHashes
     ) external nonReentrant whenNotPaused onlyValidator {
         require(
-            depositIds.length == chainIds.length &&
-                depositIds.length == recipients.length &&
-                depositIds.length == tokens.length &&
-                depositIds.length == amounts.length,
+            chainIds.length == depositIds.length &&
+                chainIds.length == recipients.length &&
+                chainIds.length == tokens.length &&
+                chainIds.length == amounts.length &&
+                chainIds.length == depositHashes.length,
             "InvalidArrayLength"
         );
 
         for (uint256 i; i < depositIds.length; i++) {
-            _ackDeposit(chainIds[i], depositIds[i], recipients[i], tokens[i], amounts[i]);
+            _ackDeposit(
+                chainIds[i],
+                depositIds[i],
+                recipients[i],
+                tokens[i],
+                amounts[i],
+                depositHashes[i]
+            );
         }
     }
 
@@ -126,9 +135,10 @@ contract CrossbellGateway is
         uint256 depositId,
         address recipient,
         address token,
-        uint256 amount
+        uint256 amount,
+        bytes32 depositHash
     ) external nonReentrant whenNotPaused onlyValidator {
-        _ackDeposit(chainId, depositId, recipient, token, amount);
+        _ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
     }
 
     /// @inheritdoc ICrossbellGateway
@@ -265,9 +275,11 @@ contract CrossbellGateway is
         uint256 depositId,
         address recipient,
         address token,
-        uint256 amount
+        uint256 amount,
+        bytes32 depositHash
     ) internal {
         bytes32 hash = keccak256(abi.encodePacked(chainId, depositId, recipient, token, amount));
+        require(depositHash == hash, "InvalidHashCheck");
 
         DataTypes.Status status = _acknowledge(chainId, depositId, hash, msg.sender);
         if (status == DataTypes.Status.FirstApproved) {

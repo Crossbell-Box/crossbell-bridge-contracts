@@ -540,6 +540,44 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(address(recipient)), 0, "recipient balance ");
     }
 
+    // case 4: invalid depositHash
+    function testAckDepositFailCase4() public {
+        // mint tokens to gateway contract
+        crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
+
+        uint256 chainId = 1337;
+        uint256 depositId = 1;
+        address recipient = bob;
+        address token = address(crossbellToken);
+        uint256 amount = 1 * 10 ** 18;
+        bytes32 depositHash = keccak256(
+            abi.encodePacked(chainId, depositId, recipient, token, amount + 1)
+        );
+
+        // case 4: invalid depositHash
+        vm.expectRevert(abi.encodePacked("InvalidHashCheck"));
+        vm.prank(validator1);
+        gateway.ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
+
+        // check state
+        _checkAcknowledgementStatus(
+            chainId,
+            depositId,
+            [validator1, validator2, validator3],
+            [bytes32(0), bytes32(0), bytes32(0)],
+            DataTypes.Status.NotApproved,
+            0
+        );
+        // check balances
+        // deposit not approved, so bob's balance is 0
+        assertEq(
+            crossbellToken.balanceOf(address(gateway)),
+            INITIAL_AMOUNT_CROSSBELL,
+            "gateway balance"
+        );
+        assertEq(crossbellToken.balanceOf(address(recipient)), 0, "recipient balance ");
+    }
+
     function testBatchAckDeposit() public {
         // mint tokens to gateway contract
         crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);

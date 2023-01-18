@@ -22,3 +22,8 @@ libs = ["node_modules", "lib"]
 # Extreme Fuzzing CI Profile :P
 [profile.ci]
 fuzz_runs = 256
+
+[doc]
+out = 'docs'
+title = 'crossbell-bridge'
+ignore = ['contracts/upgradeability/*.sol','contracts/token/*.sol','contracts/*.sol']

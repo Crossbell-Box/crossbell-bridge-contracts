@@ -202,7 +202,7 @@ contract MainchainGateway is
     }
 
     /**
-     * @dev Update domain seperator.
+     * @dev Update domain separator.
      */
     function _updateDomainSeparator() internal {
         _domainSeparator = keccak256(

@@ -10,7 +10,7 @@ _Storage of deposit and withdraw information._
 bytes32 _domainSeparator
 ```
 
-_Domain seperator_
+_Domain separator_
 
 ### _validator
 

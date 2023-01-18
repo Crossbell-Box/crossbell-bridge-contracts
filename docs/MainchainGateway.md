@@ -251,7 +251,7 @@ Returns mapped tokens from crossbell chain
 function _updateDomainSeparator() internal
 ```
 
-_Update domain seperator._
+_Update domain separator._
 
 ### _verifySignatures
 

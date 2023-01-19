@@ -9,6 +9,7 @@ import "solidity-docgen";
 import * as dotenv from "dotenv";
 import "hardhat-abi-exporter";
 
+
 dotenv.config();
 
 const infuraApiKey: string | undefined = process.env.INFURA_API_KEY;
@@ -23,8 +24,8 @@ const chainIds = {
     goerli: 5,
     polygon: 137,
     polygonMumbai: 80001,
-    sepolia: 11155111,
-    avaxFuji: 43113,
+    avalancheFujiTestnet:43113,
+    sepolia:11155111,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
@@ -34,7 +35,7 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
             jsonRpcUrl = "https://bsc-dataseed1.binance.org";
             break;
         case "bscTestnet":
-            jsonRpcUrl = "https://endpoints.omniatech.io/v1/bsc/testnet/public";
+            jsonRpcUrl = "https://data-seed-prebsc-1-s3.binance.org:8545/";
             break;
         case "polygon":
             jsonRpcUrl = "https://polygon-rpc.com/";
@@ -42,14 +43,14 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
         case "polygonMumbai":
             jsonRpcUrl = "https://matic-mumbai.chainstacklabs.com";
             break;
-        case "avaxFuji":
-            jsonRpcUrl = "https://avalanche-fuji.infura.io/v3/461d31c50880488685731b86e524e3e6";
+        case "avalancheFujiTestnet":
+            jsonRpcUrl = "https://api.avax-test.network/ext/C/rpc";
             break;
         default:
             jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
     }
     return {
-        accounts: [`0x${process.env.PRIVATE_KEY}`],
+        accounts: [process.env.PRIVATE_KEY],
         chainId: chainIds[chain],
         url: jsonRpcUrl,
     };
@@ -77,7 +78,7 @@ module.exports = {
     networks: {
         crossbell: {
             url: "https://rpc.crossbell.io",
-            accounts: [`0x${process.env.PRIVATE_KEY}`],
+            accounts: [process.env.PRIVATE_KEY],
         },
         bsc: getChainConfig("bsc"),
         bscTestnet: getChainConfig("bscTestnet"),
@@ -85,8 +86,8 @@ module.exports = {
         goerli: getChainConfig("goerli"),
         polygon: getChainConfig("polygon"),
         polygonMumbai: getChainConfig("polygonMumbai"),
-        sepolia: getChainConfig("sepolia"),
-        avaxFuji:getChainConfig("avaxFuji")
+        avalancheFujiTestnet:getChainConfig("avalancheFujiTestnet"),
+        sepolia:getChainConfig("sepolia"),
     },
 
     etherscan: {
@@ -96,9 +97,10 @@ module.exports = {
             bscTestnet: process.env.BSCSCAN_API_KEY || "",
             mainnet: process.env.ETHERSCAN_API_KEY || "",
             goerli: process.env.ETHERSCAN_API_KEY || "",
-            sepolia: process.env.ETHERSCAN_API_KEY || "",
             polygon: process.env.POLYGONSCAN_API_KEY || "",
             polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
+            avalancheFujiTestnet: process.env.AVAX_API_KEY || "",
+            sepolia: process.env.ETHERSCAN_API_KEY || "",
         },
         customChains: [
             {

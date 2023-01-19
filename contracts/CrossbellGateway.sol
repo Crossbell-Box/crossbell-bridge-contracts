@@ -89,18 +89,27 @@ contract CrossbellGateway is
         uint256[] calldata depositIds,
         address[] calldata recipients,
         address[] calldata tokens,
-        uint256[] calldata amounts
-    ) external whenNotPaused onlyValidator {
+        uint256[] calldata amounts,
+        bytes32[] calldata depositHashes
+    ) external nonReentrant whenNotPaused onlyValidator {
         require(
-            depositIds.length == chainIds.length &&
-                depositIds.length == recipients.length &&
-                depositIds.length == tokens.length &&
-                depositIds.length == amounts.length,
+            chainIds.length == depositIds.length &&
+                chainIds.length == recipients.length &&
+                chainIds.length == tokens.length &&
+                chainIds.length == amounts.length &&
+                chainIds.length == depositHashes.length,
             "InvalidArrayLength"
         );
 
         for (uint256 i; i < depositIds.length; i++) {
-            _ackDeposit(chainIds[i], depositIds[i], recipients[i], tokens[i], amounts[i]);
+            _ackDeposit(
+                chainIds[i],
+                depositIds[i],
+                recipients[i],
+                tokens[i],
+                amounts[i],
+                depositHashes[i]
+            );
         }
     }
 
@@ -111,11 +120,11 @@ contract CrossbellGateway is
         bytes[] calldata sigs
     ) external whenNotPaused onlyValidator {
         require(
-            withdrawalIds.length == chainIds.length && withdrawalIds.length == sigs.length,
+            chainIds.length == withdrawalIds.length && chainIds.length == sigs.length,
             "InvalidArrayLength"
         );
 
-        for (uint256 i; i < withdrawalIds.length; i++) {
+        for (uint256 i = 0; i < chainIds.length; i++) {
             _submitWithdrawalSignature(chainIds[i], withdrawalIds[i], sigs[i]);
         }
     }
@@ -126,9 +135,10 @@ contract CrossbellGateway is
         uint256 depositId,
         address recipient,
         address token,
-        uint256 amount
-    ) external whenNotPaused onlyValidator {
-        _ackDeposit(chainId, depositId, recipient, token, amount);
+        uint256 amount,
+        bytes32 depositHash
+    ) external nonReentrant whenNotPaused onlyValidator {
+        _ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
     }
 
     /// @inheritdoc ICrossbellGateway
@@ -157,9 +167,8 @@ contract CrossbellGateway is
         uint256 feeAmount = _transformWithdrawalAmount(token, fee, mainchainToken.decimals);
 
         // save withdrawal
-        withdrawalId = _withdrawalCounts[chainId];
         unchecked {
-            _withdrawalCounts[chainId]++;
+            withdrawalId = _withdrawalCounter[chainId]++;
         }
         _withdrawals[chainId][withdrawalId] = DataTypes.WithdrawalEntry(
             chainId,
@@ -176,24 +185,6 @@ contract CrossbellGateway is
             mainchainToken.token,
             transformedAmount,
             feeAmount
-        );
-    }
-
-    /// @inheritdoc ICrossbellGateway
-    function requestWithdrawalSignatures(
-        uint256 chainId,
-        uint256 withdrawalId
-    ) external whenNotPaused {
-        DataTypes.WithdrawalEntry memory entry = _withdrawals[chainId][withdrawalId];
-        require(entry.recipient == msg.sender, "NotEntryOwner");
-
-        emit RequestWithdrawalSignatures(
-            chainId,
-            withdrawalId,
-            entry.recipient,
-            entry.token,
-            entry.amount,
-            entry.fee
         );
     }
 
@@ -268,7 +259,7 @@ contract CrossbellGateway is
 
     /// @inheritdoc ICrossbellGateway
     function getWithdrawalCount(uint256 chainId) external view returns (uint256) {
-        return _withdrawalCounts[chainId];
+        return _withdrawalCounter[chainId];
     }
 
     /// @inheritdoc ICrossbellGateway
@@ -284,9 +275,11 @@ contract CrossbellGateway is
         uint256 depositId,
         address recipient,
         address token,
-        uint256 amount
+        uint256 amount,
+        bytes32 depositHash
     ) internal {
         bytes32 hash = keccak256(abi.encodePacked(chainId, depositId, recipient, token, amount));
+        require(depositHash == hash, "InvalidHashCheck");
 
         DataTypes.Status status = _acknowledge(chainId, depositId, hash, msg.sender);
         if (status == DataTypes.Status.FirstApproved) {
@@ -303,7 +296,7 @@ contract CrossbellGateway is
             emit Deposited(chainId, depositId, recipient, token, amount);
         }
 
-        emit AckDeposit(chainId, depositId, recipient, token, amount);
+        emit AckDeposit(chainId, depositId, msg.sender, recipient, token, amount);
     }
 
     // @dev As there are different token decimals on different chains, so the amount need to be transformed.
@@ -380,7 +373,7 @@ contract CrossbellGateway is
         uint256 chainId,
         address crossbellToken
     ) internal view returns (DataTypes.MappedToken memory token) {
-        token = _mainchainToken[crossbellToken][chainId];
+        token = _mainchainTokens[crossbellToken][chainId];
     }
 
     /**
@@ -391,7 +384,7 @@ contract CrossbellGateway is
         uint256[] calldata chainIds,
         address[] calldata mainchainTokens,
         uint8[] calldata mainchainTokenDecimals
-    ) internal virtual {
+    ) internal {
         require(
             crossbellTokens.length == mainchainTokens.length &&
                 crossbellTokens.length == mainchainTokenDecimals.length &&
@@ -400,7 +393,7 @@ contract CrossbellGateway is
         );
 
         for (uint i = 0; i < crossbellTokens.length; i++) {
-            _mainchainToken[crossbellTokens[i]][chainIds[i]] = DataTypes.MappedToken({
+            _mainchainTokens[crossbellTokens[i]][chainIds[i]] = DataTypes.MappedToken({
                 token: mainchainTokens[i],
                 decimals: mainchainTokenDecimals[i]
             });

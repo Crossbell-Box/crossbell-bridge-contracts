@@ -6,12 +6,12 @@ import "./helpers/utils.sol";
 import "../contracts/Validator.sol";
 
 contract ValidatorTest is Test, Utils {
-    address internal alice = address(0x1111);
-    address internal bob = address(0x2222);
-    address internal carol = address(0x3333);
-    address internal dave = address(0x4444);
-    address internal eve = address(0x5555);
-    address internal frank = address(0x6666);
+    address internal constant alice = address(0x111);
+    address internal constant bob = address(0x222);
+    address internal constant carol = address(0x333);
+    address internal constant dave = address(0x444);
+    address internal constant eve = address(0x555);
+    address internal constant frank = address(0x666);
 
     event ValidatorAdded(address indexed validator);
     event ValidatorRemoved(address indexed validator);

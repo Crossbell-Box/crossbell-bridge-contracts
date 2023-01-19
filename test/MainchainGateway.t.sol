@@ -396,15 +396,17 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     // test case for successful withdrawal
-    function testWithdraw() public {
+    function testWithdraw(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < WITHDRAWLAL_THRESHOLD);
+
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
         // withdrawal info
         address recipient = bob;
         address token = address(mainchainToken);
-        uint256 amount = 1 * 10 ** 6;
-        uint256 fee = 1 * 10 ** 5;
+        uint256 fee = amount / 20;
         uint256 chainId = 1337;
         uint256 withdrawalId = 1;
         bytes32 hash = _hash(

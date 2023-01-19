@@ -765,12 +765,14 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(eve), 0);
     }
 
-    function testRequestWithdrawal() public {
+    function testRequestWithdrawalx(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_CROSSBELL);
+
         uint256 chainId = 1;
         uint256 withdrawalId = 0;
         address recipient = alice;
         address token = address(crossbellToken);
-        uint256 amount = INITIAL_AMOUNT_CROSSBELL / 100;
         uint256 fee = amount / 100;
 
         // transformed amount

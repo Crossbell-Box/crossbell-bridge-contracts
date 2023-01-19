@@ -17,7 +17,7 @@ install :; forge install --no-commit
 update:; forge update
 
 # Builds
-build  :; forge build
+build :; forge build
 
 bindings: build
 	@echo " > \033[32mCreating go bindings for contracts... \033[0m "
@@ -34,6 +34,11 @@ check :; solhint "{contracts,test,scripts}/**/*.sol"
 
 # slither
 slither :; slither .
+
+# mythril
+mythril :
+	@echo " > \033[32mChecking contracts with mythril...\033[0m"
+	./scripts/mythril.sh
 
 # Lints
 lint :; prettier --write "{contracts,test,scripts}/**/*.{sol,ts}"

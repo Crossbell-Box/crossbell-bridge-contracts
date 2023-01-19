@@ -8,7 +8,6 @@ import "hardhat-contract-sizer";
 import "solidity-docgen";
 import * as dotenv from "dotenv";
 import "hardhat-abi-exporter";
-import "@cronos-labs/hardhat-cronoscan";
 
 
 dotenv.config();
@@ -26,7 +25,6 @@ const chainIds = {
     polygon: 137,
     polygonMumbai: 80001,
     avalancheFujiTestnet:43113,
-    cronosTestnet:338,
     sepolia:11155111,
 };
 
@@ -47,9 +45,6 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
             break;
         case "avalancheFujiTestnet":
             jsonRpcUrl = "https://api.avax-test.network/ext/C/rpc";
-            break;
-        case "cronosTestnet":
-            jsonRpcUrl = "https://evm-t3.cronos.org/";
             break;
         default:
             jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
@@ -92,14 +87,12 @@ module.exports = {
         polygon: getChainConfig("polygon"),
         polygonMumbai: getChainConfig("polygonMumbai"),
         avalancheFujiTestnet:getChainConfig("avalancheFujiTestnet"),
-        cronosTestnet:getChainConfig("cronosTestnet"),
         sepolia:getChainConfig("sepolia"),
     },
 
     etherscan: {
         apiKey: {
             crossbell: "no API key",
-            cronosTestnet: process.env.CRONOS_API_KEY || "",
             bsc: process.env.BSCSCAN_API_KEY || "",
             bscTestnet: process.env.BSCSCAN_API_KEY || "",
             mainnet: process.env.ETHERSCAN_API_KEY || "",

@@ -26,7 +26,7 @@
 			"address": ""
 		},
 
-		"sepoliaTestnet": {
+		"sepolia": {
 			"address": "0x335ba596B0C8B0eDE2002b357df67775D82B0C3A"
 		}
 	},
@@ -62,7 +62,7 @@
 			"decimals": 18
 		},
 
-		"sepoliaTestnet": {
+		"sepolia": {
 			"address": "0x2a901D3Bec0c9436c6027B4935aD3963d8a954Ed",
 			"decimals": 18
 		}
@@ -91,7 +91,7 @@
 		"bscTestnet": {
 			"address": "0x52A0C181D7f43EEF642e47DD45e97ca9777E1C95"
 		},
-		"sepoliaTestnet": {
+		"sepolia": {
 			"address": "0xbf58a5d64F451f537ABdB8B0203eF3F105097285"
 		}
 	}

@@ -33,6 +33,7 @@ foundry-test :; forge clean && forge test --optimize --optimizer-runs 200 -v # -
 check :; solhint "{contracts,test,scripts}/**/*.sol"
 
 # slither
+# to install slither, visit [https://github.com/crytic/slither]
 slither :; slither .
 
 # mythril
@@ -40,9 +41,13 @@ mythril :
 	@echo " > \033[32mChecking contracts with mythril...\033[0m"
 	./scripts/mythril.sh
 
+# upgradeable check
 upgradeable:
 	@echo " > \033[32mChecking upgradeable...\033[0m"
 	./scripts/checkUpgradeable.sh
+
+# check erc20 token
+check-mira :; slither-check-erc . MiraToken
 
 # Lints
 lint :; prettier --write "{contracts,test,scripts}/**/*.{sol,ts}"

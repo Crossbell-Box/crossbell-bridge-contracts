@@ -40,6 +40,10 @@ mythril :
 	@echo " > \033[32mChecking contracts with mythril...\033[0m"
 	./scripts/mythril.sh
 
+upgradeable:
+	@echo " > \033[32mChecking upgradeable...\033[0m"
+	./scripts/checkUpgradeable.sh
+
 # Lints
 lint :; prettier --write "{contracts,test,scripts}/**/*.{sol,ts}"
 

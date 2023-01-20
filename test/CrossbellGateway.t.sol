@@ -295,7 +295,10 @@ contract CrossbellGatewayTest is Test, Utils {
         }
     }
 
-    function testAckDeposit() public {
+    function testAckDeposit(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_CROSSBELL);
+
         // mint tokens to gateway contract
         crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
 
@@ -303,7 +306,6 @@ contract CrossbellGatewayTest is Test, Utils {
         uint256 depositId = 1;
         address recipient = bob;
         address token = address(crossbellToken);
-        uint256 amount = 1 * 10 ** 18;
         bytes32 depositHash = keccak256(
             abi.encodePacked(chainId, depositId, recipient, token, amount)
         );
@@ -379,7 +381,10 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(address(recipient)), amount);
     }
 
-    function testAckDepositWithMint() public {
+    function testAckDepositWithMint(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < type(uint256).max - INITIAL_AMOUNT_MAINCHAIN * 2);
+
         // grant MINTER_ROLE to gateway
         crossbellToken.grantRole(MINTER_ROLE, address(gateway));
 
@@ -387,7 +392,6 @@ contract CrossbellGatewayTest is Test, Utils {
         uint256 depositId = 1;
         address recipient = bob;
         address token = address(crossbellToken);
-        uint256 amount = 1 * 10 ** 18;
         bytes32 depositHash = keccak256(
             abi.encodePacked(chainId, depositId, recipient, token, amount)
         );
@@ -436,12 +440,14 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(address(recipient)), amount);
     }
 
-    function testAckDepositFailCase1() public {
+    function testAckDepositFail1(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_MAINCHAIN);
+
         uint256 chainId = 1337;
         uint256 depositId = 1;
         address recipient = bob;
         address token = address(crossbellToken);
-        uint256 amount = 1 * 10 ** 18;
         bytes32 depositHash = keccak256(
             abi.encodePacked(chainId, depositId, recipient, token, amount)
         );
@@ -466,12 +472,14 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(address(recipient)), 0);
     }
 
-    function testAckDepositFailCase2() public {
+    function testAckDepositFail2(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_MAINCHAIN);
+
         uint256 chainId = 1337;
         uint256 depositId = 1;
         address recipient = bob;
         address token = address(crossbellToken);
-        uint256 amount = 1 * 10 ** 18;
         bytes32 depositHash = keccak256(
             abi.encodePacked(chainId, depositId, recipient, token, amount)
         );
@@ -501,7 +509,10 @@ contract CrossbellGatewayTest is Test, Utils {
     }
 
     // case 3: validator already acknowledged
-    function testAckDepositFailCase3() public {
+    function testAckDepositFail3(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_MAINCHAIN);
+
         // mint tokens to gateway contract
         crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
 
@@ -509,7 +520,6 @@ contract CrossbellGatewayTest is Test, Utils {
         uint256 depositId = 1;
         address recipient = bob;
         address token = address(crossbellToken);
-        uint256 amount = 1 * 10 ** 18;
         bytes32 depositHash = keccak256(
             abi.encodePacked(chainId, depositId, recipient, token, amount)
         );
@@ -541,15 +551,17 @@ contract CrossbellGatewayTest is Test, Utils {
     }
 
     // case 4: invalid depositHash
-    function testAckDepositFailCase4() public {
-        // mint tokens to gateway contract
+    function testAckDepositFail4(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_MAINCHAIN);
+
+        // mint tokens to gateway co   vm.assume(amount > 0);
         crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
 
         uint256 chainId = 1337;
         uint256 depositId = 1;
         address recipient = bob;
         address token = address(crossbellToken);
-        uint256 amount = 1 * 10 ** 18;
         bytes32 depositHash = keccak256(
             abi.encodePacked(chainId, depositId, recipient, token, amount + 1)
         );
@@ -578,12 +590,14 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(address(recipient)), 0, "recipient balance ");
     }
 
-    function testBatchAckDeposit() public {
+    function testBatchAckDeposit(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_MAINCHAIN);
+
         // mint tokens to gateway contract
         crossbellToken.mint(address(gateway), INITIAL_AMOUNT_CROSSBELL);
 
         address token = address(crossbellToken);
-        uint256 amount = 1 * 10 ** 18;
         bytes32 hashBob = keccak256(abi.encodePacked(uint256(1), uint256(1), bob, token, amount));
         bytes32 hashCarol = keccak256(
             abi.encodePacked(uint256(1337), uint256(2), carol, token, amount)
@@ -719,9 +733,8 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(entry.amount, amount);
     }
 
-    function testBatchAckDepositFail() public {
+    function testBatchAckDepositFail(uint256 amount) public {
         address token = address(crossbellToken);
-        uint256 amount = 1 * 10 ** 18;
 
         // case 1: InvalidArrayLength
         vm.expectRevert(abi.encodePacked("InvalidArrayLength"));
@@ -765,7 +778,7 @@ contract CrossbellGatewayTest is Test, Utils {
         assertEq(crossbellToken.balanceOf(eve), 0);
     }
 
-    function testRequestWithdrawalx(uint256 amount) public {
+    function testRequestWithdrawal(uint256 amount) public {
         vm.assume(amount > 0);
         vm.assume(amount < INITIAL_AMOUNT_CROSSBELL);
 
@@ -814,11 +827,13 @@ contract CrossbellGatewayTest is Test, Utils {
     }
 
     // case 1: paused
-    function testRequestWithdrawalFailCase1() public {
+    function testRequestWithdrawalFail(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_MAINCHAIN);
+
         uint256 chainId = 1;
         address recipient = alice;
         address token = address(crossbellToken);
-        uint256 amount = INITIAL_AMOUNT_CROSSBELL / 100;
         uint256 fee = amount / 100;
 
         // case 1: paused
@@ -837,7 +852,7 @@ contract CrossbellGatewayTest is Test, Utils {
     }
 
     // case 2: ZeroAmount
-    function testRequestWithdrawalFailCase2() public {
+    function testRequestWithdrawalFail2() public {
         uint256 chainId = 1;
         address recipient = alice;
         address token = address(crossbellToken);
@@ -858,7 +873,10 @@ contract CrossbellGatewayTest is Test, Utils {
     }
 
     // case 3: FeeExceedAmount
-    function testRequestWithdrawalFailCase3() public {
+    function testRequestWithdrawalFail3(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_MAINCHAIN);
+
         uint256 chainId = 1;
         address recipient = alice;
         address token = address(crossbellToken);
@@ -879,11 +897,13 @@ contract CrossbellGatewayTest is Test, Utils {
     }
 
     // case 4: UnsupportedToken
-    function testRequestWithdrawalFailCase4() public {
+    function testRequestWithdrawalFail4(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_MAINCHAIN);
+
         uint256 chainId = 1;
         address recipient = alice;
         address token = address(0x000001);
-        uint256 amount = INITIAL_AMOUNT_CROSSBELL / 100;
         uint256 fee = amount / 100;
 
         // case 4: UnsupportedToken
@@ -900,7 +920,7 @@ contract CrossbellGatewayTest is Test, Utils {
     }
 
     // case 5: balance insufficient
-    function testRequestWithdrawalFailCase5() public {
+    function testRequestWithdrawalFail5() public {
         uint256 chainId = 1;
         address recipient = alice;
         address token = address(crossbellToken);

@@ -315,10 +315,12 @@ contract MainchainGatewayTest is Test, Utils {
         }
     }
 
-    function testRequestDeposit() public {
+    function testRequestDeposit(uint256 amount) public {
+        vm.assume(amount > 0);
+        vm.assume(amount < INITIAL_AMOUNT_MAINCHAIN);
+
         uint256 depositId = 0;
         address recipient = alice;
-        uint256 amount = 1 * 10 ** 6;
         uint256 transformedAmount = amount * 10 ** 12; // transformed amount
         bytes32 depositHash = keccak256(
             abi.encodePacked(
@@ -436,7 +438,7 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     // case 1: invalid chainId
-    function testWithdrawFailCase1() public {
+    function testWithdrawFail() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
@@ -479,7 +481,7 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     // case 2: already withdrawn
-    function testWithdrawFailCase2() public {
+    function testWithdrawFail2() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
@@ -510,7 +512,7 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     // case 3: reached daily withdrawal max quota
-    function testWithdrawFailCase3() public {
+    function testWithdrawFail3() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
@@ -556,7 +558,7 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     // case 4: insufficient signatures number
-    function testWithdrawFailCase4() public {
+    function testWithdrawFail4() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
@@ -591,7 +593,7 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     // case 5: invalid signer order
-    function testWithdrawFailCase5() public {
+    function testWithdrawFail5() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
@@ -631,7 +633,7 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     // case 6: paused
-    function testWithdrawFailCase6() public {
+    function testWithdrawFail6() public {
         // mint tokens to mainchain gateway contract
         mainchainToken.mint(address(gateway), INITIAL_AMOUNT_MAINCHAIN);
 
@@ -670,7 +672,7 @@ contract MainchainGatewayTest is Test, Utils {
     }
 
     // case 7: gateway balance is insufficient
-    function testWithdrawFailCase7() public {
+    function testWithdrawFail7() public {
         // withdrawal info
         address recipient = eve;
         address token = address(mainchainToken);

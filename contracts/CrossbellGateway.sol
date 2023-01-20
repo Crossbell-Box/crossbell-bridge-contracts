@@ -157,13 +157,9 @@ contract CrossbellGateway is
         // lock token
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
-        // transform token amount by different chain
-        uint256 transformedAmount = _transformWithdrawalAmount(
-            token,
-            amount,
-            mainchainToken.decimals
-        );
-        uint256 feeAmount = _transformWithdrawalAmount(token, fee, mainchainToken.decimals);
+        // convert token amount by different chain
+        uint256 convertedAmount = _convertToBase(token, amount, mainchainToken.decimals);
+        uint256 feeAmount = _convertToBase(token, fee, mainchainToken.decimals);
 
         // save withdrawal
         unchecked {
@@ -173,7 +169,7 @@ contract CrossbellGateway is
             chainId,
             recipient,
             mainchainToken.token,
-            transformedAmount,
+            convertedAmount,
             feeAmount
         );
 
@@ -182,7 +178,7 @@ contract CrossbellGateway is
             withdrawalId,
             recipient,
             mainchainToken.token,
-            transformedAmount,
+            convertedAmount,
             feeAmount
         );
     }
@@ -298,19 +294,16 @@ contract CrossbellGateway is
         emit AckDeposit(chainId, depositId, msg.sender, recipient, token, amount);
     }
 
-    // @dev As there are different token decimals on different chains, so the amount need to be transformed.
-    function _transformWithdrawalAmount(
+    // @dev As there are different token decimals on different chains, so the amount need to be converted.
+    function _convertToBase(
         address token,
         uint256 amount,
         uint8 destDecimals
-    ) internal view returns (uint256 transformedAmount) {
+    ) internal view returns (uint256 convertedAmount) {
         uint8 decimals = IERC20Metadata(token).decimals();
-
-        if (destDecimals >= decimals) {
-            transformedAmount = amount * 10 ** (destDecimals - decimals);
-        } else {
-            transformedAmount = amount / (10 ** (decimals - destDecimals));
-        }
+        convertedAmount = (destDecimals >= decimals)
+            ? amount * 10 ** (destDecimals - decimals)
+            : amount / (10 ** (decimals - destDecimals));
     }
 
     function _submitWithdrawalSignature(

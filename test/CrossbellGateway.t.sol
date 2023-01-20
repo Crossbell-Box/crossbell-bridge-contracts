@@ -880,7 +880,6 @@ contract CrossbellGatewayTest is Test, Utils {
         uint256 chainId = 1;
         address recipient = alice;
         address token = address(crossbellToken);
-        uint256 amount = INITIAL_AMOUNT_CROSSBELL / 100;
         uint256 fee = amount + 1;
 
         // case 2: FeeExceedAmount

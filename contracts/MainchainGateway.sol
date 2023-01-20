@@ -95,10 +95,11 @@ contract MainchainGateway is
         DataTypes.MappedToken memory crossbellToken = _getCrossbellToken(token);
         require(crossbellToken.token != address(0), "UnsupportedToken");
 
+        // lock token
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
-        // transform token amount by different chain
-        uint256 transformedAmount = _transformDepositAmount(token, amount, crossbellToken.decimals);
+        // convert token amount by different chain
+        uint256 convertedAmount = _convertToBase(token, amount, crossbellToken.decimals);
 
         unchecked {
             depositId = _depositCounter++;
@@ -112,7 +113,7 @@ contract MainchainGateway is
                 depositId,
                 recipient,
                 crossbellToken.token,
-                transformedAmount
+                convertedAmount
             )
         );
 
@@ -121,7 +122,7 @@ contract MainchainGateway is
             depositId,
             recipient,
             crossbellToken.token,
-            transformedAmount,
+            convertedAmount,
             depositHash
         );
     }
@@ -291,19 +292,16 @@ contract MainchainGateway is
         }
     }
 
-    // @dev As there are different token decimals on different chains, so the amount need to be transformed.
-    function _transformDepositAmount(
+    // @dev As there are different token decimals on different chains, so the amount need to be converted.
+    function _convertToBase(
         address token,
         uint256 amount,
         uint8 destDecimals
-    ) internal view returns (uint256 transformedAmount) {
+    ) internal view returns (uint256 convertedAmount) {
         uint8 decimals = IERC20Metadata(token).decimals();
-
-        if (destDecimals >= decimals) {
-            transformedAmount = amount * 10 ** (destDecimals - decimals);
-        } else {
-            transformedAmount = amount / (10 ** (decimals - destDecimals));
-        }
+        convertedAmount = (destDecimals >= decimals)
+            ? amount * 10 ** (destDecimals - decimals)
+            : amount / (10 ** (decimals - destDecimals));
     }
 
     function _getCrossbellToken(

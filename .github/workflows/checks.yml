@@ -48,6 +48,4 @@ jobs:
           node-version: 14
       - name: Install Dependencies
         run: yarn
-      - name: Update Modules
-        run: yarn sync
       - uses: crytic/slither-action@v0.2.0

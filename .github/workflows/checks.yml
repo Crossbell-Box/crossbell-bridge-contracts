@@ -9,11 +9,33 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
       - name: Install Dependencies
         run: yarn
       - name: Run lints
         run: yarn lint
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Install Dependencies
+        run: yarn
+      - name: Update Modules
+        run: yarn sync
+      - name: Run Tests
+        run: FOUNDRY_PROFILE=ci yarn test
 
   slither:
     runs-on: ubuntu-latest
@@ -21,4 +43,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: Install Dependencies
+        run: yarn
+      - name: Update Modules
+        run: yarn sync
       - uses: crytic/slither-action@v0.2.0

@@ -5,20 +5,13 @@
 // Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
 import {
-    proxyAdmin,
-    validatorContract,
-    gatewayAdmin,
-    crossbellTokens,
     chainIds,
-    mainchainTokens,
-    mainchainTokenDecimals,
     proxyGatewayAddr,
 } from "./config/testnet/sepolia"; // NOTE: update the config before deployment
 var { fromRpcSig } = require("ethereumjs-util");
 
 async function main() {
     const mainchainId = chainIds[0]; // goerli chainId
-
     const CrossbellGateway = await ethers.getContractFactory("CrossbellGateway");
     const proxyGateway = await CrossbellGateway.attach(proxyGatewayAddr);
     const withdrawalId = (await proxyGateway.getWithdrawalCount(mainchainId)) - 1; // get the latest withdrawal request id
@@ -26,16 +19,38 @@ async function main() {
         mainchainId,
         withdrawalId
     );
-    const [signers, signs] = await proxyGateway.getWithdrawalSignatures(chainId, withdrawalId);
-    console.log(signers, signs);
 
-    if (signs.length == 3) {
-        console.log("ok there's enough signatures, starting withdraw....");
+    // get validator threshold
+    const Validator = await ethers.getContractFactory("Validator");
+    const validatorAddr = await proxyGateway.getValidatorContract();
+    const validator = await Validator.attach(validatorAddr);
+    const threshold = await validator.getRequiredNumber();
+    console.log("the signature threshold number is: ", threshold);
+
+    const [signers, signs] = await proxyGateway.getWithdrawalSignatures(chainId, withdrawalId);
+    // console.log(signers, signs);
+
+    if (signs.length >= threshold) {
+        console.log("ok there're enough signatures, starting withdraw....");
+
+        // sort out signs by address in ascending order
+        var obj = {};
+        signers.map((signer, sign) => {
+            obj[signer] = signs[sign];
+        });
+        var sortedObj = {};
+        Object.keys(obj)
+            .sort()
+            .map((item) => {
+                sortedObj[item] = obj[item];
+            });
+
+        // recover r, s, v from signatures
         const rsvList: any[] = [];
         type rsv = [any, any, any];
         type rsvList = rsv[];
-        for (let i = 0; i < 3; i++) {
-            const sig = fromRpcSig(signs[i]);
+        for (let i = 0; i < threshold; i++) {
+            const sig = fromRpcSig(Object.values(sortedObj)[i]);
             var r = "0x" + sig.r.toString("hex");
             var s = "0x" + sig.s.toString("hex");
             var v = sig.v;
@@ -44,7 +59,7 @@ async function main() {
         }
         await proxyGateway.withdraw(chainId, withdrawalId, recipient, token, amount, fee, rsvList);
     } else {
-        console.log(":(  Not enough signs...");
+        console.log(":(  Not enough signatures...");
     }
 }
 

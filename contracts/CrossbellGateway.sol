@@ -100,7 +100,7 @@ contract CrossbellGateway is
             "InvalidArrayLength"
         );
 
-        for (uint256 i; i < depositIds.length; i++) {
+        for (uint256 i = 0; i < depositIds.length; i++) {
             _ackDeposit(
                 chainIds[i],
                 depositIds[i],

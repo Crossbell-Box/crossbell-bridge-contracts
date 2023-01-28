@@ -57,7 +57,13 @@ jobs:
       - name: Disable foundry
         run: rm foundry.toml
       - uses: crytic/slither-action@v0.2.0
+        id: slither
         with:
           node-version: 14
+          sarif: results.sarif
           fail-on: none
           slither-config: slither.config.json
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.slither.outputs.sarif }}

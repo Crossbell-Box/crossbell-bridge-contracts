@@ -19,6 +19,9 @@ update:; forge update
 # Builds
 build :; forge build
 
+# Build with hardhat
+hardhat-build :; npx hardhat clean && npx hardhat compile
+
 bindings: build
 	@echo " > \033[32mCreating go bindings for contracts... \033[0m "
 	./scripts/createBindings.sh

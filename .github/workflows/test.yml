@@ -1,41 +1,19 @@
-name: lint and test
-
 on: [push]
 
-jobs:
-  tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - uses: actions/setup-node@v2
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: nightly
-      - name: Install Dependencies
-        run: yarn
-      - name: Update Modules
-        run: yarn sync
-      - name: Run lints
-        run: yarn lint
-      - name: Run Tests
-        run: FOUNDRY_PROFILE=ci yarn test
+name: test
 
-  slither:
+jobs:
+  foundry-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - uses: actions/setup-node@v2
+
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
-      - name: Install Dependencies
-        run: yarn
-      - name: Update Modules
-        run: yarn sync
-      - uses: crytic/slither-action@v0.1.1
+
+      - name: Run tests
+        run: forge test -vvv

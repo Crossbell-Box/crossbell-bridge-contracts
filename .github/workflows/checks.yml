@@ -1,0 +1,24 @@
+name: checks
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v2
+      - name: Install Dependencies
+        run: yarn
+      - name: Run lints
+        run: yarn lint
+
+  slither:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: crytic/slither-action@v0.2.0

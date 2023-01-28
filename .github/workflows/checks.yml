@@ -43,7 +43,7 @@ jobs:
         uses: codespell-project/actions-codespell@v1.0
         with:
           check_filenames: true
-          skip: package-lock.json
+          skip: ./.git,./docs,package-lock.json,yarn.lock
 
   slither:
     runs-on: ubuntu-latest

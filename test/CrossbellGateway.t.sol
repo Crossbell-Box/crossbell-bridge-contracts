@@ -1071,4 +1071,31 @@ contract CrossbellGatewayTest is Test, Utils {
             "ackCount"
         );
     }
+
+    function testSignature() public {
+        uint256 privateKey = 0x123456789;
+        console.logAddress(vm.addr(privateKey));
+
+        bytes32 hash = keccak256(
+            abi.encodePacked(
+                bytes32(0xeb2a4fb584d0612bfba58fd063e643a30b6a38f81cc096aab2b508f45997002f),
+                uint256(5),
+                uint256(3),
+                address(0x678e0E67555E8fC4533c1a9f204e2C1C7C1C9665),
+                address(0xbf58a5d64F451f537ABdB8B0203eF3F105097285),
+                uint256(10000),
+                uint256(0)
+            )
+        );
+
+        bytes32 prefixedHash = keccak256(
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
+        );
+        console.logBytes32(hash);
+        console.logBytes32(prefixedHash);
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, prefixedHash);
+        bytes memory sig = abi.encodePacked(r, s, v);
+        console.logBytes(sig);
+    }
 }

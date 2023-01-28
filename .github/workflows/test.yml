@@ -27,6 +27,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up environment
-        uses: ./.github/actions/setup
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v2
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Install Dependencies
+        run: yarn
+      - name: Update Modules
+        run: yarn sync
       - uses: crytic/slither-action@v0.1.1

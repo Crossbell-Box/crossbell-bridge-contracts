@@ -46,12 +46,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 14
-      - name: Install Dependencies
-        run: yarn install --ignore-engines
-      - name: Build the contracts
-        run: yarn hardhat-build
+      - name: Copy configuration file
+        run: cp .env.example .env
+      - name: Disable foundry
+        run: rm foundry.toml
       - uses: crytic/slither-action@v0.2.0
         with:
           node-version: 14
-          ignore-compile: true
           fail-on: none
+          slither-config: slither.config.json

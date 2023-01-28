@@ -46,6 +46,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 14
+      - name: Copy configuration file
+        run: cp .env.example .env
       - name: Disable foundry
         run: rm foundry.toml
       - uses: crytic/slither-action@v0.2.0

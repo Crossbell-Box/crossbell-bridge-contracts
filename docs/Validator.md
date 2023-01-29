@@ -115,12 +115,6 @@ function checkThreshold(uint256 voteCount) external view returns (bool)
 
 Checks whether the `voteCount` passes the threshold.
 
-### _isValidator
-
-```solidity
-function _isValidator(address addr) internal view returns (bool)
-```
-
 ### _addValidator
 
 ```solidity
@@ -131,5 +125,11 @@ function _addValidator(address validator) internal
 
 ```solidity
 function _removeValidator(address validator) internal
+```
+
+### _isValidator
+
+```solidity
+function _isValidator(address addr) internal view returns (bool)
 ```
 

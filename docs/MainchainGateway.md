@@ -31,20 +31,6 @@ Note that the thresholds contains:
 | crossbellTokens | address[] | Addresses of crossbell tokens. |
 | crossbellTokenDecimals | uint8[] | Decimals of crossbell tokens. |
 
-### getDomainSeparator
-
-```solidity
-function getDomainSeparator() external view virtual returns (bytes32)
-```
-
-Returns the domain separator for this contract.
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bytes32 | bytes32 The domain separator. |
-
 ### pause
 
 ```solidity
@@ -149,6 +135,20 @@ Requirements:
 | tokens | address[] | Addresses of token to set |
 | quotas | uint256[] | quotas corresponding to the tokens to set |
 
+### getDomainSeparator
+
+```solidity
+function getDomainSeparator() external view virtual returns (bytes32)
+```
+
+Returns the domain separator for this contract.
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bytes32 | bytes32 The domain separator. |
+
 ### getValidatorContract
 
 ```solidity
@@ -245,6 +245,14 @@ Returns mapped tokens from crossbell chain
 | ---- | ---- | ----------- |
 | token | struct DataTypes.MappedToken | Mapped token from crossbell chain |
 
+### _mapTokens
+
+```solidity
+function _mapTokens(address[] mainchainTokens, address[] crossbellTokens, uint8[] crossbellTokenDecimals) internal
+```
+
+_Maps Crossbell tokens to mainchain._
+
 ### _updateDomainSeparator
 
 ```solidity
@@ -252,12 +260,6 @@ function _updateDomainSeparator() internal
 ```
 
 _Update domain separator._
-
-### _verifySignatures
-
-```solidity
-function _verifySignatures(bytes32 hash, struct DataTypes.Signature[] signatures) internal view returns (bool)
-```
 
 ### _setDailyWithdrawalMaxQuotas
 
@@ -292,10 +294,18 @@ _Checks whether the withdrawal reaches the daily quota._
 | token | address | Token address to withdraw |
 | amount | uint256 | Token amount to withdraw |
 
-### _transformDepositAmount
+### _verifySignatures
 
 ```solidity
-function _transformDepositAmount(address token, uint256 amount, uint8 destDecimals) internal view returns (uint256 transformedAmount)
+function _verifySignatures(bytes32 hash, struct DataTypes.Signature[] signatures) internal view returns (bool)
+```
+
+_Checks secp256k1 signatures of validators_
+
+### _convertToBase
+
+```solidity
+function _convertToBase(address token, uint256 amount, uint8 destDecimals) internal view returns (uint256 convertedAmount)
 ```
 
 ### _getCrossbellToken
@@ -303,14 +313,6 @@ function _transformDepositAmount(address token, uint256 amount, uint8 destDecima
 ```solidity
 function _getCrossbellToken(address mainchainToken) internal view returns (struct DataTypes.MappedToken token)
 ```
-
-### _mapTokens
-
-```solidity
-function _mapTokens(address[] mainchainTokens, address[] crossbellTokens, uint8[] crossbellTokenDecimals) internal
-```
-
-_Maps Crossbell tokens to mainchain._
 
 ### _chainId
 

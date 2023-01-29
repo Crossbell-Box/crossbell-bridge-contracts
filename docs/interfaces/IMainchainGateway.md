@@ -64,20 +64,6 @@ event DailyWithdrawalMaxQuotasUpdated(address[] tokens, uint256[] quotas)
 
 _Emitted when the daily quota thresholds are updated_
 
-### getDomainSeparator
-
-```solidity
-function getDomainSeparator() external view returns (bytes32)
-```
-
-Returns the domain separator for this contract.
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bytes32 | bytes32 The domain separator. |
-
 ### initialize
 
 ```solidity
@@ -202,6 +188,20 @@ Requirements:
 | ---- | ---- | ----------- |
 | tokens | address[] | Addresses of token to set |
 | quotas | uint256[] | quotas corresponding to the tokens to set |
+
+### getDomainSeparator
+
+```solidity
+function getDomainSeparator() external view returns (bytes32)
+```
+
+Returns the domain separator for this contract.
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bytes32 | bytes32 The domain separator. |
 
 ### getValidatorContract
 

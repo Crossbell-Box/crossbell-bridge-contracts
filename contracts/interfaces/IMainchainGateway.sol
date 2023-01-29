@@ -56,12 +56,6 @@ interface IMainchainGateway {
     event DailyWithdrawalMaxQuotasUpdated(address[] tokens, uint256[] quotas);
 
     /**
-     * @notice Returns the domain separator for this contract.
-     * @return bytes32 The domain separator.
-     */
-    function getDomainSeparator() external view returns (bytes32);
-
-    /**
      * @notice Initializes the MainchainGateway.
      * Note that the thresholds contains:
      *  - thresholds[1]:
@@ -160,6 +154,12 @@ interface IMainchainGateway {
         address[] calldata tokens,
         uint256[] calldata quotas
     ) external;
+
+    /**
+     * @notice Returns the domain separator for this contract.
+     * @return bytes32 The domain separator.
+     */
+    function getDomainSeparator() external view returns (bytes32);
 
     /**
      * @notice Returns the address of the validator contract.

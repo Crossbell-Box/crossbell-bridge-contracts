@@ -26,55 +26,51 @@ contract Validator is IValidator, Ownable {
     }
 
     /// @inheritdoc IValidator
-    function addValidators(address[] calldata validators) external onlyOwner {
+    function addValidators(address[] calldata validators) external override onlyOwner {
         for (uint256 i = 0; i < validators.length; i++) {
             _addValidator(validators[i]);
         }
     }
 
     /// @inheritdoc IValidator
-    function removeValidators(address[] calldata validators) external onlyOwner {
+    function removeValidators(address[] calldata validators) external override onlyOwner {
         for (uint256 i = 0; i < validators.length; i++) {
             _removeValidator(validators[i]);
         }
     }
 
     /// @inheritdoc IValidator
-    function changeRequiredNumber(uint256 newRequiredNumber) external onlyOwner {
+    function changeRequiredNumber(uint256 newRequiredNumber) external override onlyOwner {
         require(
             newRequiredNumber <= _validators.length() && newRequiredNumber != 0,
             "InvalidRequiredNumber"
         );
 
-        uint256 _previousRequiredNumber = _requiredNumber;
+        uint256 previousRequiredNumber = _requiredNumber;
 
         _requiredNumber = newRequiredNumber;
 
-        emit RequirementChanged(newRequiredNumber, _previousRequiredNumber);
+        emit RequirementChanged(newRequiredNumber, previousRequiredNumber);
     }
 
     /// @inheritdoc IValidator
-    function isValidator(address addr) external view returns (bool) {
+    function isValidator(address addr) external view override returns (bool) {
         return _isValidator(addr);
     }
 
     /// @inheritdoc IValidator
-    function getValidators() external view returns (address[] memory validators) {
+    function getValidators() external view override returns (address[] memory validators) {
         return _validators.values();
     }
 
     /// @inheritdoc IValidator
-    function getRequiredNumber() external view returns (uint256) {
+    function getRequiredNumber() external view override returns (uint256) {
         return _requiredNumber;
     }
 
     /// @inheritdoc IValidator
-    function checkThreshold(uint256 voteCount) external view returns (bool) {
+    function checkThreshold(uint256 voteCount) external view override returns (bool) {
         return voteCount >= _requiredNumber;
-    }
-
-    function _isValidator(address addr) internal view returns (bool) {
-        return _validators.contains(addr);
     }
 
     function _addValidator(address validator) internal {
@@ -87,5 +83,9 @@ contract Validator is IValidator, Ownable {
         require(_validators.remove(validator), "ValidatorNotExists");
 
         emit ValidatorRemoved(validator);
+    }
+
+    function _isValidator(address addr) internal view returns (bool) {
+        return _validators.contains(addr);
     }
 }

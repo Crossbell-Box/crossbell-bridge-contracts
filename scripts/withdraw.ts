@@ -4,10 +4,7 @@
 // When running the scripts with `npx hardhat run <scripts>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
-import {
-    chainIds,
-    proxyGatewayAddr,
-} from "./config/testnet/sepolia"; // NOTE: update the config before deployment
+import { chainIds, proxyGatewayAddr } from "./config/testnet/sepolia"; // NOTE: update the config before deployment
 var { fromRpcSig } = require("ethereumjs-util");
 
 async function main() {

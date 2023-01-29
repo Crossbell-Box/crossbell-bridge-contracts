@@ -34,10 +34,6 @@ contract CrossbellGateway is
         _;
     }
 
-    function _checkValidator() internal view {
-        require(IValidator(_validator).isValidator(_msgSender()), "NotValidator");
-    }
-
     /// @inheritdoc ICrossbellGateway
     function initialize(
         address validator,
@@ -46,7 +42,7 @@ contract CrossbellGateway is
         uint256[] calldata chainIds,
         address[] calldata mainchainTokens,
         uint8[] calldata mainchainTokenDecimals
-    ) external initializer {
+    ) external override initializer {
         _validator = validator;
 
         // map mainchain tokens
@@ -60,12 +56,12 @@ contract CrossbellGateway is
     }
 
     /// @inheritdoc ICrossbellGateway
-    function pause() external whenNotPaused onlyRole(ADMIN_ROLE) {
+    function pause() external override whenNotPaused onlyRole(ADMIN_ROLE) {
         _pause();
     }
 
     /// @inheritdoc ICrossbellGateway
-    function unpause() external whenPaused onlyRole(ADMIN_ROLE) {
+    function unpause() external override whenPaused onlyRole(ADMIN_ROLE) {
         _unpause();
     }
 
@@ -75,7 +71,7 @@ contract CrossbellGateway is
         uint256[] calldata chainIds,
         address[] calldata mainchainTokens,
         uint8[] calldata mainchainTokenDecimals
-    ) external onlyRole(ADMIN_ROLE) {
+    ) external override onlyRole(ADMIN_ROLE) {
         // map mainchain tokens
         if (crossbellTokens.length > 0) {
             _mapTokens(crossbellTokens, chainIds, mainchainTokens, mainchainTokenDecimals);
@@ -90,7 +86,7 @@ contract CrossbellGateway is
         address[] calldata tokens,
         uint256[] calldata amounts,
         bytes32[] calldata depositHashes
-    ) external nonReentrant whenNotPaused onlyValidator {
+    ) external override nonReentrant whenNotPaused onlyValidator {
         require(
             chainIds.length == depositIds.length &&
                 chainIds.length == recipients.length &&
@@ -117,7 +113,7 @@ contract CrossbellGateway is
         uint256[] calldata chainIds,
         uint256[] calldata withdrawalIds,
         bytes[] calldata sigs
-    ) external whenNotPaused onlyValidator {
+    ) external override whenNotPaused onlyValidator {
         require(
             chainIds.length == withdrawalIds.length && chainIds.length == sigs.length,
             "InvalidArrayLength"
@@ -136,7 +132,7 @@ contract CrossbellGateway is
         address token,
         uint256 amount,
         bytes32 depositHash
-    ) external nonReentrant whenNotPaused onlyValidator {
+    ) external override nonReentrant whenNotPaused onlyValidator {
         _ackDeposit(chainId, depositId, recipient, token, amount, depositHash);
     }
 
@@ -147,7 +143,7 @@ contract CrossbellGateway is
         address token,
         uint256 amount,
         uint256 fee
-    ) external nonReentrant whenNotPaused returns (uint256 withdrawalId) {
+    ) external override nonReentrant whenNotPaused returns (uint256 withdrawalId) {
         require(amount > 0, "ZeroAmount");
         require(amount >= fee, "FeeExceedAmount");
 
@@ -188,7 +184,7 @@ contract CrossbellGateway is
         uint256 chainId,
         uint256 withdrawalId,
         bytes calldata sig
-    ) external whenNotPaused onlyValidator {
+    ) external override whenNotPaused onlyValidator {
         _submitWithdrawalSignature(chainId, withdrawalId, sig);
     }
 
@@ -196,7 +192,7 @@ contract CrossbellGateway is
     function getMainchainToken(
         uint256 chainId,
         address crossbellToken
-    ) external view returns (DataTypes.MappedToken memory token) {
+    ) external view override returns (DataTypes.MappedToken memory token) {
         return _getMainchainToken(chainId, crossbellToken);
     }
 
@@ -205,7 +201,7 @@ contract CrossbellGateway is
         uint256 chainId,
         uint256 id,
         address validator
-    ) external view returns (bytes32) {
+    ) external view override returns (bytes32) {
         return _validatorAck[chainId][id][validator];
     }
 
@@ -214,7 +210,7 @@ contract CrossbellGateway is
         uint256 chainId,
         uint256 id,
         bytes32 hash
-    ) external view returns (DataTypes.Status) {
+    ) external view override returns (DataTypes.Status) {
         return _ackStatus[chainId][id][hash];
     }
 
@@ -223,7 +219,7 @@ contract CrossbellGateway is
         uint256 chainId,
         uint256 id,
         bytes32 hash
-    ) external view returns (uint256) {
+    ) external view override returns (uint256) {
         return _ackCount[chainId][id][hash];
     }
 
@@ -231,7 +227,7 @@ contract CrossbellGateway is
     function getWithdrawalSignatures(
         uint256 chainId,
         uint256 withdrawalId
-    ) external view returns (address[] memory signers, bytes[] memory sigs) {
+    ) external view override returns (address[] memory signers, bytes[] memory sigs) {
         signers = _getWithdrawalSigners(chainId, withdrawalId);
         sigs = new bytes[](signers.length);
         for (uint256 i = 0; i < signers.length; i++) {
@@ -240,7 +236,7 @@ contract CrossbellGateway is
     }
 
     /// @inheritdoc ICrossbellGateway
-    function getValidatorContract() external view returns (address) {
+    function getValidatorContract() external view override returns (address) {
         return _validator;
     }
 
@@ -248,12 +244,12 @@ contract CrossbellGateway is
     function getDepositEntry(
         uint256 chainId,
         uint256 depositId
-    ) external view returns (DataTypes.DepositEntry memory) {
+    ) external view override returns (DataTypes.DepositEntry memory) {
         return _deposits[chainId][depositId];
     }
 
     /// @inheritdoc ICrossbellGateway
-    function getWithdrawalCount(uint256 chainId) external view returns (uint256) {
+    function getWithdrawalCount(uint256 chainId) external view override returns (uint256) {
         return _withdrawalCounter[chainId];
     }
 
@@ -261,7 +257,7 @@ contract CrossbellGateway is
     function getWithdrawalEntry(
         uint256 chainId,
         uint256 withdrawalId
-    ) external view returns (DataTypes.WithdrawalEntry memory) {
+    ) external view override returns (DataTypes.WithdrawalEntry memory) {
         return _withdrawals[chainId][withdrawalId];
     }
 
@@ -294,16 +290,29 @@ contract CrossbellGateway is
         emit AckDeposit(chainId, depositId, msg.sender, recipient, token, amount);
     }
 
-    // @dev As there are different token decimals on different chains, so the amount need to be converted.
-    function _convertToBase(
-        address token,
-        uint256 amount,
-        uint8 destDecimals
-    ) internal view returns (uint256 convertedAmount) {
-        uint8 decimals = IERC20Metadata(token).decimals();
-        convertedAmount = (destDecimals >= decimals)
-            ? amount * 10 ** (destDecimals - decimals)
-            : amount / (10 ** (decimals - destDecimals));
+    /**
+     * @dev Maps crossbell tokens to mainchain networks.
+     */
+    function _mapTokens(
+        address[] calldata crossbellTokens,
+        uint256[] calldata chainIds,
+        address[] calldata mainchainTokens,
+        uint8[] calldata mainchainTokenDecimals
+    ) internal {
+        require(
+            crossbellTokens.length == mainchainTokens.length &&
+                crossbellTokens.length == mainchainTokenDecimals.length &&
+                crossbellTokens.length == chainIds.length,
+            "InvalidArrayLength"
+        );
+
+        for (uint i = 0; i < crossbellTokens.length; i++) {
+            _mainchainTokens[crossbellTokens[i]][chainIds[i]] = DataTypes.MappedToken({
+                token: mainchainTokens[i],
+                decimals: mainchainTokenDecimals[i]
+            });
+        }
+        emit TokenMapped(crossbellTokens, chainIds, mainchainTokens, mainchainTokenDecimals);
     }
 
     function _submitWithdrawalSignature(
@@ -368,28 +377,19 @@ contract CrossbellGateway is
         token = _mainchainTokens[crossbellToken][chainId];
     }
 
-    /**
-     * @dev Maps crossbell tokens to mainchain networks.
-     */
-    function _mapTokens(
-        address[] calldata crossbellTokens,
-        uint256[] calldata chainIds,
-        address[] calldata mainchainTokens,
-        uint8[] calldata mainchainTokenDecimals
-    ) internal {
-        require(
-            crossbellTokens.length == mainchainTokens.length &&
-                crossbellTokens.length == mainchainTokenDecimals.length &&
-                crossbellTokens.length == chainIds.length,
-            "InvalidArrayLength"
-        );
+    // @dev As there are different token decimals on different chains, so the amount need to be converted.
+    function _convertToBase(
+        address token,
+        uint256 amount,
+        uint8 destDecimals
+    ) internal view returns (uint256 convertedAmount) {
+        uint8 decimals = IERC20Metadata(token).decimals();
+        convertedAmount = (destDecimals >= decimals)
+            ? amount * 10 ** (destDecimals - decimals)
+            : amount / (10 ** (decimals - destDecimals));
+    }
 
-        for (uint i = 0; i < crossbellTokens.length; i++) {
-            _mainchainTokens[crossbellTokens[i]][chainIds[i]] = DataTypes.MappedToken({
-                token: mainchainTokens[i],
-                decimals: mainchainTokenDecimals[i]
-            });
-        }
-        emit TokenMapped(crossbellTokens, chainIds, mainchainTokens, mainchainTokenDecimals);
+    function _checkValidator() internal view {
+        require(IValidator(_validator).isValidator(_msgSender()), "NotValidator");
     }
 }

@@ -39,7 +39,7 @@ contract MainchainGateway is
         uint256[] calldata dailyWithdrawalMaxQuota,
         address[] calldata crossbellTokens,
         uint8[] calldata crossbellTokenDecimals
-    ) external initializer {
+    ) external override initializer {
         _validator = validator;
 
         _updateDomainSeparator();
@@ -56,20 +56,13 @@ contract MainchainGateway is
         _setupRole(ADMIN_ROLE, admin);
     }
 
-    /**
-     * @inheritdoc IMainchainGateway
-     */
-    function getDomainSeparator() external view virtual returns (bytes32) {
-        return _domainSeparator;
-    }
-
     /// @inheritdoc IMainchainGateway
-    function pause() external whenNotPaused onlyRole(ADMIN_ROLE) {
+    function pause() external override whenNotPaused onlyRole(ADMIN_ROLE) {
         _pause();
     }
 
     /// @inheritdoc IMainchainGateway
-    function unpause() external whenPaused onlyRole(ADMIN_ROLE) {
+    function unpause() external override whenPaused onlyRole(ADMIN_ROLE) {
         _unpause();
     }
 
@@ -78,7 +71,7 @@ contract MainchainGateway is
         address[] calldata mainchainTokens,
         address[] calldata crossbellTokens,
         uint8[] calldata crossbellTokenDecimals
-    ) external onlyRole(ADMIN_ROLE) {
+    ) external override onlyRole(ADMIN_ROLE) {
         if (mainchainTokens.length > 0) {
             _mapTokens(mainchainTokens, crossbellTokens, crossbellTokenDecimals);
         }
@@ -89,7 +82,7 @@ contract MainchainGateway is
         address recipient,
         address token,
         uint256 amount
-    ) external nonReentrant whenNotPaused returns (uint256 depositId) {
+    ) external override nonReentrant whenNotPaused returns (uint256 depositId) {
         require(amount > 0, "ZeroAmount");
 
         DataTypes.MappedToken memory crossbellToken = _getCrossbellToken(token);
@@ -136,7 +129,7 @@ contract MainchainGateway is
         uint256 amount,
         uint256 fee,
         DataTypes.Signature[] calldata signatures
-    ) external nonReentrant whenNotPaused {
+    ) external override nonReentrant whenNotPaused {
         require(chainId == block.chainid, "InvalidChainId");
         require(_withdrawalHash[withdrawalId] == bytes32(0), "NotNewWithdrawal");
         require(!_reachedDailyWithdrawalQuota(token, amount), "DailyWithdrawalMaxQuota");
@@ -161,32 +154,41 @@ contract MainchainGateway is
     function setDailyWithdrawalMaxQuotas(
         address[] calldata tokens,
         uint256[] calldata quotas
-    ) external onlyRole(ADMIN_ROLE) {
+    ) external override onlyRole(ADMIN_ROLE) {
         _setDailyWithdrawalMaxQuotas(tokens, quotas);
     }
 
+    /**
+     * @inheritdoc IMainchainGateway
+     */
+    function getDomainSeparator() external view virtual override returns (bytes32) {
+        return _domainSeparator;
+    }
+
     /// @inheritdoc IMainchainGateway
-    function getValidatorContract() external view returns (address) {
+    function getValidatorContract() external view override returns (address) {
         return _validator;
     }
 
     /// @inheritdoc IMainchainGateway
-    function getDepositCount() external view returns (uint256) {
+    function getDepositCount() external view override returns (uint256) {
         return _depositCounter;
     }
 
     /// @inheritdoc IMainchainGateway
-    function getWithdrawalHash(uint256 withdrawalId) external view returns (bytes32) {
+    function getWithdrawalHash(uint256 withdrawalId) external view override returns (bytes32) {
         return _withdrawalHash[withdrawalId];
     }
 
     /// @inheritdoc IMainchainGateway
-    function getDailyWithdrawalMaxQuota(address token) external view returns (uint256) {
+    function getDailyWithdrawalMaxQuota(address token) external view override returns (uint256) {
         return _dailyWithdrawalMaxQuota[token];
     }
 
     /// @inheritdoc IMainchainGateway
-    function getDailyWithdrawalRemainingQuota(address token) external view returns (uint256) {
+    function getDailyWithdrawalRemainingQuota(
+        address token
+    ) external view override returns (uint256) {
         uint256 currentDate = block.timestamp / 1 days;
         if (currentDate > _lastDateSynced[token]) {
             return _dailyWithdrawalMaxQuota[token];
@@ -198,8 +200,32 @@ contract MainchainGateway is
     /// @inheritdoc IMainchainGateway
     function getCrossbellToken(
         address mainchainToken
-    ) external view returns (DataTypes.MappedToken memory token) {
+    ) external view override returns (DataTypes.MappedToken memory token) {
         return _getCrossbellToken(mainchainToken);
+    }
+
+    /**
+     * @dev Maps Crossbell tokens to mainchain.
+     */
+    function _mapTokens(
+        address[] calldata mainchainTokens,
+        address[] calldata crossbellTokens,
+        uint8[] calldata crossbellTokenDecimals
+    ) internal {
+        require(
+            mainchainTokens.length == crossbellTokens.length &&
+                mainchainTokens.length == crossbellTokenDecimals.length,
+            "InvalidArrayLength"
+        );
+
+        for (uint256 i = 0; i < mainchainTokens.length; i++) {
+            _crossbellTokens[mainchainTokens[i]] = DataTypes.MappedToken({
+                token: crossbellTokens[i],
+                decimals: crossbellTokenDecimals[i]
+            });
+        }
+
+        emit TokenMapped(mainchainTokens, crossbellTokens, crossbellTokenDecimals);
     }
 
     /**
@@ -218,31 +244,6 @@ contract MainchainGateway is
                 keccak256(abi.encodePacked(block.timestamp))
             )
         );
-    }
-
-    function _verifySignatures(
-        bytes32 hash,
-        DataTypes.Signature[] calldata signatures
-    ) internal view returns (bool) {
-        bytes32 prefixedHash = hash.toEthSignedMessageHash();
-
-        uint256 validatorCount = 0;
-        address lastSigner = address(0);
-        for (uint256 i = 0; i < signatures.length; i++) {
-            address signer = prefixedHash.recover(
-                signatures[i].v,
-                signatures[i].r,
-                signatures[i].s
-            );
-            if (IValidator(_validator).isValidator(signer)) {
-                validatorCount++;
-            }
-            // Prevent duplication of signatures
-            require(signer > lastSigner, "InvalidSignerOrder");
-            lastSigner = signer;
-        }
-
-        return IValidator(_validator).checkThreshold(validatorCount);
     }
 
     /**
@@ -292,6 +293,34 @@ contract MainchainGateway is
         }
     }
 
+    /**
+     * @dev Checks secp256k1 signatures of validators
+     */
+    function _verifySignatures(
+        bytes32 hash,
+        DataTypes.Signature[] calldata signatures
+    ) internal view returns (bool) {
+        bytes32 prefixedHash = hash.toEthSignedMessageHash();
+
+        uint256 validatorCount = 0;
+        address lastSigner = address(0);
+        for (uint256 i = 0; i < signatures.length; i++) {
+            address signer = prefixedHash.recover(
+                signatures[i].v,
+                signatures[i].r,
+                signatures[i].s
+            );
+            if (IValidator(_validator).isValidator(signer)) {
+                validatorCount++;
+            }
+            // Prevent duplication of signatures
+            require(signer > lastSigner, "InvalidSignerOrder");
+            lastSigner = signer;
+        }
+
+        return IValidator(_validator).checkThreshold(validatorCount);
+    }
+
     // @dev As there are different token decimals on different chains, so the amount need to be converted.
     function _convertToBase(
         address token,
@@ -308,30 +337,6 @@ contract MainchainGateway is
         address mainchainToken
     ) internal view returns (DataTypes.MappedToken memory token) {
         token = _crossbellTokens[mainchainToken];
-    }
-
-    /**
-     * @dev Maps Crossbell tokens to mainchain.
-     */
-    function _mapTokens(
-        address[] calldata mainchainTokens,
-        address[] calldata crossbellTokens,
-        uint8[] calldata crossbellTokenDecimals
-    ) internal {
-        require(
-            mainchainTokens.length == crossbellTokens.length &&
-                mainchainTokens.length == crossbellTokenDecimals.length,
-            "InvalidArrayLength"
-        );
-
-        for (uint256 i = 0; i < mainchainTokens.length; i++) {
-            _crossbellTokens[mainchainTokens[i]] = DataTypes.MappedToken({
-                token: crossbellTokens[i],
-                decimals: crossbellTokenDecimals[i]
-            });
-        }
-
-        emit TokenMapped(mainchainTokens, crossbellTokens, crossbellTokenDecimals);
     }
 
     /**

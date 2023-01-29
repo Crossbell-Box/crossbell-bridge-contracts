@@ -9,7 +9,7 @@
     "test": "make foundry-test",
     "snapshot": "make snapshot",
     "lint": "make lint",
-    "hardhat-build": "make hardhat-build",
+    "solhint": "make solhint",
     "remap": "forge remappings > remappings.txt",
     "version": "auto-changelog -t keepachangelog --commit-limit false --ignore-commit-pattern 'chore:|test:|docs:' && git add CHANGELOG.md",
     "docgen": "hardhat docgen",
@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "hardhat-abi-exporter": "^2.10.1",
+    "solhint": "^3.3.8",
     "validate-branch-name": "^1.3.0"
   }
 }

@@ -16,12 +16,6 @@ bytes32 ADMIN_ROLE
 modifier onlyValidator()
 ```
 
-### _checkValidator
-
-```solidity
-function _checkValidator() internal view
-```
-
 ### initialize
 
 ```solidity
@@ -343,11 +337,13 @@ Returns the withdrawal entry.
 function _ackDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount, bytes32 depositHash) internal
 ```
 
-### _transformWithdrawalAmount
+### _mapTokens
 
 ```solidity
-function _transformWithdrawalAmount(address token, uint256 amount, uint8 destDecimals) internal view returns (uint256 transformedAmount)
+function _mapTokens(address[] crossbellTokens, uint256[] chainIds, address[] mainchainTokens, uint8[] mainchainTokenDecimals) internal
 ```
+
+_Maps crossbell tokens to mainchain networks._
 
 ### _submitWithdrawalSignature
 
@@ -379,11 +375,15 @@ function _getWithdrawalSigners(uint256 chainId, uint256 withdrawalId) internal v
 function _getMainchainToken(uint256 chainId, address crossbellToken) internal view returns (struct DataTypes.MappedToken token)
 ```
 
-### _mapTokens
+### _convertToBase
 
 ```solidity
-function _mapTokens(address[] crossbellTokens, uint256[] chainIds, address[] mainchainTokens, uint8[] mainchainTokenDecimals) internal
+function _convertToBase(address token, uint256 amount, uint8 destDecimals) internal view returns (uint256 convertedAmount)
 ```
 
-_Maps crossbell tokens to mainchain networks._
+### _checkValidator
+
+```solidity
+function _checkValidator() internal view
+```
 

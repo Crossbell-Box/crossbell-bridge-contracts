@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
+import "../interfaces/IERC20Mintable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 
-contract MiraToken is Context, AccessControlEnumerable, ERC20Permit {
+contract MiraToken is Context, IERC20Mintable, AccessControlEnumerable, ERC20Permit {
     bytes32 public constant BLOCK_ROLE = keccak256("BLOCK_ROLE");
 
     constructor(
@@ -21,16 +22,8 @@ contract MiraToken is Context, AccessControlEnumerable, ERC20Permit {
      * Requirements:
      * - the caller must have the `DEFAULT_ADMIN_ROLE`.
      */
-    function mint(address to, uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function mint(address to, uint256 amount) external override onlyRole(DEFAULT_ADMIN_ROLE) {
         _mint(to, amount);
-    }
-
-    /**
-     * @dev Blocks transfer from account `from` who has the `BLOCK_ROLE`.
-     */
-    function _transfer(address from, address to, uint256 amount) internal override {
-        require(!hasRole(BLOCK_ROLE, from), "transfer is blocked");
-        super._transfer(from, to, amount);
     }
 
     /**
@@ -43,5 +36,13 @@ contract MiraToken is Context, AccessControlEnumerable, ERC20Permit {
         address account
     ) external override onlyRole(DEFAULT_ADMIN_ROLE) {
         super.renounceRole(role, account);
+    }
+
+    /**
+     * @dev Blocks transfer from account `from` who has the `BLOCK_ROLE`.
+     */
+    function _transfer(address from, address to, uint256 amount) internal override {
+        require(!hasRole(BLOCK_ROLE, from), "transfer is blocked");
+        super._transfer(from, to, amount);
     }
 }

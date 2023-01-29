@@ -11,12 +11,13 @@ contract Utils is Test {
     uint8 public constant CheckData = 0x8;
     uint8 public constant CheckAll = 0xf;
 
+    /* solhint-disable comprehensive-interface */
     function expectEmit() public {
         expectEmit(CheckAll);
     }
 
     function expectEmit(uint8 checks) public {
-        require(checks < 16, "Invalid emitOptions passed to expectEmit");
+        require(checks < 16, "Invalid options");
 
         uint8 mask = 0x1; //0001
         bool checkTopic1 = (checks & mask) > 0;

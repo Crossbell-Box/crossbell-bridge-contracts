@@ -2,6 +2,9 @@
 
 ## ICrossbellGateway
 
+This is the interface for the crossbell bridge gateway contract.
+You'll find all the events and external functions.
+
 ### TokenMapped
 
 ```solidity

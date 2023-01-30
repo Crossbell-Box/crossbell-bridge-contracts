@@ -3,6 +3,11 @@ pragma solidity 0.8.16;
 
 import "../libraries/DataTypes.sol";
 
+/**
+ * @title ICrossbellGateway
+ * @notice This is the interface for the crossbell bridge gateway contract.
+ * You'll find all the events and external functions.
+ */
 interface ICrossbellGateway {
     /**
      * @dev Emitted when the tokens are mapped.

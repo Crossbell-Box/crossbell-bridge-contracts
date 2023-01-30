@@ -2,6 +2,9 @@
 
 ## IValidator
 
+This is the interface for the validator contract.
+You'll find all the events and external functions.
+
 ### ValidatorAdded
 
 ```solidity

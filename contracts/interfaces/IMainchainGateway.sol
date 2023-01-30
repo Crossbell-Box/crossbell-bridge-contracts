@@ -3,6 +3,11 @@ pragma solidity 0.8.16;
 
 import "../libraries/DataTypes.sol";
 
+/**
+ * @title IMainchainGateway
+ * @notice This is the interface for the crossbell bridge manchain gateway contract.
+ * You'll find all the events and external functions.
+ */
 interface IMainchainGateway {
     /**
      * @dev Emitted when the tokens are mapped

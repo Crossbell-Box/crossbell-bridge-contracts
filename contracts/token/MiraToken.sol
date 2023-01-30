@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity 0.8.16;
 
 import "../interfaces/IERC20Mintable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
@@ -31,7 +31,7 @@ contract MiraToken is Context, IERC20Mintable, AccessControlEnumerable, ERC20 {
     function renounceRole(
         bytes32 role,
         address account
-    ) external override onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) public virtual override(AccessControl, IAccessControl) onlyRole(DEFAULT_ADMIN_ROLE) {
         super.renounceRole(role, account);
     }
 

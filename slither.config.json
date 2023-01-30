@@ -1,5 +1,7 @@
 {
-  "filter_paths": "lib",
+  "detectors_to_exclude": "missing-zero-check,initialize-target",
+  "disable_color": false,
+  "filter_paths": "(lib/|node_modules/|upgradeability/)",
   "solc_remaps": [
     "ds-test/=lib/forge-std/lib/ds-test/src/",
     "forge-std/=lib/forge-std/src/",
@@ -7,4 +9,5 @@
   ],
   "compile_force_framework":"hardhat",
   "hardhat_artifacts_directory": "./artifacts"
+
 }

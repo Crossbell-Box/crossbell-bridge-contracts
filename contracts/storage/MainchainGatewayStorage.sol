@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity 0.8.16;
 
 import "../libraries/DataTypes.sol";
 
@@ -8,6 +8,9 @@ import "../libraries/DataTypes.sol";
  * @dev Storage of deposit and withdraw information.
  */
 abstract contract MainchainGatewayStorage {
+    // slither-disable-start naming-convention
+    // https://github.com/crytic/slither/issues/1034 [issue]
+
     /// @dev Domain separator
     bytes32 internal _domainSeparator;
 
@@ -28,6 +31,8 @@ abstract contract MainchainGatewayStorage {
     /// @dev Mapping from token address => last date synced to record the `_lastSyncedWithdrawal`
     mapping(address => uint256) internal _lastDateSynced;
 
-    // @dev Mapping from mainchain token => token address on crossbell network
+    /// @dev Mapping from mainchain token => token address on crossbell network
     mapping(address => DataTypes.MappedToken) internal _crossbellTokens;
+
+    // slither-disable-end naming-convention
 }

@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity 0.8.16;
 
 import "../interfaces/IERC20Mintable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract MiraToken is Context, IERC20Mintable, AccessControlEnumerable, ERC20Permit {
+contract MiraToken is Context, IERC20Mintable, AccessControlEnumerable, ERC20 {
     bytes32 public constant BLOCK_ROLE = keccak256("BLOCK_ROLE");
 
-    constructor(
-        string memory name_,
-        string memory symbol_
-    ) ERC20(name_, symbol_) ERC20Permit(name_) {
+    constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {
         // Grants `DEFAULT_ADMIN_ROLE` to the account that deploys the contract
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
@@ -34,7 +31,7 @@ contract MiraToken is Context, IERC20Mintable, AccessControlEnumerable, ERC20Per
     function renounceRole(
         bytes32 role,
         address account
-    ) external override onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) public override(AccessControl, IAccessControl) onlyRole(DEFAULT_ADMIN_ROLE) {
         super.renounceRole(role, account);
     }
 

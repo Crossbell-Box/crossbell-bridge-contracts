@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity 0.8.16;
 
 import "./interfaces/IValidator.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -8,8 +8,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract Validator is IValidator, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    // slither-disable-next-line naming-convention
     EnumerableSet.AddressSet internal _validators;
-
+    // slither-disable-next-line naming-convention
     uint256 internal _requiredNumber;
 
     /**

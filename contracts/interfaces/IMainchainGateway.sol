@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity 0.8.16;
 
 import "../libraries/DataTypes.sol";
 
+/**
+ * @title IMainchainGateway
+ * @notice This is the interface for the crossbell bridge manchain gateway contract.
+ * You'll find all the events and external functions.
+ */
 interface IMainchainGateway {
     /**
      * @dev Emitted when the tokens are mapped
@@ -17,12 +22,12 @@ interface IMainchainGateway {
     );
 
     /**
-     * @dev Emitted when the deposit is requested
-     * @param chainId The chain ID of mainchain network
-     * @param depositId Deposit id
-     * @param recipient Address to receive deposit on crossbell network
-     * @param token Address of token to deposit on crossbell network
-     * @param amount Amount of token to deposit on crossbell network
+     * @dev Emitted when the deposit is requested.
+     * @param chainId The chain ID of mainchain network.
+     * @param depositId Deposit id.
+     * @param recipient Address to receive deposit on crossbell network.
+     * @param token Address of token to deposit on crossbell network.
+     * @param amount Amount of token to deposit on crossbell network.
      * @param depositHash Hash of deposit info.
      */
     event RequestDeposit(
@@ -35,13 +40,13 @@ interface IMainchainGateway {
     );
 
     /**
-     * @dev Emitted when the assets are withdrawn on mainchain
-     * @param chainId The chain ID of mainchain network
-     * @param withdrawalId Withdrawal ID from crossbell chain
-     * @param recipient Address to receive withdrawal on mainchain chain
-     * @param token Address of token to withdraw
-     * @param amount Amount of token to withdraw
-     * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`
+     * @dev Emitted when the assets are withdrawn on mainchain.
+     * @param chainId The chain ID of mainchain network.
+     * @param withdrawalId Withdrawal ID from crossbell chain.
+     * @param recipient Address to receive withdrawal on mainchain chain.
+     * @param token Address of token to withdraw.
+     * @param amount Amount of token to withdraw.
+     * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`.
      */
     event Withdrew(
         uint256 indexed chainId,
@@ -52,7 +57,7 @@ interface IMainchainGateway {
         uint256 fee
     );
 
-    /// @dev Emitted when the daily quota thresholds are updated
+    /// @dev Emitted when the daily quota thresholds are updated.
     event DailyWithdrawalMaxQuotasUpdated(address[] tokens, uint256[] quotas);
 
     /**
@@ -107,10 +112,10 @@ interface IMainchainGateway {
     /**
      * @notice Requests deposit to crossbell chain.
      * Emits the `RequestDeposit` event.
-     * @param recipient Address to receive deposit on crossbell chain
-     * @param token Address of token to deposit from mainchain network
-     * @param amount Amount of token to deposit  from mainchain network
-     * @return depositId Deposit id
+     * @param recipient Address to receive deposit on crossbell chain.
+     * @param token Address of token to deposit from mainchain network.
+     * @param amount Amount of token to deposit  from mainchain network.
+     * @return depositId Deposit id.
      */
     function requestDeposit(
         address recipient,
@@ -124,11 +129,11 @@ interface IMainchainGateway {
      * Requirements:
      * - The signatures should be sorted by signing addresses of validators in ascending order.
      * @param chainId The chain ID of mainchain network.
-     * @param withdrawalId Withdrawal ID from crossbell chain
-     * @param recipient Address to receive withdrawal on mainchain chain
-     * @param token Address of token to withdraw
-     * @param amount Amount of token to withdraw
-     * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`
+     * @param withdrawalId Withdrawal ID from crossbell chain.
+     * @param recipient Address to receive withdrawal on mainchain chain.
+     * @param token Address of token to withdraw.
+     * @param amount Amount of token to withdraw.
+     * @param fee The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`.
      * @param signatures The list of signatures sorted by signing addresses of validators in ascending order.
      */
     function withdraw(
@@ -147,8 +152,8 @@ interface IMainchainGateway {
      * Requirements:
      * - The caller must have the ADMIN_ROLE.
      * - The arrays have the same length.
-     * @param tokens Addresses of token to set
-     * @param quotas quotas corresponding to the tokens to set
+     * @param tokens Addresses of token to set.
+     * @param quotas quotas corresponding to the tokens to set.
      */
     function setDailyWithdrawalMaxQuotas(
         address[] calldata tokens,
@@ -163,20 +168,20 @@ interface IMainchainGateway {
 
     /**
      * @notice Returns the address of the validator contract.
-     * @return The validator contract address
+     * @return The validator contract address.
      */
     function getValidatorContract() external view returns (address);
 
     /**
      * @notice Returns the deposit count of the gateway contract.
-     * @return The deposit count
+     * @return The deposit count.
      */
     function getDepositCount() external view returns (uint256);
 
     /**
      * @notice Returns the withdrawal hash by withdrawal id.
-     * @param withdrawalId WithdrawalId to query
-     * @return The withdrawal hash
+     * @param withdrawalId WithdrawalId to query.
+     * @return The withdrawal hash.
      */
     function getWithdrawalHash(uint256 withdrawalId) external view returns (bytes32);
 
@@ -188,14 +193,17 @@ interface IMainchainGateway {
 
     /**
      * @notice Returns today's withdrawal remaining quota.
-     * @param token Token address to query
+     * @param token Token address to query.
+     * @return remainingQuota Today's withdrawal remaining quota.
      */
-    function getDailyWithdrawalRemainingQuota(address token) external view returns (uint256);
+    function getDailyWithdrawalRemainingQuota(
+        address token
+    ) external view returns (uint256 remainingQuota);
 
     /**
-     * @notice Returns mapped tokens from crossbell chain
-     * @param mainchainToken Token address on mainchain
-     * @return token Mapped token from crossbell chain
+     * @notice Returns mapped tokens from crossbell chain.
+     * @param mainchainToken Token address on mainchain.
+     * @return token Mapped token from crossbell chain.
      */
     function getCrossbellToken(
         address mainchainToken

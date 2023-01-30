@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity 0.8.16;
 
 import "./interfaces/IERC20Mintable.sol";
 import "./interfaces/IValidator.sol";
@@ -150,13 +150,9 @@ contract CrossbellGateway is
         DataTypes.MappedToken memory mainchainToken = _getMainchainToken(chainId, token);
         require(mainchainToken.token != address(0), "UnsupportedToken");
 
-        // lock token
-        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
-
-        // convert token amount by different chain
+        // convert token amount by mainchain token decimals
         uint256 convertedAmount = _convertToBase(token, amount, mainchainToken.decimals);
         uint256 feeAmount = _convertToBase(token, fee, mainchainToken.decimals);
-
         // save withdrawal
         unchecked {
             withdrawalId = _withdrawalCounter[chainId]++;
@@ -168,6 +164,9 @@ contract CrossbellGateway is
             convertedAmount,
             feeAmount
         );
+
+        // lock token
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         emit RequestWithdrawal(
             chainId,
@@ -341,6 +340,7 @@ contract CrossbellGateway is
         DataTypes.Status status = _ackStatus[chainId][id][hash];
         uint256 count = _ackCount[chainId][id][hash];
 
+        // slither-disable-next-line calls-loop
         if (IValidator(_validator).checkThreshold(count + 1)) {
             if (status == DataTypes.Status.NotApproved) {
                 _ackStatus[chainId][id][hash] = DataTypes.Status.FirstApproved;
@@ -354,6 +354,7 @@ contract CrossbellGateway is
         return _ackStatus[chainId][id][hash];
     }
 
+    // slither-disable-next-line calls-loop
     function _sendToken(address recipient, address token, uint256 amount) internal {
         uint256 gatewayBalance = IERC20(token).balanceOf(address(this));
         if (gatewayBalance < amount) {

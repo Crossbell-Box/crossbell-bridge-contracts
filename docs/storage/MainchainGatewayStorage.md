@@ -68,3 +68,5 @@ _Mapping from token address => last date synced to record the `_lastSyncedWithdr
 mapping(address => struct DataTypes.MappedToken) _crossbellTokens
 ```
 
+_Mapping from mainchain token => token address on crossbell network_
+

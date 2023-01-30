@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity 0.8.16;
 
 import "./libraries/DataTypes.sol";
 import "./storage/MainchainGatewayStorage.sol";
@@ -88,15 +88,15 @@ contract MainchainGateway is
         DataTypes.MappedToken memory crossbellToken = _getCrossbellToken(token);
         require(crossbellToken.token != address(0), "UnsupportedToken");
 
-        // lock token
-        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
-
-        // convert token amount by different chain
-        uint256 convertedAmount = _convertToBase(token, amount, crossbellToken.decimals);
-
         unchecked {
             depositId = _depositCounter++;
         }
+
+        // lock token
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+
+        // convert token amount by crossbell chain token decimals
+        uint256 convertedAmount = _convertToBase(token, amount, crossbellToken.decimals);
 
         // @dev depositHash is used to verify the integrity of the deposit,
         // in case that validator relays wrong parameters to the crossbell network.
@@ -188,13 +188,11 @@ contract MainchainGateway is
     /// @inheritdoc IMainchainGateway
     function getDailyWithdrawalRemainingQuota(
         address token
-    ) external view override returns (uint256) {
-        uint256 currentDate = block.timestamp / 1 days;
-        if (currentDate > _lastDateSynced[token]) {
-            return _dailyWithdrawalMaxQuota[token];
-        } else {
-            return _dailyWithdrawalMaxQuota[token] - _lastSyncedWithdrawal[token];
-        }
+    ) external view override returns (uint256 remainingQuota) {
+        // slither-disable-next-line timestamp
+        remainingQuota = _currentDate() > _lastDateSynced[token]
+            ? _dailyWithdrawalMaxQuota[token]
+            : _dailyWithdrawalMaxQuota[token] - _lastSyncedWithdrawal[token];
     }
 
     /// @inheritdoc IMainchainGateway
@@ -241,6 +239,7 @@ contract MainchainGateway is
                 keccak256("1"),
                 block.chainid,
                 address(this),
+                // slither-disable-next-line timestamp
                 keccak256(abi.encodePacked(block.timestamp))
             )
         );
@@ -267,7 +266,8 @@ contract MainchainGateway is
      * @dev Record withdrawal token.
      */
     function _recordWithdrawal(address token, uint256 amount) internal {
-        uint256 currentDate = block.timestamp / 1 days;
+        uint256 currentDate = _currentDate();
+        // slither-disable-next-line timestamp
         if (currentDate > _lastDateSynced[token]) {
             _lastDateSynced[token] = currentDate;
             _lastSyncedWithdrawal[token] = amount;
@@ -285,8 +285,8 @@ contract MainchainGateway is
         address token,
         uint256 amount
     ) internal view returns (bool) {
-        uint256 currentDate = block.timestamp / 1 days;
-        if (currentDate > _lastDateSynced[token]) {
+        // slither-disable-next-line timestamp
+        if (_currentDate() > _lastDateSynced[token]) {
             return _dailyWithdrawalMaxQuota[token] <= amount;
         } else {
             return _dailyWithdrawalMaxQuota[token] <= _lastSyncedWithdrawal[token] + amount;
@@ -335,8 +335,8 @@ contract MainchainGateway is
 
     function _getCrossbellToken(
         address mainchainToken
-    ) internal view returns (DataTypes.MappedToken memory token) {
-        token = _crossbellTokens[mainchainToken];
+    ) internal view returns (DataTypes.MappedToken memory) {
+        return _crossbellTokens[mainchainToken];
     }
 
     /**
@@ -344,5 +344,12 @@ contract MainchainGateway is
      */
     function _chainId() internal view returns (uint256) {
         return block.chainid;
+    }
+
+    /**
+     * @dev Returns the current date
+     */
+    function _currentDate() internal view returns (uint256) {
+        return block.timestamp / 1 days;
     }
 }

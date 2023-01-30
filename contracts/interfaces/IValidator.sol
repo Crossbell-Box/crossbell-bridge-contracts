@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+pragma solidity 0.8.16;
 
+/**
+ * @title IValidator
+ * @notice This is the interface for the validator contract.
+ * You'll find all the events and external functions.
+ */
 interface IValidator {
     /**
      * @dev Emitted when a new validator is added.

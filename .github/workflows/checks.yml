@@ -1,6 +1,10 @@
 name: checks
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   lint:
@@ -56,6 +60,18 @@ jobs:
         run: yarn install
       - name: Run Check
         run: yarn solhint
+
+  upgradeable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: Install Dependencies
+        run: yarn install
+      - name: Run Check
+        run: yarn upgradeable
 
   slither:
     runs-on: ubuntu-latest

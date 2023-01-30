@@ -340,6 +340,7 @@ contract CrossbellGateway is
         DataTypes.Status status = _ackStatus[chainId][id][hash];
         uint256 count = _ackCount[chainId][id][hash];
 
+        // slither-disable-next-line calls-loop
         if (IValidator(_validator).checkThreshold(count + 1)) {
             if (status == DataTypes.Status.NotApproved) {
                 _ackStatus[chainId][id][hash] = DataTypes.Status.FirstApproved;
@@ -353,6 +354,7 @@ contract CrossbellGateway is
         return _ackStatus[chainId][id][hash];
     }
 
+    // slither-disable-next-line calls-loop
     function _sendToken(address recipient, address token, uint256 amount) internal {
         uint256 gatewayBalance = IERC20(token).balanceOf(address(this));
         if (gatewayBalance < amount) {

@@ -88,11 +88,15 @@ contract MainchainGateway is
         DataTypes.MappedToken memory crossbellToken = _getCrossbellToken(token);
         require(crossbellToken.token != address(0), "UnsupportedToken");
 
-        // convert token amount by crossbell chain token decimals
-        uint256 convertedAmount = _convertToBase(token, amount, crossbellToken.decimals);
         unchecked {
             depositId = _depositCounter++;
         }
+
+        // lock token
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+
+        // convert token amount by crossbell chain token decimals
+        uint256 convertedAmount = _convertToBase(token, amount, crossbellToken.decimals);
 
         // @dev depositHash is used to verify the integrity of the deposit,
         // in case that validator relays wrong parameters to the crossbell network.
@@ -105,9 +109,6 @@ contract MainchainGateway is
                 convertedAmount
             )
         );
-
-        // lock token
-        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         emit RequestDeposit(
             _chainId(),
@@ -188,7 +189,7 @@ contract MainchainGateway is
     function getDailyWithdrawalRemainingQuota(
         address token
     ) external view override returns (uint256) {
-        uint256 currentDate = block.timestamp / 1 days;
+        uint256 currentDate = _currentDate();
         if (currentDate > _lastDateSynced[token]) {
             return _dailyWithdrawalMaxQuota[token];
         } else {
@@ -240,6 +241,7 @@ contract MainchainGateway is
                 keccak256("1"),
                 block.chainid,
                 address(this),
+                // slither-disable-next-line timestamp
                 keccak256(abi.encodePacked(block.timestamp))
             )
         );
@@ -266,7 +268,7 @@ contract MainchainGateway is
      * @dev Record withdrawal token.
      */
     function _recordWithdrawal(address token, uint256 amount) internal {
-        uint256 currentDate = block.timestamp / 1 days;
+        uint256 currentDate = _currentDate();
         if (currentDate > _lastDateSynced[token]) {
             _lastDateSynced[token] = currentDate;
             _lastSyncedWithdrawal[token] = amount;
@@ -284,7 +286,8 @@ contract MainchainGateway is
         address token,
         uint256 amount
     ) internal view returns (bool) {
-        uint256 currentDate = block.timestamp / 1 days;
+        // slither-disable-next-line timestamp
+        uint256 currentDate = _currentDate();
         if (currentDate > _lastDateSynced[token]) {
             return _dailyWithdrawalMaxQuota[token] <= amount;
         } else {
@@ -343,5 +346,13 @@ contract MainchainGateway is
      */
     function _chainId() internal view returns (uint256) {
         return block.chainid;
+    }
+
+    /**
+     * @dev Returns the current date
+     */
+    function _currentDate() internal view returns (uint256) {
+        // slither-disable-next-line timestamp
+        return block.timestamp / 1 days;
     }
 }

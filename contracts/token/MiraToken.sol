@@ -31,7 +31,7 @@ contract MiraToken is Context, IERC20Mintable, AccessControlEnumerable, ERC20 {
     function renounceRole(
         bytes32 role,
         address account
-    ) public virtual override(AccessControl, IAccessControl) onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) public override(AccessControl, IAccessControl) onlyRole(DEFAULT_ADMIN_ROLE) {
         super.renounceRole(role, account);
     }
 

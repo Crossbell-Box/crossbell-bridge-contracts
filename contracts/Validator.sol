@@ -8,8 +8,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract Validator is IValidator, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    // slither-disable-next-line naming-convention
     EnumerableSet.AddressSet internal _validators;
-
+    // slither-disable-next-line naming-convention
     uint256 internal _requiredNumber;
 
     /**

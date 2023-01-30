@@ -4,7 +4,8 @@ pragma solidity 0.8.16;
 import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 
 contract MintableERC20 is ERC20PresetMinterPauser {
-    uint8 internal _decimals;
+    // slither-disable-next-line naming-convention
+    uint8 internal immutable _decimals;
 
     constructor(
         string memory name_,

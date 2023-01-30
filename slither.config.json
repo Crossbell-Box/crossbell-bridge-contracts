@@ -1,5 +1,5 @@
 {
-  "filter_paths": "(lib/|node_modules/)",
+  "filter_paths": "(lib/|node_modules/|upgradeability/)",
   "solc_remaps": [
     "ds-test/=lib/forge-std/lib/ds-test/src/",
     "forge-std/=lib/forge-std/src/",

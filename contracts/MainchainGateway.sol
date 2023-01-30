@@ -88,12 +88,8 @@ contract MainchainGateway is
         DataTypes.MappedToken memory crossbellToken = _getCrossbellToken(token);
         require(crossbellToken.token != address(0), "UnsupportedToken");
 
-        // lock token
-        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
-
-        // convert token amount by different chain
+        // convert token amount by crossbell chain token decimals
         uint256 convertedAmount = _convertToBase(token, amount, crossbellToken.decimals);
-
         unchecked {
             depositId = _depositCounter++;
         }
@@ -109,6 +105,9 @@ contract MainchainGateway is
                 convertedAmount
             )
         );
+
+        // lock token
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         emit RequestDeposit(
             _chainId(),

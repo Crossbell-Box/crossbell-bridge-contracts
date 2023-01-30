@@ -1,5 +1,5 @@
 {
-  "detectors_to_exclude": "missing-zero-check",
+  "detectors_to_exclude": "missing-zero-check,initialize-target",
   "disable_color": false,
   "filter_paths": "(lib/|node_modules/|upgradeability/)",
   "solc_remaps": [

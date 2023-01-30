@@ -24,17 +24,17 @@ _Emitted when the tokens are mapped_
 event RequestDeposit(uint256 chainId, uint256 depositId, address recipient, address token, uint256 amount, bytes32 depositHash)
 ```
 
-_Emitted when the deposit is requested_
+_Emitted when the deposit is requested._
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| depositId | uint256 | Deposit id |
-| recipient | address | Address to receive deposit on crossbell network |
-| token | address | Address of token to deposit on crossbell network |
-| amount | uint256 | Amount of token to deposit on crossbell network |
+| chainId | uint256 | The chain ID of mainchain network. |
+| depositId | uint256 | Deposit id. |
+| recipient | address | Address to receive deposit on crossbell network. |
+| token | address | Address of token to deposit on crossbell network. |
+| amount | uint256 | Amount of token to deposit on crossbell network. |
 | depositHash | bytes32 | Hash of deposit info. |
 
 ### Withdrew
@@ -43,18 +43,18 @@ _Emitted when the deposit is requested_
 event Withdrew(uint256 chainId, uint256 withdrawalId, address recipient, address token, uint256 amount, uint256 fee)
 ```
 
-_Emitted when the assets are withdrawn on mainchain_
+_Emitted when the assets are withdrawn on mainchain._
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| chainId | uint256 | The chain ID of mainchain network |
-| withdrawalId | uint256 | Withdrawal ID from crossbell chain |
-| recipient | address | Address to receive withdrawal on mainchain chain |
-| token | address | Address of token to withdraw |
-| amount | uint256 | Amount of token to withdraw |
-| fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
+| chainId | uint256 | The chain ID of mainchain network. |
+| withdrawalId | uint256 | Withdrawal ID from crossbell chain. |
+| recipient | address | Address to receive withdrawal on mainchain chain. |
+| token | address | Address of token to withdraw. |
+| amount | uint256 | Amount of token to withdraw. |
+| fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`. |
 
 ### DailyWithdrawalMaxQuotasUpdated
 
@@ -62,7 +62,7 @@ _Emitted when the assets are withdrawn on mainchain_
 event DailyWithdrawalMaxQuotasUpdated(address[] tokens, uint256[] quotas)
 ```
 
-_Emitted when the daily quota thresholds are updated_
+_Emitted when the daily quota thresholds are updated._
 
 ### initialize
 
@@ -137,15 +137,15 @@ Emits the `RequestDeposit` event.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| recipient | address | Address to receive deposit on crossbell chain |
-| token | address | Address of token to deposit from mainchain network |
-| amount | uint256 | Amount of token to deposit  from mainchain network |
+| recipient | address | Address to receive deposit on crossbell chain. |
+| token | address | Address of token to deposit from mainchain network. |
+| amount | uint256 | Amount of token to deposit  from mainchain network. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| depositId | uint256 | Deposit id |
+| depositId | uint256 | Deposit id. |
 
 ### withdraw
 
@@ -163,11 +163,11 @@ Requirements:
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | chainId | uint256 | The chain ID of mainchain network. |
-| withdrawalId | uint256 | Withdrawal ID from crossbell chain |
-| recipient | address | Address to receive withdrawal on mainchain chain |
-| token | address | Address of token to withdraw |
-| amount | uint256 | Amount of token to withdraw |
-| fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount` |
+| withdrawalId | uint256 | Withdrawal ID from crossbell chain. |
+| recipient | address | Address to receive withdrawal on mainchain chain. |
+| token | address | Address of token to withdraw. |
+| amount | uint256 | Amount of token to withdraw. |
+| fee | uint256 | The fee amount to pay for the withdrawal tx sender. This is subtracted from the `amount`. |
 | signatures | struct DataTypes.Signature[] | The list of signatures sorted by signing addresses of validators in ascending order. |
 
 ### setDailyWithdrawalMaxQuotas
@@ -186,8 +186,8 @@ Requirements:
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| tokens | address[] | Addresses of token to set |
-| quotas | uint256[] | quotas corresponding to the tokens to set |
+| tokens | address[] | Addresses of token to set. |
+| quotas | uint256[] | quotas corresponding to the tokens to set. |
 
 ### getDomainSeparator
 
@@ -215,7 +215,7 @@ Returns the address of the validator contract.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | address | The validator contract address |
+| [0] | address | The validator contract address. |
 
 ### getDepositCount
 
@@ -229,7 +229,7 @@ Returns the deposit count of the gateway contract.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | uint256 | The deposit count |
+| [0] | uint256 | The deposit count. |
 
 ### getWithdrawalHash
 
@@ -243,13 +243,13 @@ Returns the withdrawal hash by withdrawal id.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| withdrawalId | uint256 | WithdrawalId to query |
+| withdrawalId | uint256 | WithdrawalId to query. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | bytes32 | The withdrawal hash |
+| [0] | bytes32 | The withdrawal hash. |
 
 ### getDailyWithdrawalMaxQuota
 
@@ -268,7 +268,7 @@ Returns the daily withdrawal max quota.
 ### getDailyWithdrawalRemainingQuota
 
 ```solidity
-function getDailyWithdrawalRemainingQuota(address token) external view returns (uint256)
+function getDailyWithdrawalRemainingQuota(address token) external view returns (uint256 remainingQuota)
 ```
 
 Returns today's withdrawal remaining quota.
@@ -277,7 +277,13 @@ Returns today's withdrawal remaining quota.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| token | address | Token address to query |
+| token | address | Token address to query. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| remainingQuota | uint256 | Today's withdrawal remaining quota. |
 
 ### getCrossbellToken
 
@@ -285,17 +291,17 @@ Returns today's withdrawal remaining quota.
 function getCrossbellToken(address mainchainToken) external view returns (struct DataTypes.MappedToken token)
 ```
 
-Returns mapped tokens from crossbell chain
+Returns mapped tokens from crossbell chain.
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| mainchainToken | address | Token address on mainchain |
+| mainchainToken | address | Token address on mainchain. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| token | struct DataTypes.MappedToken | Mapped token from crossbell chain |
+| token | struct DataTypes.MappedToken | Mapped token from crossbell chain. |
 

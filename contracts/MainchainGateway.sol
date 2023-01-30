@@ -188,13 +188,11 @@ contract MainchainGateway is
     /// @inheritdoc IMainchainGateway
     function getDailyWithdrawalRemainingQuota(
         address token
-    ) external view override returns (uint256) {
-        uint256 currentDate = _currentDate();
-        if (currentDate > _lastDateSynced[token]) {
-            return _dailyWithdrawalMaxQuota[token];
-        } else {
-            return _dailyWithdrawalMaxQuota[token] - _lastSyncedWithdrawal[token];
-        }
+    ) external view override returns (uint256 remainingQuota) {
+        // slither-disable-next-line timestamp
+        remainingQuota = _currentDate() > _lastDateSynced[token]
+            ? _dailyWithdrawalMaxQuota[token]
+            : _dailyWithdrawalMaxQuota[token] - _lastSyncedWithdrawal[token];
     }
 
     /// @inheritdoc IMainchainGateway
@@ -269,6 +267,7 @@ contract MainchainGateway is
      */
     function _recordWithdrawal(address token, uint256 amount) internal {
         uint256 currentDate = _currentDate();
+        // slither-disable-next-line timestamp
         if (currentDate > _lastDateSynced[token]) {
             _lastDateSynced[token] = currentDate;
             _lastSyncedWithdrawal[token] = amount;
@@ -287,8 +286,7 @@ contract MainchainGateway is
         uint256 amount
     ) internal view returns (bool) {
         // slither-disable-next-line timestamp
-        uint256 currentDate = _currentDate();
-        if (currentDate > _lastDateSynced[token]) {
+        if (_currentDate() > _lastDateSynced[token]) {
             return _dailyWithdrawalMaxQuota[token] <= amount;
         } else {
             return _dailyWithdrawalMaxQuota[token] <= _lastSyncedWithdrawal[token] + amount;
@@ -337,8 +335,8 @@ contract MainchainGateway is
 
     function _getCrossbellToken(
         address mainchainToken
-    ) internal view returns (DataTypes.MappedToken memory token) {
-        token = _crossbellTokens[mainchainToken];
+    ) internal view returns (DataTypes.MappedToken memory) {
+        return _crossbellTokens[mainchainToken];
     }
 
     /**
@@ -352,7 +350,6 @@ contract MainchainGateway is
      * @dev Returns the current date
      */
     function _currentDate() internal view returns (uint256) {
-        // slither-disable-next-line timestamp
         return block.timestamp / 1 days;
     }
 }

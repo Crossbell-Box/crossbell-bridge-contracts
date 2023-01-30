@@ -150,13 +150,9 @@ contract CrossbellGateway is
         DataTypes.MappedToken memory mainchainToken = _getMainchainToken(chainId, token);
         require(mainchainToken.token != address(0), "UnsupportedToken");
 
-        // lock token
-        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
-
-        // convert token amount by different chain
+        // convert token amount by mainchain token decimals
         uint256 convertedAmount = _convertToBase(token, amount, mainchainToken.decimals);
         uint256 feeAmount = _convertToBase(token, fee, mainchainToken.decimals);
-
         // save withdrawal
         unchecked {
             withdrawalId = _withdrawalCounter[chainId]++;
@@ -168,6 +164,9 @@ contract CrossbellGateway is
             convertedAmount,
             feeAmount
         );
+
+        // lock token
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         emit RequestWithdrawal(
             chainId,

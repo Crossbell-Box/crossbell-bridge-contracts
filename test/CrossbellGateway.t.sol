@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// solhint-disable comprehensive-interface
 pragma solidity 0.8.16;
 
 import "forge-std/Test.sol";
@@ -86,7 +87,6 @@ contract CrossbellGatewayTest is Test, Utils {
         bytes signature
     );
 
-    /* solhint-disable comprehensive-interface */
     function setUp() public {
         // setup ERC20 token
         _mainchainToken = new MintableERC20("mainchain ERC20", "ERC20", 6);

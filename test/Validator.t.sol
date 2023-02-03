@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// solhint-disable comprehensive-interface
 pragma solidity 0.8.16;
 
 import "forge-std/Test.sol";
@@ -20,7 +21,6 @@ contract ValidatorTest is Test, Utils {
     event ValidatorRemoved(address indexed validator);
     event RequirementChanged(uint256 indexed requirement, uint256 indexed previousRequired);
 
-    /* solhint-disable comprehensive-interface */
     function setUp() public {
         // init [alice,bob,carol] as validators, with requiredNumber 2
         _validator = new Validator(array(alice, bob, carol), 2);

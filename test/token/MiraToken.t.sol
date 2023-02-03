@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
+// solhint-disable comprehensive-interface
 pragma solidity 0.8.16;
 
 import "forge-std/Test.sol";
 import "forge-std/console2.sol";
-import "./helpers/Utils.sol";
-import "./helpers/SigUtils.sol";
-import "../contracts/token/MiraToken.sol";
+import "../helpers/Utils.sol";
+import "../helpers/SigUtils.sol";
+import "../../contracts/token/MiraToken.sol";
 
 contract MiraTokenTest is Test {
     bytes32 public constant BLOCK_ROLE = keccak256("BLOCK_ROLE");
@@ -26,14 +27,15 @@ contract MiraTokenTest is Test {
 
     MiraToken public token;
 
-    /* solhint-disable comprehensive-interface */
     function setUp() public {
+        // deploy MiraToken
         token = new MiraToken(name, symbol);
 
         ownerPrivateKey = 0xA11CE;
         spenderPrivateKey = 0xB0B;
         owner = vm.addr(ownerPrivateKey);
         spender = vm.addr(spenderPrivateKey);
+        // deploy SigUtils
         sigUtils = new SigUtils(token.DOMAIN_SEPARATOR());
     }
 

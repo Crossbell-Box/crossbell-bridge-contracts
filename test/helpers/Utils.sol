@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// solhint-disable comprehensive-interface
 pragma solidity 0.8.16;
 
 import "forge-std/Vm.sol";
@@ -11,7 +12,6 @@ contract Utils is Test {
     uint8 public constant CheckData = 0x8;
     uint8 public constant CheckAll = 0xf;
 
-    /* solhint-disable comprehensive-interface */
     function expectEmit() public {
         expectEmit(CheckAll);
     }

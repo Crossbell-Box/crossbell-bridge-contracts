@@ -3,7 +3,7 @@ pragma solidity 0.8.16;
 
 import "forge-std/Test.sol";
 import "forge-std/console2.sol";
-import "./helpers/utils.sol";
+import "./helpers/Utils.sol";
 import "../contracts/MainchainGateway.sol";
 import "../contracts/Validator.sol";
 import "../contracts/token/MintableERC20.sol";

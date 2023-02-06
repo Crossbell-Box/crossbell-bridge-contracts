@@ -43,6 +43,8 @@ async function main() {
         mainchainTokens,
         mainchainTokenDecimals
     );
+    // call erc1820 manually
+    // setInterfaceImplementer(proxyGateway, 0xb281fc8c12954d22544db45de3159a39272895b169a852b314f9cc762e44c53b, proxyGateway)
 
     console.log("crossbellGateway deployed to:", crossbellGateway.address);
     console.log("proxyCrossbellGateway deployed to:", proxyCrossbellGateway.address);

@@ -7,11 +7,13 @@ import "./interfaces/ICrossbellGateway.sol";
 import "./storage/CrossbellGatewayStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC1820Registry.sol";
 
 /**
  * @title CrossbellGateway
@@ -23,11 +25,16 @@ contract CrossbellGateway is
     ReentrancyGuard,
     Pausable,
     AccessControlEnumerable,
+    IERC777Recipient,
     CrossbellGatewayStorage
 {
     using SafeERC20 for IERC20;
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
+    IERC1820Registry public constant ERC1820_REGISTRY =
+        IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
+    bytes32 public constant TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
     modifier onlyValidator() {
         _checkValidator();
@@ -53,6 +60,13 @@ contract CrossbellGateway is
         // grants `DEFAULT_ADMIN_ROLE`, `ADMIN_ROLE`
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
         _setupRole(ADMIN_ROLE, admin);
+
+        // register interfaces
+        ERC1820_REGISTRY.setInterfaceImplementer(
+            address(this),
+            TOKENS_RECIPIENT_INTERFACE_HASH,
+            address(this)
+        );
     }
 
     /// @inheritdoc ICrossbellGateway
@@ -258,6 +272,21 @@ contract CrossbellGateway is
         uint256 withdrawalId
     ) external view override returns (DataTypes.WithdrawalEntry memory) {
         return _withdrawals[chainId][withdrawalId];
+    }
+
+    /// @inheritdoc IERC777Recipient
+    function tokensReceived(
+        address,
+        address,
+        address,
+        uint256,
+        bytes calldata userData,
+        bytes calldata operatorData
+    ) external pure override(IERC777Recipient) {
+        /// @dev Should revert if receiving ERC777 tokens through `send` with data.
+        if (userData.length > 0 || operatorData.length > 0) {
+            revert("ShouldRevertReceive");
+        }
     }
 
     function _ackDeposit(

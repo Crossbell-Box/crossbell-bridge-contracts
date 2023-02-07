@@ -90,7 +90,7 @@ contract MainchainGatewayTest is Test, Utils {
             )
         );
         // deploy Mira token
-        crossbellToken = new MiraToken("crossbell Mira", "MIRA");
+        crossbellToken = new MiraToken("crossbell Mira", "MIRA", address(this));
 
         uint8[] memory decimals = new uint8[](1);
         decimals[0] = 18;

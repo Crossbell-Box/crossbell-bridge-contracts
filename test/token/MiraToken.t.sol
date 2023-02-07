@@ -29,7 +29,7 @@ contract MiraTokenTest is Test {
             )
         );
         // deploy MiraToken
-        token = new MiraToken(name, symbol);
+        token = new MiraToken(name, symbol, address(this));
     }
 
     function testSetupState() public {

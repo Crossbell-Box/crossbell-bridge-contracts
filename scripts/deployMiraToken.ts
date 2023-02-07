@@ -11,9 +11,10 @@ async function main() {
     // NOTE: update `initial_validators` and `requiredNumber` before deployment
     const name = "Mira Token";
     const symbol = "MIRA";
+    const admin = "0xf90AF4546E8c831a3b91200e6D41d70684b525f2";
 
     const Token = await ethers.getContractFactory("MiraToken");
-    const token = await Token.deploy(name, symbol);
+    const token = await Token.deploy(name, symbol, admin);
 
     console.log("token deployed to:", token.address);
 }

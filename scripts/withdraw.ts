@@ -14,7 +14,7 @@ async function main() {
     const withdrawalId = (await proxyGateway.getWithdrawalCount(mainchainId)) - 1; // get the latest withdrawal request id
     const [chainId, recipient, token, amount, fee] = await proxyGateway.getWithdrawalEntry(
         mainchainId,
-        withdrawalId
+        withdrawalId,
     );
 
     // get validator threshold

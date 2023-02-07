@@ -34,11 +34,19 @@ _Revokes `role` from the calling account.
 Requirements:
 - the caller must have the `DEFAULT_ADMIN_ROLE`._
 
-### _transfer
+### _send
 
 ```solidity
-function _transfer(address from, address to, uint256 amount) internal
+function _send(address from, address to, uint256 amount, bytes userData, bytes operatorData, bool requireReceptionAck) internal
 ```
 
-_Blocks transfer from account `from` who has the `BLOCK_ROLE`._
+_Blocks send tokens from account `from` who has the `BLOCK_ROLE`._
+
+### _burn
+
+```solidity
+function _burn(address, uint256, bytes, bytes) internal pure
+```
+
+_Disables burn_
 

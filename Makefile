@@ -54,7 +54,7 @@ upgradeable:
 check-mira :; slither-check-erc . MiraToken
 
 # Lints
-lint :; prettier --write "{contracts,test,scripts}/**/*.{sol,ts}"
+lint :; npx prettier --write "{contracts,test,scripts}/**/*.{sol,ts}"
 
 # Generate Gas Snapshots
 snapshot :; forge clean && forge snapshot

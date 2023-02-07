@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 #set -x
 
+if [ ! -d "contracts" ]; then
+	echo "error: script needs to be run from project root './tools/checkUpgradeable.sh'"
+	exit 1
+fi
+
 # install slither
 which slither-check-upgradeability
 if [ $? -ne 0 ]; then

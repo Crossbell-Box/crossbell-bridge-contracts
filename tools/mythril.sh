@@ -6,7 +6,8 @@ if [ ! -d "contracts" ]; then
 	exit 1
 fi
 
-docker run --rm -v "$PWD":/project -it --workdir=/project --entrypoint=sh mythril/myth -c '
+echo '
 myth analyze contracts/MainchainGateway.sol --solc-json mythril.config.json --max-depth 10 --execution-timeout 900  --solver-timeout 900 &&
 myth analyze contracts/CrossbellGateway.sol --solc-json mythril.config.json --max-depth 10 --execution-timeout 900  --solver-timeout 900 &&
-myth analyze contracts/Validator.sol --solc-json mythril.config.json --max-depth 10 --execution-timeout 900  --solver-timeout 900 '
+myth analyze contracts/Validator.sol --solc-json mythril.config.json --max-depth 10 --execution-timeout 900  --solver-timeout 900 ' |
+docker run --rm -v "$PWD":/project -i --workdir=/project --entrypoint=sh mythril/myth

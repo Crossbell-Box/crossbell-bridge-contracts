@@ -11,10 +11,11 @@ contract MiraToken is Context, AccessControlEnumerable, IERC20Mintable, ERC777 {
 
     constructor(
         string memory name_,
-        string memory symbol_
+        string memory symbol_,
+        address admin
     ) ERC777(name_, symbol_, new address[](0)) {
         // Grants `DEFAULT_ADMIN_ROLE` to the account that deploys the contract
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(DEFAULT_ADMIN_ROLE, admin);
     }
 
     /**

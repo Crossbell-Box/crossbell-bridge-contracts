@@ -25,7 +25,7 @@ async function main() {
         mainchainTokens,
         dailyWithdrawalMaxQuota,
         crossbellTokens,
-        crossbellTokenDecimals
+        crossbellTokenDecimals,
     );
 
     // deploy proxy
@@ -41,7 +41,7 @@ async function main() {
         mainchainTokens,
         dailyWithdrawalMaxQuota,
         crossbellTokens,
-        crossbellTokenDecimals
+        crossbellTokenDecimals,
     );
 
     console.log("mainchainGateway deployed to:", mainchainGateway.address);

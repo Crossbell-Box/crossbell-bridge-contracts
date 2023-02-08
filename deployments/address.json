@@ -9,7 +9,6 @@
 		"bsc": {
 			"address": ""
 		},
-
 		"goerli": {
 			"address": "0x86209ccEBe4A7aF99c39c4C2dC806a2983Ef4BaC"
 		},
@@ -25,13 +24,12 @@
 		"crossbell": {
 			"address": ""
 		},
-
 		"sepolia": {
 			"address": "0x3C247725af72732Cd85267F2ff62C9092201eAAD"
 		}
 	},
 
-	"USDC": {
+	"MIRA": {
 		"mainnet": {
 			"address": ""
 		},
@@ -41,7 +39,6 @@
 		"bsc": {
 			"address": ""
 		},
-
 		"goerli": {
 			"address": "0xC4026Bc7c9b5988574b07280d9816BC4591B4C62",
 			"decimals": 6
@@ -53,15 +50,11 @@
 		"bscTestnet": {
 			"address": "0xB865a7c5E88B052540213E77b43a76dDCEB1893b",
 			"decimals": 18
-		}
-	},
-
-	"MIRA": {
+		},
 		"crossbell": {
 			"address": "",
 			"decimals": 18
 		},
-
 		"sepolia": {
 			"address": "0x3766A79e7CF7D3eaC60845D747d5fB748709bd2e",
 			"decimals": 18
@@ -81,7 +74,6 @@
 		"crossbell": {
 			"address": ""
 		},
-
 		"goerli": {
 			"address": "0x73bE5E9f82f45564565Ffb53F52b23eAB32032F9"
 		},

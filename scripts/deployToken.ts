@@ -9,8 +9,8 @@ async function main() {
     const [owner] = await ethers.getSigners();
 
     // NOTE: update `initial_validators` and `requiredNumber` before deployment
-    const name = "USD Coin";
-    const symbol = "USDC";
+    const name = "Mira Token";
+    const symbol = "MIRA";
     const decimals = 18;
 
     const Token = await ethers.getContractFactory("MintableERC20");

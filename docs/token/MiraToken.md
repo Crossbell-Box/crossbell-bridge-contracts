@@ -11,7 +11,7 @@ bytes32 BLOCK_ROLE
 ### constructor
 
 ```solidity
-constructor(string name_, string symbol_) public
+constructor(string name_, string symbol_, address admin) public
 ```
 
 ### mint

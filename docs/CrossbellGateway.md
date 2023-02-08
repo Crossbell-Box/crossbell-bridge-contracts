@@ -10,6 +10,18 @@ _Logic to handle deposits and withdrawals on Crossbell._
 bytes32 ADMIN_ROLE
 ```
 
+### ERC1820_REGISTRY
+
+```solidity
+contract IERC1820Registry ERC1820_REGISTRY
+```
+
+### TOKENS_RECIPIENT_INTERFACE_HASH
+
+```solidity
+bytes32 TOKENS_RECIPIENT_INTERFACE_HASH
+```
+
 ### onlyValidator
 
 ```solidity
@@ -330,6 +342,21 @@ Returns the withdrawal entry.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | struct DataTypes.WithdrawalEntry | DataTypes.WithdrawalEntry Withdrawal entry. |
+
+### tokensReceived
+
+```solidity
+function tokensReceived(address, address, address, uint256, bytes userData, bytes operatorData) external pure
+```
+
+_Called by an {IERC777} token contract whenever tokens are being
+moved or created into a registered account (`to`). The type of operation
+is conveyed by `from` being the zero address or not.
+
+This call occurs _after_ the token contract's state is updated, so
+{IERC777-balanceOf}, etc., can be used to query the post-operation state.
+
+This function may revert to prevent the operation from being executed._
 
 ### _ackDeposit
 

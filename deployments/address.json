@@ -43,11 +43,11 @@
 		},
 
 		"goerli": {
-			"address": "0xbf58a5d64F451f537ABdB8B0203eF3F105097285",
+			"address": "0xC4026Bc7c9b5988574b07280d9816BC4591B4C62",
 			"decimals": 6
 		},
 		"polygonMumbai": {
-			"address": "0x460248221088C2D9541435f5cd0AB817BB0F197F",
+			"address": "0xC9Ec9d8b6C570cf7D594c6E1F407285bC57BF5b2",
 			"decimals": 18
 		},
 		"bscTestnet": {
@@ -63,7 +63,7 @@
 		},
 
 		"sepolia": {
-			"address": "0x2a901D3Bec0c9436c6027B4935aD3963d8a954Ed",
+			"address": "0xe6648fc7e156bE8742f9273eAb87eA8e81450c75",
 			"decimals": 18
 		}
 	},

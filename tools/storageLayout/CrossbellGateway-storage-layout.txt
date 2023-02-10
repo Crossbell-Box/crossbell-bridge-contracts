@@ -1,0 +1,18 @@
+| Name               | Type                                                                              | Slot | Offset | Bytes | Contract                                        |
+|--------------------|-----------------------------------------------------------------------------------|------|--------|-------|-------------------------------------------------|
+| _initialized       | uint8                                                                             | 0    | 0      | 1     | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _initializing      | bool                                                                              | 0    | 1      | 1     | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _status            | uint256                                                                           | 1    | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _paused            | bool                                                                              | 2    | 0      | 1     | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _roles             | mapping(bytes32 => struct AccessControl.RoleData)                                 | 3    | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _roleMembers       | mapping(bytes32 => struct EnumerableSet.AddressSet)                               | 4    | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _deposits          | mapping(uint256 => mapping(uint256 => struct DataTypes.DepositEntry))             | 5    | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _withdrawalCounter | mapping(uint256 => uint256)                                                       | 6    | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _withdrawals       | mapping(uint256 => mapping(uint256 => struct DataTypes.WithdrawalEntry))          | 7    | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _withdrawalSig     | mapping(uint256 => mapping(uint256 => mapping(address => bytes)))                 | 8    | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _withdrawalSigners | mapping(uint256 => mapping(uint256 => address[]))                                 | 9    | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _mainchainTokens   | mapping(address => mapping(uint256 => struct DataTypes.MappedToken))              | 10   | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _validator         | address                                                                           | 11   | 0      | 20    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _validatorAck      | mapping(uint256 => mapping(uint256 => mapping(address => bytes32)))               | 12   | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _ackCount          | mapping(uint256 => mapping(uint256 => mapping(bytes32 => uint256)))               | 13   | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |
+| _ackStatus         | mapping(uint256 => mapping(uint256 => mapping(bytes32 => enum DataTypes.Status))) | 14   | 0      | 32    | contracts/CrossbellGateway.sol:CrossbellGateway |

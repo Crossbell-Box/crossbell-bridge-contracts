@@ -45,13 +45,19 @@ mythril :
 	@echo " > \033[32mChecking contracts with mythril...\033[0m"
 	./tools/mythril.sh
 
+manticore :
+	@echo " > \033[32mChecking contracts with manticore...\033[0m"
+	./tools/manticore/manticore.sh
+
 # upgradeable check
 upgradeable:
 	@echo " > \033[32mChecking upgradeable...\033[0m"
 	./tools/checkUpgradeable.sh
 
-# check erc20 token
-check-mira :; slither-check-erc . MiraToken --compile-force-framework 'hardhat'
+# check upgradeable contract storage layout
+storage-layout:
+	@echo " > \033[32mChecking contract storage layout...\033[0m"
+	./tools/checkStorageLayout.sh
 
 # Lints
 lint :; npx prettier --write "{contracts,test,scripts}/**/*.{sol,ts}"

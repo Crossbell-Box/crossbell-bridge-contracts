@@ -1,0 +1,273 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>IValidator - crossbell-bridge</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../../highlight.css">
+        <link rel="stylesheet" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../book.css">
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../../../index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">contracts</li><li class="chapter-item expanded "><a href="../../../contracts/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/interfaces/ICrossbellGateway.sol/contract.ICrossbellGateway.html">ICrossbellGateway</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IERC20Mintable.sol/contract.IERC20Mintable.html">IERC20Mintable</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IMainchainGateway.sol/contract.IMainchainGateway.html">IMainchainGateway</a></li><li class="chapter-item expanded "><a href="../../../contracts/interfaces/IValidator.sol/contract.IValidator.html" class="active">IValidator</a></li></ol></li><li class="chapter-item "><a href="../../../contracts/libraries/index.html">❱ libraries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/libraries/DataTypes.sol/contract.DataTypes.html">DataTypes</a></li></ol></li><li class="chapter-item "><a href="../../../contracts/storage/index.html">❱ storage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/storage/CrossbellGatewayStorage.sol/contract.CrossbellGatewayStorage.html">CrossbellGatewayStorage</a></li><li class="chapter-item "><a href="../../../contracts/storage/MainchainGatewayStorage.sol/contract.MainchainGatewayStorage.html">MainchainGatewayStorage</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">crossbell-bridge</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="ivalidator"><a class="header" href="#ivalidator">IValidator</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/7c3215252ebf7b8d599b3f33120db0d6443acb02/contracts/interfaces/IValidator.sol">Git Source</a></p>
+<p>This is the interface for the validator contract.
+You'll find all the events and external functions.</p>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<h3 id="addvalidators"><a class="header" href="#addvalidators">addValidators</a></h3>
+<p>Adds new validators. This function can only be called by the owner of validator contract.
+Note that this reverts if new validators to add are already validators.</p>
+<pre><code class="language-solidity">function addValidators(address[] calldata validators) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>validators</code></td><td><code>address[]</code></td><td>New validator addresses to add</td></tr>
+</tbody></table>
+</div>
+<h3 id="removevalidators"><a class="header" href="#removevalidators">removeValidators</a></h3>
+<p>Removes exist validators. This function can only be called by the owner of validator contract.
+Note that this reverts if validators to remove are not validators.</p>
+<pre><code class="language-solidity">function removeValidators(address[] calldata validators) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>validators</code></td><td><code>address[]</code></td><td>Validator addresses to remove</td></tr>
+</tbody></table>
+</div>
+<h3 id="changerequirednumber"><a class="header" href="#changerequirednumber">changeRequiredNumber</a></h3>
+<p>Change the required number of validators.
+Requirements::</p>
+<ol>
+<li>the caller is owner of validator contract.</li>
+<li>new required number &gt; validators length.</li>
+<li>new required number is zero.</li>
+</ol>
+<pre><code class="language-solidity">function changeRequiredNumber(uint256 newRequiredNumber) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>newRequiredNumber</code></td><td><code>uint256</code></td><td>New required number to set.</td></tr>
+</tbody></table>
+</div>
+<h3 id="isvalidator"><a class="header" href="#isvalidator">isValidator</a></h3>
+<p>Returns whether an address is validator or not.</p>
+<pre><code class="language-solidity">function isValidator(address addr) external view returns (bool);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>addr</code></td><td><code>address</code></td><td>Address to query.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getvalidators"><a class="header" href="#getvalidators">getValidators</a></h3>
+<p>Returns all the validators.</p>
+<pre><code class="language-solidity">function getValidators() external view returns (address[] memory validators);
+</code></pre>
+<h3 id="getrequirednumber"><a class="header" href="#getrequirednumber">getRequiredNumber</a></h3>
+<p>Returns current required number.</p>
+<pre><code class="language-solidity">function getRequiredNumber() external view returns (uint256);
+</code></pre>
+<h3 id="checkthreshold"><a class="header" href="#checkthreshold">checkThreshold</a></h3>
+<p>Checks whether the <code>voteCount</code> passes the threshold.</p>
+<pre><code class="language-solidity">function checkThreshold(uint256 voteCount) external view returns (bool);
+</code></pre>
+<h2 id="events"><a class="header" href="#events">Events</a></h2>
+<h3 id="validatoradded"><a class="header" href="#validatoradded">ValidatorAdded</a></h3>
+<p><em>Emitted when a new validator is added.</em></p>
+<pre><code class="language-solidity">event ValidatorAdded(address indexed validator);
+</code></pre>
+<h3 id="validatorremoved"><a class="header" href="#validatorremoved">ValidatorRemoved</a></h3>
+<p><em>Emitted when a validator is removed.</em></p>
+<pre><code class="language-solidity">event ValidatorRemoved(address indexed validator);
+</code></pre>
+<h3 id="requirementchanged"><a class="header" href="#requirementchanged">RequirementChanged</a></h3>
+<p><em>Emitted when a new required number is set.</em></p>
+<pre><code class="language-solidity">event RequirementChanged(uint256 indexed requirement, uint256 indexed previousRequired);
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../contracts/interfaces/IMainchainGateway.sol/contract.IMainchainGateway.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="../../../contracts/libraries/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../contracts/interfaces/IMainchainGateway.sol/contract.IMainchainGateway.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="../../../contracts/libraries/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../solidity.min.js"></script>
+
+
+    </body>
+</html>

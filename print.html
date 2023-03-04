@@ -1,0 +1,964 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>crossbell-bridge</title>
+        <meta name="robots" content="noindex" />
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="book.css">
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">contracts</li><li class="chapter-item "><a href="contracts/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/interfaces/ICrossbellGateway.sol/contract.ICrossbellGateway.html">ICrossbellGateway</a></li><li class="chapter-item "><a href="contracts/interfaces/IERC20Mintable.sol/contract.IERC20Mintable.html">IERC20Mintable</a></li><li class="chapter-item "><a href="contracts/interfaces/IMainchainGateway.sol/contract.IMainchainGateway.html">IMainchainGateway</a></li><li class="chapter-item "><a href="contracts/interfaces/IValidator.sol/contract.IValidator.html">IValidator</a></li></ol></li><li class="chapter-item "><a href="contracts/libraries/index.html">❱ libraries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/libraries/DataTypes.sol/contract.DataTypes.html">DataTypes</a></li></ol></li><li class="chapter-item "><a href="contracts/storage/index.html">❱ storage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/storage/CrossbellGatewayStorage.sol/contract.CrossbellGatewayStorage.html">CrossbellGatewayStorage</a></li><li class="chapter-item "><a href="contracts/storage/MainchainGatewayStorage.sol/contract.MainchainGatewayStorage.html">MainchainGatewayStorage</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">crossbell-bridge</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="crossbell-bridge"><a class="header" href="#crossbell-bridge">crossbell-bridge</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contents"><a class="header" href="#contents">Contents</a></h1>
+<ul>
+<li><a href="contracts/interfaces/ICrossbellGateway.sol/contract.ICrossbellGateway.html">ICrossbellGateway</a></li>
+<li><a href="contracts/interfaces/IERC20Mintable.sol/contract.IERC20Mintable.html">IERC20Mintable</a></li>
+<li><a href="contracts/interfaces/IMainchainGateway.sol/contract.IMainchainGateway.html">IMainchainGateway</a></li>
+<li><a href="contracts/interfaces/IValidator.sol/contract.IValidator.html">IValidator</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="icrossbellgateway"><a class="header" href="#icrossbellgateway">ICrossbellGateway</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/7c3215252ebf7b8d599b3f33120db0d6443acb02/contracts/interfaces/ICrossbellGateway.sol">Git Source</a></p>
+<p>This is the interface for the crossbell bridge gateway contract.
+You'll find all the events and external functions.</p>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
+<p>Initializes the CrossbellGateway.</p>
+<pre><code class="language-solidity">function initialize(
+    address validator,
+    address admin,
+    address[] calldata crossbellTokens,
+    uint256[] calldata chainIds,
+    address[] calldata mainchainTokens,
+    uint8[] calldata mainchainTokenDecimals
+) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>validator</code></td><td><code>address</code></td><td>Address of validator contract.</td></tr>
+<tr><td><code>admin</code></td><td><code>address</code></td><td>Address of gateway admin.</td></tr>
+<tr><td><code>crossbellTokens</code></td><td><code>address[]</code></td><td>Addresses of crossbell tokens.</td></tr>
+<tr><td><code>chainIds</code></td><td><code>uint256[]</code></td><td>The chain IDs of mainchain networks.</td></tr>
+<tr><td><code>mainchainTokens</code></td><td><code>address[]</code></td><td>Addresses of mainchain tokens.</td></tr>
+<tr><td><code>mainchainTokenDecimals</code></td><td><code>uint8[]</code></td><td>Decimals of mainchain tokens.</td></tr>
+</tbody></table>
+</div>
+<h3 id="pause"><a class="header" href="#pause">pause</a></h3>
+<p>Pauses interaction with the gateway contract</p>
+<pre><code class="language-solidity">function pause() external;
+</code></pre>
+<h3 id="unpause"><a class="header" href="#unpause">unpause</a></h3>
+<p>Resumes interaction with the gateway contract</p>
+<pre><code class="language-solidity">function unpause() external;
+</code></pre>
+<h3 id="maptokens"><a class="header" href="#maptokens">mapTokens</a></h3>
+<p>Maps mainchain tokens to Crossbell network.</p>
+<pre><code class="language-solidity">function mapTokens(
+    address[] calldata crossbellTokens,
+    uint256[] calldata chainIds,
+    address[] calldata mainchainTokens,
+    uint8[] calldata mainchainTokenDecimals
+) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>crossbellTokens</code></td><td><code>address[]</code></td><td>Addresses of crossbell tokens.</td></tr>
+<tr><td><code>chainIds</code></td><td><code>uint256[]</code></td><td>The chain IDs of mainchain networks.</td></tr>
+<tr><td><code>mainchainTokens</code></td><td><code>address[]</code></td><td>Addresses of mainchain tokens.</td></tr>
+<tr><td><code>mainchainTokenDecimals</code></td><td><code>uint8[]</code></td><td>Decimals of mainchain tokens.</td></tr>
+</tbody></table>
+</div>
+<h3 id="batchackdeposit"><a class="header" href="#batchackdeposit">batchAckDeposit</a></h3>
+<p>Tries bulk deposit.</p>
+<pre><code class="language-solidity">function batchAckDeposit(
+    uint256[] calldata chainIds,
+    uint256[] calldata depositIds,
+    address[] calldata recipients,
+    address[] calldata tokens,
+    uint256[] calldata amounts,
+    bytes32[] calldata depositHashes
+) external;
+</code></pre>
+<h3 id="batchsubmitwithdrawalsignatures"><a class="header" href="#batchsubmitwithdrawalsignatures">batchSubmitWithdrawalSignatures</a></h3>
+<p>Tries bulk submit withdrawal signatures.
+Note that the caller must be a validator.</p>
+<pre><code class="language-solidity">function batchSubmitWithdrawalSignatures(
+    uint256[] calldata chainIds,
+    uint256[] calldata withdrawalIds,
+    bytes[] calldata sigs
+) external;
+</code></pre>
+<h3 id="ackdeposit"><a class="header" href="#ackdeposit">ackDeposit</a></h3>
+<p>Acknowledges a deposit.
+Note that the caller must be a validator.</p>
+<pre><code class="language-solidity">function ackDeposit(
+    uint256 chainId,
+    uint256 depositId,
+    address recipient,
+    address token,
+    uint256 amount,
+    bytes32 depositHash
+) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>depositId</code></td><td><code>uint256</code></td><td>Deposit identifier id.</td></tr>
+<tr><td><code>recipient</code></td><td><code>address</code></td><td>Address to receive deposit on crossbell network.</td></tr>
+<tr><td><code>token</code></td><td><code>address</code></td><td>Token address to deposit on crossbell network.</td></tr>
+<tr><td><code>amount</code></td><td><code>uint256</code></td><td>Token amount to deposit on crossbell network.</td></tr>
+<tr><td><code>depositHash</code></td><td><code>bytes32</code></td><td>Hash of deposit info.</td></tr>
+</tbody></table>
+</div>
+<h3 id="requestwithdrawal"><a class="header" href="#requestwithdrawal">requestWithdrawal</a></h3>
+<p>Locks the assets and request withdrawal.</p>
+<pre><code class="language-solidity">function requestWithdrawal(uint256 chainId, address recipient, address token, uint256 amount, uint256 fee)
+    external
+    returns (uint256 withdrawalId);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>recipient</code></td><td><code>address</code></td><td>Address to receive withdrawal on mainchain network.</td></tr>
+<tr><td><code>token</code></td><td><code>address</code></td><td>Token address to lock from crossbell network.</td></tr>
+<tr><td><code>amount</code></td><td><code>uint256</code></td><td>Token amount to lock from crossbell network.</td></tr>
+<tr><td><code>fee</code></td><td><code>uint256</code></td><td>Fee amount to pay. This is subtracted from the <code>amount</code>.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>withdrawalId</code></td><td><code>uint256</code></td><td>The newly generated withdrawalId.</td></tr>
+</tbody></table>
+</div>
+<h3 id="submitwithdrawalsignature"><a class="header" href="#submitwithdrawalsignature">submitWithdrawalSignature</a></h3>
+<p>Submits validator signature for withdrawal.
+Note that the caller must be a validator.</p>
+<pre><code class="language-solidity">function submitWithdrawalSignature(uint256 chainId, uint256 withdrawalId, bytes calldata sig) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>withdrawalId</code></td><td><code>uint256</code></td><td>WithdrawalId.</td></tr>
+<tr><td><code>sig</code></td><td><code>bytes</code></td><td>Validator signature for the withdrawal.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getmainchaintoken"><a class="header" href="#getmainchaintoken">getMainchainToken</a></h3>
+<p>Returns mapped token on mainchain.</p>
+<pre><code class="language-solidity">function getMainchainToken(uint256 chainId, address crossbellToken)
+    external
+    view
+    returns (DataTypes.MappedToken memory token);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>crossbellToken</code></td><td><code>address</code></td><td>Token address on crossbell.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>token</code></td><td><code>MappedToken.DataTypes</code></td><td>Mapped token on mainchain chain.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getvalidatoracknowledgementhash"><a class="header" href="#getvalidatoracknowledgementhash">getValidatorAcknowledgementHash</a></h3>
+<p>Returns the acknowledge depositHash by validator.</p>
+<pre><code class="language-solidity">function getValidatorAcknowledgementHash(uint256 chainId, uint256 id, address validator)
+    external
+    view
+    returns (bytes32);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>id</code></td><td><code>uint256</code></td><td>DepositId.</td></tr>
+<tr><td><code>validator</code></td><td><code>address</code></td><td>Validator address.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>bytes32</code></td><td>bytes32 depositHash if validator has acknowledged, otherwise 0.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getacknowledgementstatus"><a class="header" href="#getacknowledgementstatus">getAcknowledgementStatus</a></h3>
+<p>Returns the acknowledge status of deposit by validators.</p>
+<pre><code class="language-solidity">function getAcknowledgementStatus(uint256 chainId, uint256 id, bytes32 hash) external view returns (DataTypes.Status);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>id</code></td><td><code>uint256</code></td><td>DepositId.</td></tr>
+<tr><td><code>hash</code></td><td><code>bytes32</code></td><td>depositHash.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>Status.DataTypes</code></td><td>DataTypes.Status Acknowledgement status.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getacknowledgementcount"><a class="header" href="#getacknowledgementcount">getAcknowledgementCount</a></h3>
+<p>Returns the acknowledge count of deposit by validators.</p>
+<pre><code class="language-solidity">function getAcknowledgementCount(uint256 chainId, uint256 id, bytes32 hash) external view returns (uint256);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>id</code></td><td><code>uint256</code></td><td>DepositId.</td></tr>
+<tr><td><code>hash</code></td><td><code>bytes32</code></td><td>depositHash.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint256</code></td><td>uint256 Acknowledgement count.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getwithdrawalsignatures"><a class="header" href="#getwithdrawalsignatures">getWithdrawalSignatures</a></h3>
+<p>Returns withdrawal signatures.</p>
+<pre><code class="language-solidity">function getWithdrawalSignatures(uint256 chainId, uint256 withdrawalId)
+    external
+    view
+    returns (address[] memory signers, bytes[] memory sigs);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>withdrawalId</code></td><td><code>uint256</code></td><td>Withdrawal Id to query.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>signers</code></td><td><code>address[]</code></td><td>Signer addresses.</td></tr>
+<tr><td><code>sigs</code></td><td><code>bytes[]</code></td><td>Signer signatures.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getvalidatorcontract"><a class="header" href="#getvalidatorcontract">getValidatorContract</a></h3>
+<p>Returns the address of the validator contract.</p>
+<pre><code class="language-solidity">function getValidatorContract() external view returns (address);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The validator contract address.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getdepositentry"><a class="header" href="#getdepositentry">getDepositEntry</a></h3>
+<p>Returns the deposit entry.</p>
+<pre><code class="language-solidity">function getDepositEntry(uint256 chainId, uint256 depositId) external view returns (DataTypes.DepositEntry memory);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>depositId</code></td><td><code>uint256</code></td><td>Deposit Id to query.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>DepositEntry.DataTypes</code></td><td>DataTypes.DepositEntry Deposit entry.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getwithdrawalcount"><a class="header" href="#getwithdrawalcount">getWithdrawalCount</a></h3>
+<p>Returns the withdrawal count of different mainchain networks.</p>
+<pre><code class="language-solidity">function getWithdrawalCount(uint256 chainId) external view returns (uint256);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint256</code></td><td>Withdrawal count.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getwithdrawalentry"><a class="header" href="#getwithdrawalentry">getWithdrawalEntry</a></h3>
+<p>Returns the withdrawal entry.</p>
+<pre><code class="language-solidity">function getWithdrawalEntry(uint256 chainId, uint256 withdrawalId)
+    external
+    view
+    returns (DataTypes.WithdrawalEntry memory);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>withdrawalId</code></td><td><code>uint256</code></td><td>Withdrawal Id to query.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>WithdrawalEntry.DataTypes</code></td><td>DataTypes.WithdrawalEntry Withdrawal entry.</td></tr>
+</tbody></table>
+</div>
+<h2 id="events"><a class="header" href="#events">Events</a></h2>
+<h3 id="tokenmapped"><a class="header" href="#tokenmapped">TokenMapped</a></h3>
+<p><em>Emitted when the tokens are mapped.</em></p>
+<pre><code class="language-solidity">event TokenMapped(
+    address[] crossbellTokens, uint256[] chainIds, address[] mainchainTokens, uint8[] mainchainTokenDecimals
+);
+</code></pre>
+<h3 id="deposited"><a class="header" href="#deposited">Deposited</a></h3>
+<p><em>Emitted when the assets are deposited.</em></p>
+<pre><code class="language-solidity">event Deposited(
+    uint256 indexed chainId, uint256 indexed depositId, address indexed recipient, address token, uint256 amount
+);
+</code></pre>
+<h3 id="ackdeposit-1"><a class="header" href="#ackdeposit-1">AckDeposit</a></h3>
+<p><em>Emitted when the deposit is acknowledged by a validator.</em></p>
+<pre><code class="language-solidity">event AckDeposit(
+    uint256 indexed chainId,
+    uint256 indexed depositId,
+    address indexed validator,
+    address recipient,
+    address token,
+    uint256 amount
+);
+</code></pre>
+<h3 id="requestwithdrawal-1"><a class="header" href="#requestwithdrawal-1">RequestWithdrawal</a></h3>
+<p><em>Emitted when the withdrawal is requested.</em></p>
+<pre><code class="language-solidity">event RequestWithdrawal(
+    uint256 indexed chainId,
+    uint256 indexed withdrawalId,
+    address indexed recipient,
+    address token,
+    uint256 amount,
+    uint256 fee
+);
+</code></pre>
+<h3 id="submitwithdrawalsignature-1"><a class="header" href="#submitwithdrawalsignature-1">SubmitWithdrawalSignature</a></h3>
+<p><em>Emitted when a withdrawal signature is submitted by validator.</em></p>
+<pre><code class="language-solidity">event SubmitWithdrawalSignature(
+    uint256 indexed chainId, uint256 indexed withdrawalId, address indexed validator, bytes signature
+);
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ierc20mintable"><a class="header" href="#ierc20mintable">IERC20Mintable</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/7c3215252ebf7b8d599b3f33120db0d6443acb02/contracts/interfaces/IERC20Mintable.sol">Git Source</a></p>
+<h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
+<h3 id="mint"><a class="header" href="#mint">mint</a></h3>
+<pre><code class="language-solidity">function mint(address to, uint256 amount) external;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="imainchaingateway"><a class="header" href="#imainchaingateway">IMainchainGateway</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/7c3215252ebf7b8d599b3f33120db0d6443acb02/contracts/interfaces/IMainchainGateway.sol">Git Source</a></p>
+<p>This is the interface for the crossbell bridge manchain gateway contract.
+You'll find all the events and external functions.</p>
+<h2 id="functions-2"><a class="header" href="#functions-2">Functions</a></h2>
+<h3 id="initialize-1"><a class="header" href="#initialize-1">initialize</a></h3>
+<p>Initializes the MainchainGateway.
+Note that the thresholds contains:</p>
+<ul>
+<li>thresholds[1]:</li>
+</ul>
+<pre><code class="language-solidity">function initialize(
+    address validator,
+    address admin,
+    address[] calldata mainchainTokens,
+    uint256[] calldata dailyWithdrawalMaxQuota,
+    address[] calldata crossbellTokens,
+    uint8[] calldata crossbellTokenDecimals
+) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>validator</code></td><td><code>address</code></td><td>Address of validator contract.</td></tr>
+<tr><td><code>admin</code></td><td><code>address</code></td><td>Address of gateway admin.</td></tr>
+<tr><td><code>mainchainTokens</code></td><td><code>address[]</code></td><td>Addresses of mainchain tokens.</td></tr>
+<tr><td><code>dailyWithdrawalMaxQuota</code></td><td><code>uint256[]</code></td><td>The daily withdrawal max quotas for mainchain tokens.</td></tr>
+<tr><td><code>crossbellTokens</code></td><td><code>address[]</code></td><td>Addresses of crossbell tokens.</td></tr>
+<tr><td><code>crossbellTokenDecimals</code></td><td><code>uint8[]</code></td><td>Decimals of crossbell tokens.</td></tr>
+</tbody></table>
+</div>
+<h3 id="pause-1"><a class="header" href="#pause-1">pause</a></h3>
+<p>Pauses interaction with the gateway contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function pause() external;
+</code></pre>
+<h3 id="unpause-1"><a class="header" href="#unpause-1">unpause</a></h3>
+<p>Resumes interaction with the gateway contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function unpause() external;
+</code></pre>
+<h3 id="maptokens-1"><a class="header" href="#maptokens-1">mapTokens</a></h3>
+<p>Maps Crossbell tokens to mainchain.
+Emits the <code>TokenMapped</code> event.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function mapTokens(
+    address[] calldata mainchainTokens,
+    address[] calldata crossbellTokens,
+    uint8[] calldata crossbellTokenDecimals
+) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>mainchainTokens</code></td><td><code>address[]</code></td><td>Addresses of mainchain tokens.</td></tr>
+<tr><td><code>crossbellTokens</code></td><td><code>address[]</code></td><td>Addresses of crossbell tokens.</td></tr>
+<tr><td><code>crossbellTokenDecimals</code></td><td><code>uint8[]</code></td><td>Decimals of crossbell tokens.</td></tr>
+</tbody></table>
+</div>
+<h3 id="requestdeposit"><a class="header" href="#requestdeposit">requestDeposit</a></h3>
+<p>Requests deposit to crossbell chain.
+Emits the <code>RequestDeposit</code> event.</p>
+<pre><code class="language-solidity">function requestDeposit(address recipient, address token, uint256 amount) external returns (uint256 depositId);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>recipient</code></td><td><code>address</code></td><td>Address to receive deposit on crossbell chain.</td></tr>
+<tr><td><code>token</code></td><td><code>address</code></td><td>Address of token to deposit from mainchain network.</td></tr>
+<tr><td><code>amount</code></td><td><code>uint256</code></td><td>Amount of token to deposit  from mainchain network.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>depositId</code></td><td><code>uint256</code></td><td>Deposit id.</td></tr>
+</tbody></table>
+</div>
+<h3 id="withdraw"><a class="header" href="#withdraw">withdraw</a></h3>
+<p>Withdraws based on the validator signatures.
+Emits the <code>Withdrew</code> event.
+Requirements:</p>
+<ul>
+<li>The signatures should be sorted by signing addresses of validators in ascending order.</li>
+</ul>
+<pre><code class="language-solidity">function withdraw(
+    uint256 chainId,
+    uint256 withdrawalId,
+    address recipient,
+    address token,
+    uint256 amount,
+    uint256 fee,
+    DataTypes.Signature[] calldata signatures
+) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>withdrawalId</code></td><td><code>uint256</code></td><td>Withdrawal ID from crossbell chain.</td></tr>
+<tr><td><code>recipient</code></td><td><code>address</code></td><td>Address to receive withdrawal on mainchain chain.</td></tr>
+<tr><td><code>token</code></td><td><code>address</code></td><td>Address of token to withdraw.</td></tr>
+<tr><td><code>amount</code></td><td><code>uint256</code></td><td>Amount of token to withdraw.</td></tr>
+<tr><td><code>fee</code></td><td><code>uint256</code></td><td>The fee amount to pay for the withdrawal tx sender. This is subtracted from the <code>amount</code>.</td></tr>
+<tr><td><code>signatures</code></td><td><code>Signature.DataTypes[]</code></td><td>The list of signatures sorted by signing addresses of validators in ascending order.</td></tr>
+</tbody></table>
+</div>
+<h3 id="setdailywithdrawalmaxquotas"><a class="header" href="#setdailywithdrawalmaxquotas">setDailyWithdrawalMaxQuotas</a></h3>
+<p>Sets daily max quotas for the withdrawals.
+Emits the <code>DailyWithdrawalMaxQuotasUpdated</code> event.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+<li>The arrays have the same length.</li>
+</ul>
+<pre><code class="language-solidity">function setDailyWithdrawalMaxQuotas(address[] calldata tokens, uint256[] calldata quotas) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tokens</code></td><td><code>address[]</code></td><td>Addresses of token to set.</td></tr>
+<tr><td><code>quotas</code></td><td><code>uint256[]</code></td><td>quotas corresponding to the tokens to set.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getdomainseparator"><a class="header" href="#getdomainseparator">getDomainSeparator</a></h3>
+<p>Returns the domain separator for this contract.</p>
+<pre><code class="language-solidity">function getDomainSeparator() external view returns (bytes32);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>bytes32</code></td><td>bytes32 The domain separator.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getvalidatorcontract-1"><a class="header" href="#getvalidatorcontract-1">getValidatorContract</a></h3>
+<p>Returns the address of the validator contract.</p>
+<pre><code class="language-solidity">function getValidatorContract() external view returns (address);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The validator contract address.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getdepositcount"><a class="header" href="#getdepositcount">getDepositCount</a></h3>
+<p>Returns the deposit count of the gateway contract.</p>
+<pre><code class="language-solidity">function getDepositCount() external view returns (uint256);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint256</code></td><td>The deposit count.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getwithdrawalhash"><a class="header" href="#getwithdrawalhash">getWithdrawalHash</a></h3>
+<p>Returns the withdrawal hash by withdrawal id.</p>
+<pre><code class="language-solidity">function getWithdrawalHash(uint256 withdrawalId) external view returns (bytes32);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>withdrawalId</code></td><td><code>uint256</code></td><td>WithdrawalId to query.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>bytes32</code></td><td>The withdrawal hash.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getdailywithdrawalmaxquota"><a class="header" href="#getdailywithdrawalmaxquota">getDailyWithdrawalMaxQuota</a></h3>
+<p>Returns the daily withdrawal max quota.</p>
+<pre><code class="language-solidity">function getDailyWithdrawalMaxQuota(address token) external view returns (uint256);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>token</code></td><td><code>address</code></td><td>Token address</td></tr>
+</tbody></table>
+</div>
+<h3 id="getdailywithdrawalremainingquota"><a class="header" href="#getdailywithdrawalremainingquota">getDailyWithdrawalRemainingQuota</a></h3>
+<p>Returns today's withdrawal remaining quota.</p>
+<pre><code class="language-solidity">function getDailyWithdrawalRemainingQuota(address token) external view returns (uint256 remainingQuota);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>token</code></td><td><code>address</code></td><td>Token address to query.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>remainingQuota</code></td><td><code>uint256</code></td><td>Today's withdrawal remaining quota.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getcrossbelltoken"><a class="header" href="#getcrossbelltoken">getCrossbellToken</a></h3>
+<p>Returns mapped tokens from crossbell chain.</p>
+<pre><code class="language-solidity">function getCrossbellToken(address mainchainToken) external view returns (DataTypes.MappedToken memory token);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>mainchainToken</code></td><td><code>address</code></td><td>Token address on mainchain.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>token</code></td><td><code>MappedToken.DataTypes</code></td><td>Mapped token from crossbell chain.</td></tr>
+</tbody></table>
+</div>
+<h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
+<h3 id="tokenmapped-1"><a class="header" href="#tokenmapped-1">TokenMapped</a></h3>
+<p><em>Emitted when the tokens are mapped</em></p>
+<pre><code class="language-solidity">event TokenMapped(address[] mainchainTokens, address[] crossbellTokens, uint8[] crossbellTokenDecimals);
+</code></pre>
+<h3 id="requestdeposit-1"><a class="header" href="#requestdeposit-1">RequestDeposit</a></h3>
+<p><em>Emitted when the deposit is requested.</em></p>
+<pre><code class="language-solidity">event RequestDeposit(
+    uint256 indexed chainId,
+    uint256 indexed depositId,
+    address indexed recipient,
+    address token,
+    uint256 amount,
+    bytes32 depositHash
+);
+</code></pre>
+<h3 id="withdrew"><a class="header" href="#withdrew">Withdrew</a></h3>
+<p><em>Emitted when the assets are withdrawn on mainchain.</em></p>
+<pre><code class="language-solidity">event Withdrew(
+    uint256 indexed chainId,
+    uint256 indexed withdrawalId,
+    address indexed recipient,
+    address token,
+    uint256 amount,
+    uint256 fee
+);
+</code></pre>
+<h3 id="dailywithdrawalmaxquotasupdated"><a class="header" href="#dailywithdrawalmaxquotasupdated">DailyWithdrawalMaxQuotasUpdated</a></h3>
+<p><em>Emitted when the daily quota thresholds are updated.</em></p>
+<pre><code class="language-solidity">event DailyWithdrawalMaxQuotasUpdated(address[] tokens, uint256[] quotas);
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ivalidator"><a class="header" href="#ivalidator">IValidator</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/7c3215252ebf7b8d599b3f33120db0d6443acb02/contracts/interfaces/IValidator.sol">Git Source</a></p>
+<p>This is the interface for the validator contract.
+You'll find all the events and external functions.</p>
+<h2 id="functions-3"><a class="header" href="#functions-3">Functions</a></h2>
+<h3 id="addvalidators"><a class="header" href="#addvalidators">addValidators</a></h3>
+<p>Adds new validators. This function can only be called by the owner of validator contract.
+Note that this reverts if new validators to add are already validators.</p>
+<pre><code class="language-solidity">function addValidators(address[] calldata validators) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>validators</code></td><td><code>address[]</code></td><td>New validator addresses to add</td></tr>
+</tbody></table>
+</div>
+<h3 id="removevalidators"><a class="header" href="#removevalidators">removeValidators</a></h3>
+<p>Removes exist validators. This function can only be called by the owner of validator contract.
+Note that this reverts if validators to remove are not validators.</p>
+<pre><code class="language-solidity">function removeValidators(address[] calldata validators) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>validators</code></td><td><code>address[]</code></td><td>Validator addresses to remove</td></tr>
+</tbody></table>
+</div>
+<h3 id="changerequirednumber"><a class="header" href="#changerequirednumber">changeRequiredNumber</a></h3>
+<p>Change the required number of validators.
+Requirements::</p>
+<ol>
+<li>the caller is owner of validator contract.</li>
+<li>new required number &gt; validators length.</li>
+<li>new required number is zero.</li>
+</ol>
+<pre><code class="language-solidity">function changeRequiredNumber(uint256 newRequiredNumber) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>newRequiredNumber</code></td><td><code>uint256</code></td><td>New required number to set.</td></tr>
+</tbody></table>
+</div>
+<h3 id="isvalidator"><a class="header" href="#isvalidator">isValidator</a></h3>
+<p>Returns whether an address is validator or not.</p>
+<pre><code class="language-solidity">function isValidator(address addr) external view returns (bool);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>addr</code></td><td><code>address</code></td><td>Address to query.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getvalidators"><a class="header" href="#getvalidators">getValidators</a></h3>
+<p>Returns all the validators.</p>
+<pre><code class="language-solidity">function getValidators() external view returns (address[] memory validators);
+</code></pre>
+<h3 id="getrequirednumber"><a class="header" href="#getrequirednumber">getRequiredNumber</a></h3>
+<p>Returns current required number.</p>
+<pre><code class="language-solidity">function getRequiredNumber() external view returns (uint256);
+</code></pre>
+<h3 id="checkthreshold"><a class="header" href="#checkthreshold">checkThreshold</a></h3>
+<p>Checks whether the <code>voteCount</code> passes the threshold.</p>
+<pre><code class="language-solidity">function checkThreshold(uint256 voteCount) external view returns (bool);
+</code></pre>
+<h2 id="events-2"><a class="header" href="#events-2">Events</a></h2>
+<h3 id="validatoradded"><a class="header" href="#validatoradded">ValidatorAdded</a></h3>
+<p><em>Emitted when a new validator is added.</em></p>
+<pre><code class="language-solidity">event ValidatorAdded(address indexed validator);
+</code></pre>
+<h3 id="validatorremoved"><a class="header" href="#validatorremoved">ValidatorRemoved</a></h3>
+<p><em>Emitted when a validator is removed.</em></p>
+<pre><code class="language-solidity">event ValidatorRemoved(address indexed validator);
+</code></pre>
+<h3 id="requirementchanged"><a class="header" href="#requirementchanged">RequirementChanged</a></h3>
+<p><em>Emitted when a new required number is set.</em></p>
+<pre><code class="language-solidity">event RequirementChanged(uint256 indexed requirement, uint256 indexed previousRequired);
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contents-1"><a class="header" href="#contents-1">Contents</a></h1>
+<ul>
+<li><a href="contracts/libraries/DataTypes.sol/contract.DataTypes.html">DataTypes</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="datatypes"><a class="header" href="#datatypes">DataTypes</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/7c3215252ebf7b8d599b3f33120db0d6443acb02/contracts/libraries/DataTypes.sol">Git Source</a></p>
+<p>A standard library of data types.</p>
+<h2 id="structs"><a class="header" href="#structs">Structs</a></h2>
+<h3 id="mappedtoken"><a class="header" href="#mappedtoken">MappedToken</a></h3>
+<pre><code class="language-solidity">struct MappedToken {
+    address token;
+    uint8 decimals;
+}
+</code></pre>
+<h3 id="depositentry"><a class="header" href="#depositentry">DepositEntry</a></h3>
+<p>A struct containing deposit data.</p>
+<pre><code class="language-solidity">struct DepositEntry {
+    uint256 chainId;
+    address recipient;
+    address token;
+    uint256 amount;
+}
+</code></pre>
+<h3 id="withdrawalentry"><a class="header" href="#withdrawalentry">WithdrawalEntry</a></h3>
+<p>A struct containing withdrawal data.</p>
+<pre><code class="language-solidity">struct WithdrawalEntry {
+    uint256 chainId;
+    address recipient;
+    address token;
+    uint256 amount;
+    uint256 fee;
+}
+</code></pre>
+<h3 id="signature"><a class="header" href="#signature">Signature</a></h3>
+<p>A struct containing a validator signature for the withdrawal.</p>
+<pre><code class="language-solidity">struct Signature {
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
+}
+</code></pre>
+<h2 id="enums"><a class="header" href="#enums">Enums</a></h2>
+<h3 id="status"><a class="header" href="#status">Status</a></h3>
+<p>Acknowledge status, once the acknowledgements reach the threshold the 1st time,
+it can take effect to the system.
+Acknowledgments after that should not have any effects.</p>
+<pre><code class="language-solidity">enum Status {
+    NotApproved,
+    FirstApproved,
+    AlreadyApproved
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contents-2"><a class="header" href="#contents-2">Contents</a></h1>
+<ul>
+<li><a href="contracts/storage/CrossbellGatewayStorage.sol/contract.CrossbellGatewayStorage.html">CrossbellGatewayStorage</a></li>
+<li><a href="contracts/storage/MainchainGatewayStorage.sol/contract.MainchainGatewayStorage.html">MainchainGatewayStorage</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="crossbellgatewaystorage"><a class="header" href="#crossbellgatewaystorage">CrossbellGatewayStorage</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/7c3215252ebf7b8d599b3f33120db0d6443acb02/contracts/storage/CrossbellGatewayStorage.sol">Git Source</a></p>
+<p><em>Storage of deposit and withdraw information.</em></p>
+<h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
+<h3 id="_deposits"><a class="header" href="#_deposits">_deposits</a></h3>
+<p><em>Mapping from chainId =&gt; depositId =&gt; DepositEntry</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; DataTypes.DepositEntry)) internal _deposits;
+</code></pre>
+<h3 id="_withdrawalcounter"><a class="header" href="#_withdrawalcounter">_withdrawalCounter</a></h3>
+<p><em>Mapping from chainId =&gt; withdrawCount</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; uint256) internal _withdrawalCounter;
+</code></pre>
+<h3 id="_withdrawals"><a class="header" href="#_withdrawals">_withdrawals</a></h3>
+<p><em>Mapping from chainId =&gt;  withdrawalId =&gt; WithdrawalEntry</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; DataTypes.WithdrawalEntry)) internal _withdrawals;
+</code></pre>
+<h3 id="_withdrawalsig"><a class="header" href="#_withdrawalsig">_withdrawalSig</a></h3>
+<p><em>Mapping from chainId =&gt; withdrawalId  =&gt; signature</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; mapping(address =&gt; bytes))) internal _withdrawalSig;
+</code></pre>
+<h3 id="_withdrawalsigners"><a class="header" href="#_withdrawalsigners">_withdrawalSigners</a></h3>
+<p><em>Mapping from chainId =&gt; withdrawalId =&gt; address[]</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; address[])) internal _withdrawalSigners;
+</code></pre>
+<h3 id="_mainchaintokens"><a class="header" href="#_mainchaintokens">_mainchainTokens</a></h3>
+<p><em>Mapping from token address =&gt; chain id =&gt; mainchain token address</em></p>
+<pre><code class="language-solidity">mapping(address =&gt; mapping(uint256 =&gt; DataTypes.MappedToken)) internal _mainchainTokens;
+</code></pre>
+<h3 id="_validator"><a class="header" href="#_validator">_validator</a></h3>
+<pre><code class="language-solidity">address internal _validator;
+</code></pre>
+<h3 id="_validatorack"><a class="header" href="#_validatorack">_validatorAck</a></h3>
+<p><em>Mapping from chainId =&gt; id =&gt; validator =&gt; data hash</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; mapping(address =&gt; bytes32))) internal _validatorAck;
+</code></pre>
+<h3 id="_ackcount"><a class="header" href="#_ackcount">_ackCount</a></h3>
+<p><em>Mapping from chainId =&gt; id =&gt; data hash =&gt; ack count</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; mapping(bytes32 =&gt; uint256))) internal _ackCount;
+</code></pre>
+<h3 id="_ackstatus"><a class="header" href="#_ackstatus">_ackStatus</a></h3>
+<p><em>Mapping from chainId =&gt; id =&gt; data hash =&gt; ack status</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; mapping(bytes32 =&gt; DataTypes.Status))) internal _ackStatus;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="mainchaingatewaystorage"><a class="header" href="#mainchaingatewaystorage">MainchainGatewayStorage</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/7c3215252ebf7b8d599b3f33120db0d6443acb02/contracts/storage/MainchainGatewayStorage.sol">Git Source</a></p>
+<p><em>Storage of deposit and withdraw information.</em></p>
+<h2 id="state-variables-1"><a class="header" href="#state-variables-1">State Variables</a></h2>
+<h3 id="_domainseparator"><a class="header" href="#_domainseparator">_domainSeparator</a></h3>
+<p><em>Domain separator</em></p>
+<pre><code class="language-solidity">bytes32 internal _domainSeparator;
+</code></pre>
+<h3 id="_validator-1"><a class="header" href="#_validator-1">_validator</a></h3>
+<p><em>Validator contract address</em></p>
+<pre><code class="language-solidity">address internal _validator;
+</code></pre>
+<h3 id="_depositcounter"><a class="header" href="#_depositcounter">_depositCounter</a></h3>
+<p><em>Total deposit count</em></p>
+<pre><code class="language-solidity">uint256 internal _depositCounter;
+</code></pre>
+<h3 id="_withdrawalhash"><a class="header" href="#_withdrawalhash">_withdrawalHash</a></h3>
+<p><em>Mapping from withdrawal id =&gt; withdrawal hash</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; bytes32) internal _withdrawalHash;
+</code></pre>
+<h3 id="_dailywithdrawalmaxquota"><a class="header" href="#_dailywithdrawalmaxquota">_dailyWithdrawalMaxQuota</a></h3>
+<p>for withdrawal restriction</p>
+<p><em>Mapping from mainchain token =&gt; daily max amount for withdrawal</em></p>
+<pre><code class="language-solidity">mapping(address =&gt; uint256) internal _dailyWithdrawalMaxQuota;
+</code></pre>
+<h3 id="_lastsyncedwithdrawal"><a class="header" href="#_lastsyncedwithdrawal">_lastSyncedWithdrawal</a></h3>
+<p><em>Mapping from token address =&gt; today withdrawal amount</em></p>
+<pre><code class="language-solidity">mapping(address =&gt; uint256) internal _lastSyncedWithdrawal;
+</code></pre>
+<h3 id="_lastdatesynced"><a class="header" href="#_lastdatesynced">_lastDateSynced</a></h3>
+<p><em>Mapping from token address =&gt; last date synced to record the <code>_lastSyncedWithdrawal</code></em></p>
+<pre><code class="language-solidity">mapping(address =&gt; uint256) internal _lastDateSynced;
+</code></pre>
+<h3 id="_crossbelltokens"><a class="header" href="#_crossbelltokens">_crossbellTokens</a></h3>
+<p><em>Mapping from mainchain token =&gt; token address on crossbell network</em></p>
+<pre><code class="language-solidity">mapping(address =&gt; DataTypes.MappedToken) internal _crossbellTokens;
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="solidity.min.js"></script>
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </body>
+</html>

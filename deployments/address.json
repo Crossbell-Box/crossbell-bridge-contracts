@@ -4,7 +4,7 @@
 			"address": ""
 		},
 		"polygon": {
-			"address": ""
+			"address": "0x901F109c602D2D1f4c1B4a7236113CE090A4292a"
 		},
 		"bsc": {
 			"address": ""
@@ -22,7 +22,7 @@
 
 	"CrossbellGateway": {
 		"crossbell": {
-			"address": ""
+			"address": "0x37b0CD884785320d8d2354c7Ae424b32391D50aA"
 		},
 		"sepolia": {
 			"address": "0x3C247725af72732Cd85267F2ff62C9092201eAAD"
@@ -34,7 +34,8 @@
 			"address": ""
 		},
 		"polygon": {
-			"address": ""
+			"address": "0x27e56Fc93A7C9F7Ad220C1206EF03Ed303bd648B",
+			"decimals": 18
 		},
 		"bsc": {
 			"address": ""
@@ -52,7 +53,7 @@
 			"decimals": 18
 		},
 		"crossbell": {
-			"address": "",
+			"address": "0xAfB95CC0BD320648B3E8Df6223d9CDD05EbeDC64",
 			"decimals": 18
 		},
 		"sepolia": {
@@ -66,13 +67,13 @@
 			"address": ""
 		},
 		"polygon": {
-			"address": ""
+			"address": "0x111c495679eDed538e5f8E3D0E06d911A99c749a"
 		},
 		"bsc": {
 			"address": ""
 		},
 		"crossbell": {
-			"address": ""
+			"address": "0xf05567527c5B30BfbD08D19dA6C0004578E07C0C"
 		},
 		"goerli": {
 			"address": "0x73bE5E9f82f45564565Ffb53F52b23eAB32032F9"

@@ -17,20 +17,11 @@ import {
 async function main() {
     // deploy mainchainGateway
     const MainchainGateway = await ethers.getContractFactory("MainchainGateway");
-    // always initialize the logic contract
-    const mainchainGateway = await MainchainGateway.deploy();
-    await mainchainGateway.initialize(
-        validatorContract,
-        gatewayAdmin,
-        mainchainTokens,
-        dailyWithdrawalMaxQuota,
-        crossbellTokens,
-        crossbellTokenDecimals,
-    );
+
 
     // deploy proxy
     const Proxy = await ethers.getContractFactory("TransparentUpgradeableProxy");
-    const proxyMainchainGateway = await Proxy.deploy(mainchainGateway.address, proxyAdmin, "0x");
+    const proxyMainchainGateway = await Proxy.deploy("0x3fA10439a518059a02863ec1581636882f62995F", proxyAdmin, "0x");
     await proxyMainchainGateway.deployed();
 
     // initialize proxy
@@ -44,7 +35,6 @@ async function main() {
         crossbellTokenDecimals,
     );
 
-    console.log("mainchainGateway deployed to:", mainchainGateway.address);
     console.log("proxyMainchainGateway deployed to:", proxyMainchainGateway.address);
 }
 

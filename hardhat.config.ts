@@ -38,7 +38,7 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
             jsonRpcUrl = "https://data-seed-prebsc-1-s3.binance.org:8545/";
             break;
         case "polygon":
-            jsonRpcUrl = "https://polygon-rpc.com/";
+            jsonRpcUrl = "https://rpc.ankr.com/polygon/0243472cd915c54b0589f39c216ae52398f6016de05764b6ba45f0ef59feb741";
             break;
         case "polygonMumbai":
             jsonRpcUrl = "https://matic-mumbai.chainstacklabs.com";

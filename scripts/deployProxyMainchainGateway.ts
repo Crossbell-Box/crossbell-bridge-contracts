@@ -12,7 +12,7 @@ import {
     dailyWithdrawalMaxQuota,
     crossbellTokens,
     crossbellTokenDecimals,
-} from "./config/testnet/goerli"; // NOTE: update the config before deployment
+} from "./config/mainnet/polygon"; // NOTE: update the config before deployment
 
 async function main() {
     // deploy mainchainGateway

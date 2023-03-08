@@ -18,10 +18,13 @@ async function main() {
     // deploy mainchainGateway
     const MainchainGateway = await ethers.getContractFactory("MainchainGateway");
 
-
     // deploy proxy
     const Proxy = await ethers.getContractFactory("TransparentUpgradeableProxy");
-    const proxyMainchainGateway = await Proxy.deploy("0x3fA10439a518059a02863ec1581636882f62995F", proxyAdmin, "0x");
+    const proxyMainchainGateway = await Proxy.deploy(
+        "0x3fA10439a518059a02863ec1581636882f62995F",
+        proxyAdmin,
+        "0x",
+    );
     await proxyMainchainGateway.deployed();
 
     // initialize proxy

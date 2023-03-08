@@ -155,7 +155,7 @@
 <li><a href="contracts/interfaces/IValidator.sol/contract.IValidator.html">IValidator</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="icrossbellgateway"><a class="header" href="#icrossbellgateway">ICrossbellGateway</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/b5901f51285cd360b1a99edad12c6904a1adc0f6/contracts/interfaces/ICrossbellGateway.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/c76db2760c516cce74d212638f81143b345947c0/contracts/interfaces/ICrossbellGateway.sol">Git Source</a></p>
 <p>This is the interface for the crossbell bridge gateway contract.
 You'll find all the events and external functions.</p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
@@ -465,13 +465,13 @@ Note that the caller must be a validator.</p>
 );
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ierc20mintable"><a class="header" href="#ierc20mintable">IERC20Mintable</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/b5901f51285cd360b1a99edad12c6904a1adc0f6/contracts/interfaces/IERC20Mintable.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/c76db2760c516cce74d212638f81143b345947c0/contracts/interfaces/IERC20Mintable.sol">Git Source</a></p>
 <h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
 <h3 id="mint"><a class="header" href="#mint">mint</a></h3>
 <pre><code class="language-solidity">function mint(address to, uint256 amount) external;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="imainchaingateway"><a class="header" href="#imainchaingateway">IMainchainGateway</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/b5901f51285cd360b1a99edad12c6904a1adc0f6/contracts/interfaces/IMainchainGateway.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/c76db2760c516cce74d212638f81143b345947c0/contracts/interfaces/IMainchainGateway.sol">Git Source</a></p>
 <p>This is the interface for the crossbell bridge manchain gateway contract.
 You'll find all the events and external functions.</p>
 <h2 id="functions-2"><a class="header" href="#functions-2">Functions</a></h2>
@@ -707,7 +707,7 @@ Requirements:</p>
 <pre><code class="language-solidity">event DailyWithdrawalMaxQuotasUpdated(address[] tokens, uint256[] quotas);
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ivalidator"><a class="header" href="#ivalidator">IValidator</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/b5901f51285cd360b1a99edad12c6904a1adc0f6/contracts/interfaces/IValidator.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/c76db2760c516cce74d212638f81143b345947c0/contracts/interfaces/IValidator.sol">Git Source</a></p>
 <p>This is the interface for the validator contract.
 You'll find all the events and external functions.</p>
 <h2 id="functions-3"><a class="header" href="#functions-3">Functions</a></h2>
@@ -785,7 +785,7 @@ Requirements::</p>
 <li><a href="contracts/libraries/DataTypes.sol/contract.DataTypes.html">DataTypes</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="datatypes"><a class="header" href="#datatypes">DataTypes</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/b5901f51285cd360b1a99edad12c6904a1adc0f6/contracts/libraries/DataTypes.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/c76db2760c516cce74d212638f81143b345947c0/contracts/libraries/DataTypes.sol">Git Source</a></p>
 <p>A standard library of data types.</p>
 <h2 id="structs"><a class="header" href="#structs">Structs</a></h2>
 <h3 id="mappedtoken"><a class="header" href="#mappedtoken">MappedToken</a></h3>
@@ -838,7 +838,7 @@ Acknowledgments after that should not have any effects.</p>
 <li><a href="contracts/storage/MainchainGatewayStorage.sol/contract.MainchainGatewayStorage.html">MainchainGatewayStorage</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="crossbellgatewaystorage"><a class="header" href="#crossbellgatewaystorage">CrossbellGatewayStorage</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/b5901f51285cd360b1a99edad12c6904a1adc0f6/contracts/storage/CrossbellGatewayStorage.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/c76db2760c516cce74d212638f81143b345947c0/contracts/storage/CrossbellGatewayStorage.sol">Git Source</a></p>
 <p><em>Storage of deposit and withdraw information.</em></p>
 <h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
 <h3 id="_deposits"><a class="header" href="#_deposits">_deposits</a></h3>
@@ -881,7 +881,7 @@ Acknowledgments after that should not have any effects.</p>
 <pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; mapping(bytes32 =&gt; DataTypes.Status))) internal _ackStatus;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mainchaingatewaystorage"><a class="header" href="#mainchaingatewaystorage">MainchainGatewayStorage</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/b5901f51285cd360b1a99edad12c6904a1adc0f6/contracts/storage/MainchainGatewayStorage.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/c76db2760c516cce74d212638f81143b345947c0/contracts/storage/MainchainGatewayStorage.sol">Git Source</a></p>
 <p><em>Storage of deposit and withdraw information.</em></p>
 <h2 id="state-variables-1"><a class="header" href="#state-variables-1">State Variables</a></h2>
 <h3 id="_domainseparator"><a class="header" href="#_domainseparator">_domainSeparator</a></h3>

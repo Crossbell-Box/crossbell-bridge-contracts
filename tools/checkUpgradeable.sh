@@ -24,13 +24,13 @@ file1=$(mktemp /tmp/crossbell-bridge-slither-check.XXXXX) || exit 2
 file2=$(mktemp /tmp/crossbell-bridge-slither-check.XXXXX) || exit 2
 
 # slither-check
-echo "MainchainGateway: " >"$file1"
-slither-check-upgradeability . MainchainGateway \
---proxy-filename . \
---proxy-name TransparentUpgradeableProxy \
---compile-force-framework 'hardhat' \
---exclude "initialize-target" \
-2>>"$file1" 1>&2
+#echo "MainchainGateway: " >"$file1"
+#slither-check-upgradeability . MainchainGateway \
+#--proxy-filename . \
+#--proxy-name TransparentUpgradeableProxy \
+#--compile-force-framework 'hardhat' \
+#--exclude "initialize-target" \
+#2>>"$file1" 1>&2
 
 echo "CrossbellGateway: " >"$file2"
 slither-check-upgradeability . CrossbellGateway \

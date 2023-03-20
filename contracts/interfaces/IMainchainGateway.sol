@@ -81,6 +81,14 @@ interface IMainchainGateway {
     ) external;
 
     /**
+     * @notice Sets validator contract.
+     * Requirements:
+     * - The caller must have the ADMIN_ROLE.
+     * @param validator Address of validator contract.
+     */
+    function setValidator(address validator) external;
+
+    /**
      * @notice Pauses interaction with the gateway contract.
      * Requirements:
      * - The caller must have the ADMIN_ROLE.

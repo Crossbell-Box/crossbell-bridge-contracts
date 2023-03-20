@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>IValidator - crossbell-bridge</title>
+        <title>DataTypes - crossbell-bridge</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item "><a href="../../../index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">contracts</li><li class="chapter-item expanded "><a href="../../../contracts/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/interfaces/ICrossbellGateway.sol/contract.ICrossbellGateway.html">ICrossbellGateway</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IERC20Mintable.sol/contract.IERC20Mintable.html">IERC20Mintable</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IMainchainGateway.sol/contract.IMainchainGateway.html">IMainchainGateway</a></li><li class="chapter-item expanded "><a href="../../../contracts/interfaces/IValidator.sol/contract.IValidator.html" class="active">IValidator</a></li></ol></li><li class="chapter-item "><a href="../../../contracts/libraries/index.html">❱ libraries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/libraries/DataTypes.sol/contract.DataTypes.html">DataTypes</a></li></ol></li><li class="chapter-item "><a href="../../../contracts/storage/index.html">❱ storage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/storage/CrossbellGatewayStorage.sol/contract.CrossbellGatewayStorage.html">CrossbellGatewayStorage</a></li><li class="chapter-item "><a href="../../../contracts/storage/MainchainGatewayStorage.sol/contract.MainchainGatewayStorage.html">MainchainGatewayStorage</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item "><a href="../../../index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">contracts</li><li class="chapter-item "><a href="../../../contracts/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/interfaces/ICrossbellGateway.sol/interface.ICrossbellGateway.html">ICrossbellGateway</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IERC20Mintable.sol/interface.IERC20Mintable.html">IERC20Mintable</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IMainchainGateway.sol/interface.IMainchainGateway.html">IMainchainGateway</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IValidator.sol/interface.IValidator.html">IValidator</a></li></ol></li><li class="chapter-item expanded "><a href="../../../contracts/libraries/index.html">❱ libraries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../contracts/libraries/DataTypes.sol/library.DataTypes.html" class="active">DataTypes</a></li></ol></li><li class="chapter-item "><a href="../../../contracts/storage/index.html">❱ storage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/storage/CrossbellGatewayStorage.sol/abstract.CrossbellGatewayStorage.html">CrossbellGatewayStorage</a></li><li class="chapter-item "><a href="../../../contracts/storage/MainchainGatewayStorage.sol/abstract.MainchainGatewayStorage.html">MainchainGatewayStorage</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -145,90 +145,64 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="ivalidator"><a class="header" href="#ivalidator">IValidator</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/c76db2760c516cce74d212638f81143b345947c0/contracts/interfaces/IValidator.sol">Git Source</a></p>
-<p>This is the interface for the validator contract.
-You'll find all the events and external functions.</p>
-<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
-<h3 id="addvalidators"><a class="header" href="#addvalidators">addValidators</a></h3>
-<p>Adds new validators. This function can only be called by the owner of validator contract.
-Note that this reverts if new validators to add are already validators.</p>
-<pre><code class="language-solidity">function addValidators(address[] calldata validators) external;
+                        <h1 id="datatypes"><a class="header" href="#datatypes">DataTypes</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/45971fd9e895ec16b1458629f9e736451b25d8e3/contracts/libraries/DataTypes.sol">Git Source</a></p>
+<p>A standard library of data types.</p>
+<h2 id="structs"><a class="header" href="#structs">Structs</a></h2>
+<h3 id="mappedtoken"><a class="header" href="#mappedtoken">MappedToken</a></h3>
+<pre><code class="language-solidity">struct MappedToken {
+    address token;
+    uint8 decimals;
+}
 </code></pre>
-<p><strong>Parameters</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>validators</code></td><td><code>address[]</code></td><td>New validator addresses to add</td></tr>
-</tbody></table>
-</div>
-<h3 id="removevalidators"><a class="header" href="#removevalidators">removeValidators</a></h3>
-<p>Removes exist validators. This function can only be called by the owner of validator contract.
-Note that this reverts if validators to remove are not validators.</p>
-<pre><code class="language-solidity">function removeValidators(address[] calldata validators) external;
+<h3 id="depositentry"><a class="header" href="#depositentry">DepositEntry</a></h3>
+<p>A struct containing deposit data.</p>
+<pre><code class="language-solidity">struct DepositEntry {
+    uint256 chainId;
+    address recipient;
+    address token;
+    uint256 amount;
+}
 </code></pre>
-<p><strong>Parameters</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>validators</code></td><td><code>address[]</code></td><td>Validator addresses to remove</td></tr>
-</tbody></table>
-</div>
-<h3 id="changerequirednumber"><a class="header" href="#changerequirednumber">changeRequiredNumber</a></h3>
-<p>Change the required number of validators.
-Requirements::</p>
-<ol>
-<li>the caller is owner of validator contract.</li>
-<li>new required number &gt; validators length.</li>
-<li>new required number is zero.</li>
-</ol>
-<pre><code class="language-solidity">function changeRequiredNumber(uint256 newRequiredNumber) external;
+<h3 id="withdrawalentry"><a class="header" href="#withdrawalentry">WithdrawalEntry</a></h3>
+<p>A struct containing withdrawal data.</p>
+<pre><code class="language-solidity">struct WithdrawalEntry {
+    uint256 chainId;
+    address recipient;
+    address token;
+    uint256 amount;
+    uint256 fee;
+}
 </code></pre>
-<p><strong>Parameters</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>newRequiredNumber</code></td><td><code>uint256</code></td><td>New required number to set.</td></tr>
-</tbody></table>
-</div>
-<h3 id="isvalidator"><a class="header" href="#isvalidator">isValidator</a></h3>
-<p>Returns whether an address is validator or not.</p>
-<pre><code class="language-solidity">function isValidator(address addr) external view returns (bool);
+<h3 id="signature"><a class="header" href="#signature">Signature</a></h3>
+<p>A struct containing a validator signature for the withdrawal.</p>
+<pre><code class="language-solidity">struct Signature {
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
+}
 </code></pre>
-<p><strong>Parameters</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>addr</code></td><td><code>address</code></td><td>Address to query.</td></tr>
-</tbody></table>
-</div>
-<h3 id="getvalidators"><a class="header" href="#getvalidators">getValidators</a></h3>
-<p>Returns all the validators.</p>
-<pre><code class="language-solidity">function getValidators() external view returns (address[] memory validators);
-</code></pre>
-<h3 id="getrequirednumber"><a class="header" href="#getrequirednumber">getRequiredNumber</a></h3>
-<p>Returns current required number.</p>
-<pre><code class="language-solidity">function getRequiredNumber() external view returns (uint256);
-</code></pre>
-<h3 id="checkthreshold"><a class="header" href="#checkthreshold">checkThreshold</a></h3>
-<p>Checks whether the <code>voteCount</code> passes the threshold.</p>
-<pre><code class="language-solidity">function checkThreshold(uint256 voteCount) external view returns (bool);
-</code></pre>
-<h2 id="events"><a class="header" href="#events">Events</a></h2>
-<h3 id="validatoradded"><a class="header" href="#validatoradded">ValidatorAdded</a></h3>
-<p><em>Emitted when a new validator is added.</em></p>
-<pre><code class="language-solidity">event ValidatorAdded(address indexed validator);
-</code></pre>
-<h3 id="validatorremoved"><a class="header" href="#validatorremoved">ValidatorRemoved</a></h3>
-<p><em>Emitted when a validator is removed.</em></p>
-<pre><code class="language-solidity">event ValidatorRemoved(address indexed validator);
-</code></pre>
-<h3 id="requirementchanged"><a class="header" href="#requirementchanged">RequirementChanged</a></h3>
-<p><em>Emitted when a new required number is set.</em></p>
-<pre><code class="language-solidity">event RequirementChanged(uint256 indexed requirement, uint256 indexed previousRequired);
+<h2 id="enums"><a class="header" href="#enums">Enums</a></h2>
+<h3 id="status"><a class="header" href="#status">Status</a></h3>
+<p>Acknowledge status, once the acknowledgements reach the threshold the 1st time,
+it can take effect to the system.
+Acknowledgments after that should not have any effects.</p>
+<pre><code class="language-solidity">enum Status {
+    NotApproved,
+    FirstApproved,
+    AlreadyApproved
+}
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../contracts/interfaces/IMainchainGateway.sol/contract.IMainchainGateway.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../../contracts/libraries/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="../../../contracts/libraries/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../../../contracts/storage/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -238,11 +212,11 @@ Requirements::</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../contracts/interfaces/IMainchainGateway.sol/contract.IMainchainGateway.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../../contracts/libraries/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="../../../contracts/libraries/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../../../contracts/storage/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

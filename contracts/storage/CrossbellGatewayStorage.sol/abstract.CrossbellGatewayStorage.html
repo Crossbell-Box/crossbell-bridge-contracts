@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>DataTypes - crossbell-bridge</title>
+        <title>CrossbellGatewayStorage - crossbell-bridge</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item "><a href="../../../index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">contracts</li><li class="chapter-item "><a href="../../../contracts/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/interfaces/ICrossbellGateway.sol/contract.ICrossbellGateway.html">ICrossbellGateway</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IERC20Mintable.sol/contract.IERC20Mintable.html">IERC20Mintable</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IMainchainGateway.sol/contract.IMainchainGateway.html">IMainchainGateway</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IValidator.sol/contract.IValidator.html">IValidator</a></li></ol></li><li class="chapter-item expanded "><a href="../../../contracts/libraries/index.html">❱ libraries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../contracts/libraries/DataTypes.sol/contract.DataTypes.html" class="active">DataTypes</a></li></ol></li><li class="chapter-item "><a href="../../../contracts/storage/index.html">❱ storage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/storage/CrossbellGatewayStorage.sol/contract.CrossbellGatewayStorage.html">CrossbellGatewayStorage</a></li><li class="chapter-item "><a href="../../../contracts/storage/MainchainGatewayStorage.sol/contract.MainchainGatewayStorage.html">MainchainGatewayStorage</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item "><a href="../../../index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">contracts</li><li class="chapter-item "><a href="../../../contracts/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/interfaces/ICrossbellGateway.sol/interface.ICrossbellGateway.html">ICrossbellGateway</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IERC20Mintable.sol/interface.IERC20Mintable.html">IERC20Mintable</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IMainchainGateway.sol/interface.IMainchainGateway.html">IMainchainGateway</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IValidator.sol/interface.IValidator.html">IValidator</a></li></ol></li><li class="chapter-item "><a href="../../../contracts/libraries/index.html">❱ libraries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/libraries/DataTypes.sol/library.DataTypes.html">DataTypes</a></li></ol></li><li class="chapter-item expanded "><a href="../../../contracts/storage/index.html">❱ storage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../contracts/storage/CrossbellGatewayStorage.sol/abstract.CrossbellGatewayStorage.html" class="active">CrossbellGatewayStorage</a></li><li class="chapter-item "><a href="../../../contracts/storage/MainchainGatewayStorage.sol/abstract.MainchainGatewayStorage.html">MainchainGatewayStorage</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -145,64 +145,59 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="datatypes"><a class="header" href="#datatypes">DataTypes</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/c76db2760c516cce74d212638f81143b345947c0/contracts/libraries/DataTypes.sol">Git Source</a></p>
-<p>A standard library of data types.</p>
-<h2 id="structs"><a class="header" href="#structs">Structs</a></h2>
-<h3 id="mappedtoken"><a class="header" href="#mappedtoken">MappedToken</a></h3>
-<pre><code class="language-solidity">struct MappedToken {
-    address token;
-    uint8 decimals;
-}
+                        <h1 id="crossbellgatewaystorage"><a class="header" href="#crossbellgatewaystorage">CrossbellGatewayStorage</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/45971fd9e895ec16b1458629f9e736451b25d8e3/contracts/storage/CrossbellGatewayStorage.sol">Git Source</a></p>
+<p><em>Storage of deposit and withdraw information.</em></p>
+<h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
+<h3 id="_deposits"><a class="header" href="#_deposits">_deposits</a></h3>
+<p><em>Mapping from chainId =&gt; depositId =&gt; DepositEntry</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; DataTypes.DepositEntry)) internal _deposits;
 </code></pre>
-<h3 id="depositentry"><a class="header" href="#depositentry">DepositEntry</a></h3>
-<p>A struct containing deposit data.</p>
-<pre><code class="language-solidity">struct DepositEntry {
-    uint256 chainId;
-    address recipient;
-    address token;
-    uint256 amount;
-}
+<h3 id="_withdrawalcounter"><a class="header" href="#_withdrawalcounter">_withdrawalCounter</a></h3>
+<p><em>Mapping from chainId =&gt; withdrawCount</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; uint256) internal _withdrawalCounter;
 </code></pre>
-<h3 id="withdrawalentry"><a class="header" href="#withdrawalentry">WithdrawalEntry</a></h3>
-<p>A struct containing withdrawal data.</p>
-<pre><code class="language-solidity">struct WithdrawalEntry {
-    uint256 chainId;
-    address recipient;
-    address token;
-    uint256 amount;
-    uint256 fee;
-}
+<h3 id="_withdrawals"><a class="header" href="#_withdrawals">_withdrawals</a></h3>
+<p><em>Mapping from chainId =&gt;  withdrawalId =&gt; WithdrawalEntry</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; DataTypes.WithdrawalEntry)) internal _withdrawals;
 </code></pre>
-<h3 id="signature"><a class="header" href="#signature">Signature</a></h3>
-<p>A struct containing a validator signature for the withdrawal.</p>
-<pre><code class="language-solidity">struct Signature {
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
-}
+<h3 id="_withdrawalsig"><a class="header" href="#_withdrawalsig">_withdrawalSig</a></h3>
+<p><em>Mapping from chainId =&gt; withdrawalId  =&gt; signature</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; mapping(address =&gt; bytes))) internal _withdrawalSig;
 </code></pre>
-<h2 id="enums"><a class="header" href="#enums">Enums</a></h2>
-<h3 id="status"><a class="header" href="#status">Status</a></h3>
-<p>Acknowledge status, once the acknowledgements reach the threshold the 1st time,
-it can take effect to the system.
-Acknowledgments after that should not have any effects.</p>
-<pre><code class="language-solidity">enum Status {
-    NotApproved,
-    FirstApproved,
-    AlreadyApproved
-}
+<h3 id="_withdrawalsigners"><a class="header" href="#_withdrawalsigners">_withdrawalSigners</a></h3>
+<p><em>Mapping from chainId =&gt; withdrawalId =&gt; address[]</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; address[])) internal _withdrawalSigners;
+</code></pre>
+<h3 id="_mainchaintokens"><a class="header" href="#_mainchaintokens">_mainchainTokens</a></h3>
+<p><em>Mapping from token address =&gt; chain id =&gt; mainchain token address</em></p>
+<pre><code class="language-solidity">mapping(address =&gt; mapping(uint256 =&gt; DataTypes.MappedToken)) internal _mainchainTokens;
+</code></pre>
+<h3 id="_validator"><a class="header" href="#_validator">_validator</a></h3>
+<pre><code class="language-solidity">address internal _validator;
+</code></pre>
+<h3 id="_validatorack"><a class="header" href="#_validatorack">_validatorAck</a></h3>
+<p><em>Mapping from chainId =&gt; id =&gt; validator =&gt; data hash</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; mapping(address =&gt; bytes32))) internal _validatorAck;
+</code></pre>
+<h3 id="_ackcount"><a class="header" href="#_ackcount">_ackCount</a></h3>
+<p><em>Mapping from chainId =&gt; id =&gt; data hash =&gt; ack count</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; mapping(bytes32 =&gt; uint256))) internal _ackCount;
+</code></pre>
+<h3 id="_ackstatus"><a class="header" href="#_ackstatus">_ackStatus</a></h3>
+<p><em>Mapping from chainId =&gt; id =&gt; data hash =&gt; ack status</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; mapping(bytes32 =&gt; DataTypes.Status))) internal _ackStatus;
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../contracts/libraries/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../../contracts/storage/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="../../../contracts/storage/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../../../contracts/storage/MainchainGatewayStorage.sol/abstract.MainchainGatewayStorage.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -212,11 +207,11 @@ Acknowledgments after that should not have any effects.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../contracts/libraries/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../../contracts/storage/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="../../../contracts/storage/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../../../contracts/storage/MainchainGatewayStorage.sol/abstract.MainchainGatewayStorage.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

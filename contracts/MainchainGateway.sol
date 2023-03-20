@@ -57,7 +57,7 @@ contract MainchainGateway is
     }
 
     /// @inheritdoc IMainchainGateway
-    function setValidator(address validator) external override whenNotPaused onlyRole(ADMIN_ROLE) {
+    function setValidator(address validator) external override onlyRole(ADMIN_ROLE) {
         _validator = validator;
     }
 

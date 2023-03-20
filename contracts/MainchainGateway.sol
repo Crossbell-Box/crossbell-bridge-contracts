@@ -39,7 +39,7 @@ contract MainchainGateway is
         uint256[] calldata dailyWithdrawalMaxQuota,
         address[] calldata crossbellTokens,
         uint8[] calldata crossbellTokenDecimals
-    ) external override initializer {
+    ) external override reinitializer(2) {
         _validator = validator;
 
         _updateDomainSeparator();
@@ -54,11 +54,6 @@ contract MainchainGateway is
 
         // grants `ADMIN_ROLE`
         _setupRole(ADMIN_ROLE, admin);
-    }
-
-    /// @inheritdoc IMainchainGateway
-    function setValidator(address validator) external override onlyRole(ADMIN_ROLE) {
-        _validator = validator;
     }
 
     /// @inheritdoc IMainchainGateway
@@ -235,19 +230,21 @@ contract MainchainGateway is
      * @dev Update domain separator.
      */
     function _updateDomainSeparator() internal {
-        _domainSeparator = keccak256(
-            abi.encode(
-                keccak256(
-                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)"
-                ),
-                keccak256("MainchainGateway"),
-                keccak256("1"),
-                block.chainid,
-                address(this),
-                // slither-disable-next-line timestamp
-                keccak256(abi.encodePacked(block.timestamp))
-            )
-        );
+        if (_domainSeparator == bytes32(0)) {
+            _domainSeparator = keccak256(
+                abi.encode(
+                    keccak256( // solhint-disable-next-line max-line-length
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)"
+                    ),
+                    keccak256("MainchainGateway"),
+                    keccak256("1"),
+                    block.chainid,
+                    address(this),
+                    // slither-disable-next-line timestamp
+                    keccak256(abi.encodePacked(block.timestamp))
+                )
+            );
+        }
     }
 
     /**

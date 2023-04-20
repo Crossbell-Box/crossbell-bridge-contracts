@@ -1,0 +1,19 @@
+# Run me by typing `mythx analyze` in the directory of the yml file! :)
+
+ci: true # make the workflow fail on high severity issues
+confirm: true #  automatic confirmation of multiple file submissions (equivalent to --yes)
+
+analyze:
+  mode: standard
+  async: true
+  create-group: true
+  group-name: "@crossbell/crossbell-bridge"
+  solc: 0.8.16
+  remappings:
+    - "@openzeppelin/=node_modules/@openzeppelin/"
+    - "ds-test/=lib/forge-std/lib/ds-test/src/"
+    - "forge-std/=lib/forge-std/src/"
+  targets:
+    - contracts/CrossbellGateway.sol
+    - contracts/MainchainGateway.sol
+    - contracts/Validator.sol

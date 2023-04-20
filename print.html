@@ -34,6 +34,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -71,10 +72,12 @@
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
             var html = document.querySelector('html');
-            var sidebar = 'hidden';
+            var sidebar = null;
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
@@ -155,7 +158,7 @@
 <li><a href="contracts/interfaces/IValidator.sol/interface.IValidator.html">IValidator</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="icrossbellgateway"><a class="header" href="#icrossbellgateway">ICrossbellGateway</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/e304801ba30a1550181f122388534527cf558c19/contracts/interfaces/ICrossbellGateway.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/be4ed4284f303d321fc58ec118801c98e4b43702/contracts/interfaces/ICrossbellGateway.sol">Git Source</a></p>
 <p>This is the interface for the crossbell bridge gateway contract.
 You'll find all the events and external functions.</p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
@@ -294,7 +297,7 @@ Note that the caller must be a validator.</p>
 </div>
 <p><strong>Returns</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>token</code></td><td><code>MappedToken.DataTypes</code></td><td>Mapped token on mainchain chain.</td></tr>
+<tr><td><code>token</code></td><td><code>DataTypes.MappedToken</code></td><td>Mapped token on mainchain chain.</td></tr>
 </tbody></table>
 </div>
 <h3 id="getvalidatoracknowledgementhash"><a class="header" href="#getvalidatoracknowledgementhash">getValidatorAcknowledgementHash</a></h3>
@@ -329,7 +332,7 @@ Note that the caller must be a validator.</p>
 </div>
 <p><strong>Returns</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>&lt;none&gt;</code></td><td><code>Status.DataTypes</code></td><td>DataTypes.Status Acknowledgement status.</td></tr>
+<tr><td><code>&lt;none&gt;</code></td><td><code>DataTypes.Status</code></td><td>DataTypes.Status Acknowledgement status.</td></tr>
 </tbody></table>
 </div>
 <h3 id="getacknowledgementcount"><a class="header" href="#getacknowledgementcount">getAcknowledgementCount</a></h3>
@@ -388,7 +391,7 @@ Note that the caller must be a validator.</p>
 </div>
 <p><strong>Returns</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>&lt;none&gt;</code></td><td><code>DepositEntry.DataTypes</code></td><td>DataTypes.DepositEntry Deposit entry.</td></tr>
+<tr><td><code>&lt;none&gt;</code></td><td><code>DataTypes.DepositEntry</code></td><td>DataTypes.DepositEntry Deposit entry.</td></tr>
 </tbody></table>
 </div>
 <h3 id="getwithdrawalcount"><a class="header" href="#getwithdrawalcount">getWithdrawalCount</a></h3>
@@ -420,7 +423,7 @@ Note that the caller must be a validator.</p>
 </div>
 <p><strong>Returns</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>&lt;none&gt;</code></td><td><code>WithdrawalEntry.DataTypes</code></td><td>DataTypes.WithdrawalEntry Withdrawal entry.</td></tr>
+<tr><td><code>&lt;none&gt;</code></td><td><code>DataTypes.WithdrawalEntry</code></td><td>DataTypes.WithdrawalEntry Withdrawal entry.</td></tr>
 </tbody></table>
 </div>
 <h2 id="events"><a class="header" href="#events">Events</a></h2>
@@ -465,13 +468,13 @@ Note that the caller must be a validator.</p>
 );
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ierc20mintable"><a class="header" href="#ierc20mintable">IERC20Mintable</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/e304801ba30a1550181f122388534527cf558c19/contracts/interfaces/IERC20Mintable.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/be4ed4284f303d321fc58ec118801c98e4b43702/contracts/interfaces/IERC20Mintable.sol">Git Source</a></p>
 <h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
 <h3 id="mint"><a class="header" href="#mint">mint</a></h3>
 <pre><code class="language-solidity">function mint(address to, uint256 amount) external;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="imainchaingateway"><a class="header" href="#imainchaingateway">IMainchainGateway</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/e304801ba30a1550181f122388534527cf558c19/contracts/interfaces/IMainchainGateway.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/be4ed4284f303d321fc58ec118801c98e4b43702/contracts/interfaces/IMainchainGateway.sol">Git Source</a></p>
 <p>This is the interface for the crossbell bridge manchain gateway contract.
 You'll find all the events and external functions.</p>
 <h2 id="functions-2"><a class="header" href="#functions-2">Functions</a></h2>
@@ -578,7 +581,7 @@ Requirements:</p>
 <tr><td><code>token</code></td><td><code>address</code></td><td>Address of token to withdraw.</td></tr>
 <tr><td><code>amount</code></td><td><code>uint256</code></td><td>Amount of token to withdraw.</td></tr>
 <tr><td><code>fee</code></td><td><code>uint256</code></td><td>The fee amount to pay for the withdrawal tx sender. This is subtracted from the <code>amount</code>.</td></tr>
-<tr><td><code>signatures</code></td><td><code>Signature.DataTypes[]</code></td><td>The list of signatures sorted by signing addresses of validators in ascending order.</td></tr>
+<tr><td><code>signatures</code></td><td><code>DataTypes.Signature[]</code></td><td>The list of signatures sorted by signing addresses of validators in ascending order.</td></tr>
 </tbody></table>
 </div>
 <h3 id="setdailywithdrawalmaxquotas"><a class="header" href="#setdailywithdrawalmaxquotas">setDailyWithdrawalMaxQuotas</a></h3>
@@ -672,7 +675,7 @@ Requirements:</p>
 </div>
 <p><strong>Returns</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>token</code></td><td><code>MappedToken.DataTypes</code></td><td>Mapped token from crossbell chain.</td></tr>
+<tr><td><code>token</code></td><td><code>DataTypes.MappedToken</code></td><td>Mapped token from crossbell chain.</td></tr>
 </tbody></table>
 </div>
 <h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
@@ -707,7 +710,7 @@ Requirements:</p>
 <pre><code class="language-solidity">event DailyWithdrawalMaxQuotasUpdated(address[] tokens, uint256[] quotas);
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ivalidator"><a class="header" href="#ivalidator">IValidator</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/e304801ba30a1550181f122388534527cf558c19/contracts/interfaces/IValidator.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/be4ed4284f303d321fc58ec118801c98e4b43702/contracts/interfaces/IValidator.sol">Git Source</a></p>
 <p>This is the interface for the validator contract.
 You'll find all the events and external functions.</p>
 <h2 id="functions-3"><a class="header" href="#functions-3">Functions</a></h2>
@@ -785,7 +788,7 @@ Requirements::</p>
 <li><a href="contracts/libraries/DataTypes.sol/library.DataTypes.html">DataTypes</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="datatypes"><a class="header" href="#datatypes">DataTypes</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/e304801ba30a1550181f122388534527cf558c19/contracts/libraries/DataTypes.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/be4ed4284f303d321fc58ec118801c98e4b43702/contracts/libraries/DataTypes.sol">Git Source</a></p>
 <p>A standard library of data types.</p>
 <h2 id="structs"><a class="header" href="#structs">Structs</a></h2>
 <h3 id="mappedtoken"><a class="header" href="#mappedtoken">MappedToken</a></h3>
@@ -838,7 +841,7 @@ Acknowledgments after that should not have any effects.</p>
 <li><a href="contracts/storage/MainchainGatewayStorage.sol/abstract.MainchainGatewayStorage.html">MainchainGatewayStorage</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="crossbellgatewaystorage"><a class="header" href="#crossbellgatewaystorage">CrossbellGatewayStorage</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/e304801ba30a1550181f122388534527cf558c19/contracts/storage/CrossbellGatewayStorage.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/be4ed4284f303d321fc58ec118801c98e4b43702/contracts/storage/CrossbellGatewayStorage.sol">Git Source</a></p>
 <p><em>Storage of deposit and withdraw information.</em></p>
 <h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
 <h3 id="_deposits"><a class="header" href="#_deposits">_deposits</a></h3>
@@ -881,7 +884,7 @@ Acknowledgments after that should not have any effects.</p>
 <pre><code class="language-solidity">mapping(uint256 =&gt; mapping(uint256 =&gt; mapping(bytes32 =&gt; DataTypes.Status))) internal _ackStatus;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mainchaingatewaystorage"><a class="header" href="#mainchaingatewaystorage">MainchainGatewayStorage</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/e304801ba30a1550181f122388534527cf558c19/contracts/storage/MainchainGatewayStorage.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/be4ed4284f303d321fc58ec118801c98e4b43702/contracts/storage/MainchainGatewayStorage.sol">Git Source</a></p>
 <p><em>Storage of deposit and withdraw information.</em></p>
 <h2 id="state-variables-1"><a class="header" href="#state-variables-1">State Variables</a></h2>
 <h3 id="_domainseparator"><a class="header" href="#_domainseparator">_domainSeparator</a></h3>
@@ -960,5 +963,6 @@ Acknowledgments after that should not have any effects.</p>
         });
         </script>
 
+    </div>
     </body>
 </html>

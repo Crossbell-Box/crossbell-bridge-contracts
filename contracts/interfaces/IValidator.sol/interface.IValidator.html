@@ -33,6 +33,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "../../../";
@@ -70,10 +71,12 @@
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
             var html = document.querySelector('html');
-            var sidebar = 'hidden';
+            var sidebar = null;
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
@@ -146,7 +149,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="ivalidator"><a class="header" href="#ivalidator">IValidator</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/e304801ba30a1550181f122388534527cf558c19/contracts/interfaces/IValidator.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/be4ed4284f303d321fc58ec118801c98e4b43702/contracts/interfaces/IValidator.sol">Git Source</a></p>
 <p>This is the interface for the validator contract.
 You'll find all the events and external functions.</p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
@@ -269,5 +272,6 @@ Requirements::</p>
         <script src="../../../solidity.min.js"></script>
 
 
+    </div>
     </body>
 </html>

@@ -33,6 +33,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "../../../";
@@ -70,10 +71,12 @@
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
             var html = document.querySelector('html');
-            var sidebar = 'hidden';
+            var sidebar = null;
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
@@ -146,7 +149,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="imainchaingateway"><a class="header" href="#imainchaingateway">IMainchainGateway</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/e304801ba30a1550181f122388534527cf558c19/contracts/interfaces/IMainchainGateway.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-bridge-contracts/blob/be4ed4284f303d321fc58ec118801c98e4b43702/contracts/interfaces/IMainchainGateway.sol">Git Source</a></p>
 <p>This is the interface for the crossbell bridge manchain gateway contract.
 You'll find all the events and external functions.</p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
@@ -253,7 +256,7 @@ Requirements:</p>
 <tr><td><code>token</code></td><td><code>address</code></td><td>Address of token to withdraw.</td></tr>
 <tr><td><code>amount</code></td><td><code>uint256</code></td><td>Amount of token to withdraw.</td></tr>
 <tr><td><code>fee</code></td><td><code>uint256</code></td><td>The fee amount to pay for the withdrawal tx sender. This is subtracted from the <code>amount</code>.</td></tr>
-<tr><td><code>signatures</code></td><td><code>Signature.DataTypes[]</code></td><td>The list of signatures sorted by signing addresses of validators in ascending order.</td></tr>
+<tr><td><code>signatures</code></td><td><code>DataTypes.Signature[]</code></td><td>The list of signatures sorted by signing addresses of validators in ascending order.</td></tr>
 </tbody></table>
 </div>
 <h3 id="setdailywithdrawalmaxquotas"><a class="header" href="#setdailywithdrawalmaxquotas">setDailyWithdrawalMaxQuotas</a></h3>
@@ -347,7 +350,7 @@ Requirements:</p>
 </div>
 <p><strong>Returns</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>token</code></td><td><code>MappedToken.DataTypes</code></td><td>Mapped token from crossbell chain.</td></tr>
+<tr><td><code>token</code></td><td><code>DataTypes.MappedToken</code></td><td>Mapped token from crossbell chain.</td></tr>
 </tbody></table>
 </div>
 <h2 id="events"><a class="header" href="#events">Events</a></h2>
@@ -431,5 +434,6 @@ Requirements:</p>
         <script src="../../../solidity.min.js"></script>
 
 
+    </div>
     </body>
 </html>

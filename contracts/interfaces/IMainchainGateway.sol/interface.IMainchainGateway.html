@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js light">
+<html lang="en" class="light" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -10,7 +10,7 @@
         
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff">
 
         <link rel="icon" href="../../../favicon.svg">
         <link rel="shortcut icon" href="../../../favicon.png">
@@ -32,7 +32,7 @@
         <link rel="stylesheet" href="../../../book.css">
 
     </head>
-    <body>
+    <body class="sidebar-visible no-js">
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -62,42 +62,71 @@
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
-            html.classList.remove('no-js')
             html.classList.remove('light')
             html.classList.add(theme);
-            html.classList.add('js');
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
         </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var html = document.querySelector('html');
+            var body = document.querySelector('body');
             var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
             }
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item "><a href="../../../index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">contracts</li><li class="chapter-item expanded "><a href="../../../contracts/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/interfaces/ICrossbellGateway.sol/interface.ICrossbellGateway.html">ICrossbellGateway</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IERC20Mintable.sol/interface.IERC20Mintable.html">IERC20Mintable</a></li><li class="chapter-item expanded "><a href="../../../contracts/interfaces/IMainchainGateway.sol/interface.IMainchainGateway.html" class="active">IMainchainGateway</a></li><li class="chapter-item "><a href="../../../contracts/interfaces/IValidator.sol/interface.IValidator.html">IValidator</a></li></ol></li><li class="chapter-item "><a href="../../../contracts/libraries/index.html">❱ libraries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/libraries/DataTypes.sol/library.DataTypes.html">DataTypes</a></li></ol></li><li class="chapter-item "><a href="../../../contracts/storage/index.html">❱ storage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../contracts/storage/CrossbellGatewayStorage.sol/abstract.CrossbellGatewayStorage.html">CrossbellGatewayStorage</a></li><li class="chapter-item "><a href="../../../contracts/storage/MainchainGatewayStorage.sol/abstract.MainchainGatewayStorage.html">MainchainGatewayStorage</a></li></ol></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
                                 <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky bordered">
+                <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
-                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
-                        </button>
+                        </label>
                         <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -358,6 +387,13 @@ Requirements:</p>
 <p><em>Emitted when the tokens are mapped</em></p>
 <pre><code class="language-solidity">event TokenMapped(address[] mainchainTokens, address[] crossbellTokens, uint8[] crossbellTokenDecimals);
 </code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>mainchainTokens</code></td><td><code>address[]</code></td><td>Addresses of mainchain tokens.</td></tr>
+<tr><td><code>crossbellTokens</code></td><td><code>address[]</code></td><td>Addresses of crossbell tokens.</td></tr>
+<tr><td><code>crossbellTokenDecimals</code></td><td><code>uint8[]</code></td><td>Decimals of crossbell tokens.</td></tr>
+</tbody></table>
+</div>
 <h3 id="requestdeposit-1"><a class="header" href="#requestdeposit-1">RequestDeposit</a></h3>
 <p><em>Emitted when the deposit is requested.</em></p>
 <pre><code class="language-solidity">event RequestDeposit(
@@ -369,6 +405,16 @@ Requirements:</p>
     bytes32 depositHash
 );
 </code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>depositId</code></td><td><code>uint256</code></td><td>Deposit id.</td></tr>
+<tr><td><code>recipient</code></td><td><code>address</code></td><td>Address to receive deposit on crossbell network.</td></tr>
+<tr><td><code>token</code></td><td><code>address</code></td><td>Address of token to deposit on crossbell network.</td></tr>
+<tr><td><code>amount</code></td><td><code>uint256</code></td><td>Amount of token to deposit on crossbell network.</td></tr>
+<tr><td><code>depositHash</code></td><td><code>bytes32</code></td><td>Hash of deposit info.</td></tr>
+</tbody></table>
+</div>
 <h3 id="withdrew"><a class="header" href="#withdrew">Withdrew</a></h3>
 <p><em>Emitted when the assets are withdrawn on mainchain.</em></p>
 <pre><code class="language-solidity">event Withdrew(
@@ -380,6 +426,16 @@ Requirements:</p>
     uint256 fee
 );
 </code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>chainId</code></td><td><code>uint256</code></td><td>The chain ID of mainchain network.</td></tr>
+<tr><td><code>withdrawalId</code></td><td><code>uint256</code></td><td>Withdrawal ID from crossbell chain.</td></tr>
+<tr><td><code>recipient</code></td><td><code>address</code></td><td>Address to receive withdrawal on mainchain chain.</td></tr>
+<tr><td><code>token</code></td><td><code>address</code></td><td>Address of token to withdraw.</td></tr>
+<tr><td><code>amount</code></td><td><code>uint256</code></td><td>Amount of token to withdraw.</td></tr>
+<tr><td><code>fee</code></td><td><code>uint256</code></td><td>The fee amount to pay for the withdrawal tx sender. This is subtracted from the <code>amount</code>.</td></tr>
+</tbody></table>
+</div>
 <h3 id="dailywithdrawalmaxquotasupdated"><a class="header" href="#dailywithdrawalmaxquotasupdated">DailyWithdrawalMaxQuotasUpdated</a></h3>
 <p><em>Emitted when the daily quota thresholds are updated.</em></p>
 <pre><code class="language-solidity">event DailyWithdrawalMaxQuotasUpdated(address[] tokens, uint256[] quotas);
@@ -393,7 +449,7 @@ Requirements:</p>
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="../../../contracts/interfaces/IValidator.sol/interface.IValidator.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../../contracts/interfaces/IValidator.sol/interface.IValidator.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -407,7 +463,7 @@ Requirements:</p>
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="../../../contracts/interfaces/IValidator.sol/interface.IValidator.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../../contracts/interfaces/IValidator.sol/interface.IValidator.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
